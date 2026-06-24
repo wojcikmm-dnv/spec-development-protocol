@@ -1,4 +1,5 @@
 ---
+name: sdp.architect
 description: Creates right-sized technical designs for approved backlog stories, aligned with TECH.md.
 handoffs:
   - label: Plan implementation task from approved design

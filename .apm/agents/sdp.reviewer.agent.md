@@ -1,4 +1,5 @@
 ---
+name: sdp.reviewer
 description: Reviews code for correctness, maintainability, and alignment with the approved design.
 handoffs:
   - label: Security audit after review approval

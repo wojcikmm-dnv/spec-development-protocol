@@ -1,4 +1,5 @@
 ---
+name: sdp.analyst
 description: Refines an approved PRD into a prioritized backlog of epics and user stories.
 handoffs:
   - label: Design architecture for approved stories

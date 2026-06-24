@@ -1,0 +1,23 @@
+{
+    "name": "spec-development-protocol",
+    "version": "0.4.0",
+    "description": "An AI-agentic framework for spec-driven engineering — structured, traceable, and ready for both greenfield and legacy web projects.",
+    "author": {
+        "name": "Michal Wojcik",
+        "email": "michal@wojciksoftware.com"
+    },
+    "license": "MIT",
+    "keywords": [
+        "spec-driven",
+        "engineering",
+        "framework",
+        "AI-agentic",
+        "traceable",
+        "greenfield",
+        "legacy"
+    ],
+    "agents": ["./.apm/agents/"],
+    "skills": ["./.apm/skills/"],
+    "instructions": ["./.apm/instructions/"],
+    "prompts": ["./.apm/prompts/"]
+}

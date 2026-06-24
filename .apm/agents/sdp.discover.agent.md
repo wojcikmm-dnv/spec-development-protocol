@@ -1,4 +1,5 @@
 ---
+name: sdp.discover
 description: Discovers the tech stack from a legacy codebase to draft a TECH.md file.
 handoffs:
   - label: Create PRD from discovered context

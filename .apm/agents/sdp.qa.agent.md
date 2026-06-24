@@ -1,4 +1,5 @@
 ---
+name: sdp.qa
 description: Validates acceptance criteria with structured test cases and clear pass/fail verdicts.
 handoffs:
   - label: Request developer fixes for failed test cases

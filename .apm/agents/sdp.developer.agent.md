@@ -1,4 +1,5 @@
 ---
+name: sdp.developer
 description: Plans and implements one approved story at a time with minimal, testable code changes.
 handoffs:
   - label: Approve plan and proceed to implementation

@@ -1,4 +1,5 @@
 ---
+name: sdp.prd
 description: Translates business intent into a structured PRD.md through interactive discovery.
 handoffs:
   - label: Refine backlog from approved PRD

@@ -1,4 +1,5 @@
 ---
+name: sdp.security
 description: Audits code changes for security vulnerabilities based on OWASP Top 10 and project standards.
 handoffs:
   - label: QA validate after security sign-off
