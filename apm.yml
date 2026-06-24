@@ -1,8 +1,9 @@
 name: spec-development-protocol
-version: 0.3.0
+version: 0.4.0
 description: An AI-agentic framework for spec-driven engineering — structured, 
   traceable, and ready for both greenfield and legacy web projects.
 author: Michal Wojcik
+license: MIT
 # Which agent platforms to deploy to.
 # Resolution order: --target flag > this field > auto-detect from filesystem.
 # Accepted values: copilot, claude, cursor, opencode, codex, gemini, windsurf, all
@@ -15,7 +16,7 @@ includes: auto
 scripts: {}
 marketplace:
   owner:
-    name: WojcikSoftware
+    name: WojcikMM
     url: https://github.com/WojcikMM
 
   # Default tag pattern used to resolve version ranges for each package.
@@ -27,8 +28,9 @@ marketplace:
   # Each output writes to its profile default path; add 'path:'
   # under a key to override.
   outputs:
+    # claude: {}
+    codex: {}
     # copilot: {}
-    # codex: {}
     #
     # Note: enabling codex requires every package below to declare
     # 'category:' (e.g. category: Productivity).
@@ -37,6 +39,19 @@ marketplace:
   #   apm pack --marketplace=claude,codex --json | jq -r '.marketplace.outputs[].path'
 
   packages:
+    # - name: spec-development-protocol
+    #   description: An AI-agentic framework for spec-driven engineering — structured, traceable, and ready for both greenfield and legacy web projects.
+    #   source: WojcikMM/spec-development-protocol
+    #   version: "v0.3.0"
+    #   category: Productivity
+      # Optional overrides:
+      # subdir: path/inside/repo
+      # Per-package version tag (recommended for monorepos so each
+      # package can be released independently). Leave commented for
+      # repo-wide lockstep tagging.
+      # tag_pattern: "{name}-v{version}"
+      # include_prerelease: false
+      # ref: main  # pin to an explicit ref instead of a version range
     # - name: example-package
     #   description: Human-readable description of the package
     #   source: acme-org/example-package
@@ -52,8 +67,9 @@ marketplace:
       # include_prerelease: false
       # ref: main  # pin to an explicit ref instead of a version range
     # Local-path entry: ship a package shipped alongside this repo.
-    # - name: local-tool
-    #   source: ./packages/local-tool
-    #   description: A locally vendored tool
-    #   version: 0.1.0
-    #   # tag_pattern: "{name}-v{version}"
+    - name: spec-development-protocol
+      source: ./.apm
+      description: An AI-agentic framework for spec-driven engineering — structured, traceable, and ready for both greenfield and legacy web projects.
+      # version: v0.3.0
+      tag_pattern: "{name}-v{version}"
+      category: Productivity
