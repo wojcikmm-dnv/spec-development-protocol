@@ -1,0 +1,20 @@
+{
+  "name": "spec-development-protocol",
+  "interface": {
+    "displayName": "spec-development-protocol"
+  },
+  "plugins": [
+    {
+      "name": "spec-development-protocol",
+      "source": {
+        "source": "local",
+        "path": "./.apm"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

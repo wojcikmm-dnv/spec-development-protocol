@@ -95,15 +95,15 @@ Both installers copy the `.github/` framework files into the target repository *
 If your environment supports APM:
 
 ```bash
+# Add SDP marketplace (one-time per machine)
+apm marketplace add WojcikMM/spec-development-protocol
+
+# Install SDP from that marketplace
+apm install spec-development-protocol@spec-development-protocol
+```
+
 # Install from the GitHub repository
 apm install WojcikMM/spec-development-protocol
-```
-
-For npm ecosystem compatibility:
-
-```bash
-npm install -g @wojcikmm/spec-development-protocol
-```
 
 The `apm.yml` manifest defines all agents, skills, prompts, and templates included in SDP.
 
@@ -453,13 +453,33 @@ spec/
 
 SDP is distributed as an [Agent Package Manager (APM)](https://agentpackagemanager.io) compatible package. The `apm.yml` manifest defines all framework components:
 
-- **Package type:** `agent-framework` — a complete SDLC workflow system
 - **Components:** 8 agents, 9 prompts, 5 skills, global instructions, and templates
 - **Install path:** `.github/` in the target repository
 - **Source directory:** `.apm/` in this repository
 - **Installers:** bash (`install.sh`) and PowerShell (`install.ps1`)
+- **Marketplace outputs:** `.claude-plugin/marketplace.json` and `.agents/plugins/marketplace.json`
 
-A `package.json` is also provided for npm ecosystem compatibility.
+APM producer release flow (recommended):
+
+```bash
+# 1) Validate marketplace entries resolve
+apm marketplace check
+
+# 2) Build marketplace artifacts
+apm pack --marketplace=claude,codex
+
+# 3) Commit generated marketplace files and tag a release
+git add .claude-plugin/marketplace.json .agents/plugins/marketplace.json apm.yml
+git commit -m "release: update marketplace index"
+git tag spec-development-protocol-v0.4.0
+git push --tags
+```
+
+For npm ecosystem compatibility:
+
+```bash
+npm install -g @wojcikmm/spec-development-protocol
+```
 
 ---
 

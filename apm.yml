@@ -13,7 +13,8 @@ dependencies:
   apm: []
   mcp: []
 includes: auto
-scripts: {}
+scripts:
+  start: apm compile
 marketplace:
   owner:
     name: WojcikMM
@@ -28,7 +29,7 @@ marketplace:
   # Each output writes to its profile default path; add 'path:'
   # under a key to override.
   outputs:
-    # claude: {}
+    claude: {}
     codex: {}
     # copilot: {}
     #
@@ -66,10 +67,10 @@ marketplace:
       # tag_pattern: "{name}-v{version}"
       # include_prerelease: false
       # ref: main  # pin to an explicit ref instead of a version range
-    # Local-path entry: ship a package shipped alongside this repo.
+    # Publish this repository package so consumers can install it globally.
     - name: spec-development-protocol
-      source: ./.apm
+      source: WojcikMM/spec-development-protocol
       description: An AI-agentic framework for spec-driven engineering — structured, traceable, and ready for both greenfield and legacy web projects.
-      # version: v0.3.0
+      version: "^0.4.0"
       tag_pattern: "{name}-v{version}"
       category: Productivity
