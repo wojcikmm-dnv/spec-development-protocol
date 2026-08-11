@@ -5,6 +5,7 @@ agent: sdp.qa
 ---
 
 The `sdp.qa` agent will:
+
 1. Derive test cases from the story's acceptance criteria.
 2. Validate positive, negative, and edge-case scenarios.
 3. Produce a test matrix and a final pass/fail verdict.

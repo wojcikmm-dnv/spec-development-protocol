@@ -5,6 +5,7 @@ agent: sdp.architect
 ---
 
 The `sdp.architect` agent will:
+
 1. Read the approved backlog stories and `TECH.md`.
 2. Produce a right-sized technical design.
 3. Define module boundaries, contracts (API/data schemas), and NFRs.
