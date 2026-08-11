@@ -1,8 +1,20 @@
 {
   "name": "spec-development-protocol",
   "owner": {
-    "name": "WojcikSoftware",
+    "name": "WojcikMM",
     "url": "https://github.com/WojcikMM"
   },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "spec-development-protocol",
+      "description": "An AI-agentic framework for spec-driven engineering — structured, traceable, and ready for both greenfield and legacy web projects.",
+      "version": "0.4.0",
+      "source": {
+        "source": "github",
+        "repo": "WojcikMM/spec-development-protocol",
+        "ref": "spec-development-protocol-v0.4.0",
+        "sha": "6b923003b1dd3b984d77d78163ff4a1228241af7"
+      }
+    }
+  ]
 }

@@ -1,5 +1,5 @@
 name: spec-development-protocol
-version: 0.4.0
+version: 0.5.0
 description: An AI-agentic framework for spec-driven engineering — structured, 
   traceable, and ready for both greenfield and legacy web projects.
 author: Michal Wojcik
@@ -9,6 +9,10 @@ license: MIT
 # Accepted values: copilot, claude, cursor, opencode, codex, gemini, windsurf, all
 targets:
   - copilot
+  - claude
+  - cursor
+  - codex
+  - gemini
 dependencies:
   apm: []
   mcp: []

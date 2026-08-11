@@ -7,8 +7,10 @@
     {
       "name": "spec-development-protocol",
       "source": {
-        "source": "local",
-        "path": "./.apm"
+        "source": "url",
+        "url": "WojcikMM/spec-development-protocol",
+        "ref": "spec-development-protocol-v0.4.0",
+        "sha": "6b923003b1dd3b984d77d78163ff4a1228241af7"
       },
       "policy": {
         "installation": "AVAILABLE",

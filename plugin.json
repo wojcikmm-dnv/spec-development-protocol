@@ -7,17 +7,9 @@
         "email": "michal@wojciksoftware.com"
     },
     "license": "MIT",
-    "keywords": [
-        "spec-driven",
-        "engineering",
-        "framework",
-        "AI-agentic",
-        "traceable",
-        "greenfield",
-        "legacy"
-    ],
-    "agents": ["./.apm/agents/"],
-    "skills": ["./.apm/skills/"],
-    "instructions": ["./.apm/instructions/"],
-    "prompts": ["./.apm/prompts/"]
+    "keywords": ["spec-driven", "engineering", "framework", "AI-agentic", "traceable", "greenfield", "legacy"],
+    "agents": "./.apm/agents/",
+    "skills": "./.apm/skills/",
+    "instructions": "./.apm/instructions/",
+    "prompts": "./.apm/prompts/"
 }
