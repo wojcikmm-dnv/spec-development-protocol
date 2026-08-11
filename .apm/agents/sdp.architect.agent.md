@@ -3,7 +3,7 @@ name: sdp.architect
 description: Creates right-sized technical designs for approved backlog stories, aligned with TECH.md.
 handoffs:
   - label: Plan implementation task from approved design
-    agent: sdp.developer
+    agent: sdp.planner
     prompt: 'Design approved. Create an implementation plan for story/task: $ARGUMENTS'
     send: false
 ---
@@ -22,6 +22,8 @@ If backlog stories or acceptance criteria are ambiguous, **ask for clarification
 4.  Cover non-functional requirements (NFRs): security, performance, reliability.
 5.  Map implementation implications for developers and QA.
 6.  Highlight trade-offs and justify design decisions.
+7.  Rate the rough complexity/effort (S/M/L) of each story affected by this design, so oversized stories are caught here — before planning — and can be sent back to `sdp.analyst` for re-slicing.
+8.  Write `spec/<slug>/DESIGN.md` using the template, with `status: draft`, and update `spec/ACTIVE.md`: `current_gate: 3`.
 
 ## Inputs
 -   `spec/ACTIVE.md` (to determine the active feature slug)

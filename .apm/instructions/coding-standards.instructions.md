@@ -3,52 +3,11 @@ description: This file defines the global coding standards for all code produced
 applyTo: "**/*"
 ---
 
-# Copilot SDP Orchestrator
-
-You are operating under the **Spec Development Protocol (SDP)** — a spec-first, gate-driven engineering framework for both greenfield and legacy projects.
-
-## Mandatory Startup Context
-1. Read `@/.github/TECH.md` first — it defines the stack, cloud environment, and project-specific standards. All agents and decisions must be consistent with it.
-2. Follow the 6-gate SDLC in `@/.github/instructions/sdlc-process.instructions.md` — never skip or reorder gates without explicit approval.
-3. Route specialized work through the agents in `@/.github/agents/`.
-4. Check `@/spec/ACTIVE.md` — if it exists, it names the currently active feature (slug + title). Use it as the default working context for all gate operations when no explicit feature is specified in the user's input.
-5. Resolve the `AGENTS.md` context chain before broad repo exploration: read root-level `AGENTS.md` plus the nearest `AGENTS.md` files in the target module path and follow their scope constraints.
-
-## AGENTS.md Context Strategy (Required)
-- Use `AGENTS.md` files as scoped context maps to avoid loading unrelated repository areas.
-- Resolution order:
-  1. Repository root `AGENTS.md` (global rules and boundaries)
-  2. Nearest domain-level `AGENTS.md` (for example solution/app folder)
-  3. Nearest module-level `AGENTS.md` in the exact implementation path
-- If instructions conflict, the most specific (closest) `AGENTS.md` wins for that module.
-- Before searching for files, identify the target module and read only its relevant `AGENTS.md` chain.
-- Suggested placement in client repositories:
-  - One `AGENTS.md` in each meaningful `.NET` library/service folder (typically next to each `.csproj` or library root).
-  - One `AGENTS.md` in each frontend app/package root (for example `apps/web`, `src/frontend`, `packages/ui`).
-
-## Agent Routing
-| Task | Agent |
-|---|---|
-| Discovery / PRD creation | `sdp.prd` |
-| Backlog refinement (epics, stories, AC) | `sdp.analyst` |
-| Architecture / technical design | `sdp.architect` |
-| Task planning | `sdp.developer` (plan-task mode) |
-| Implementation | `sdp.developer` (implement mode) |
-| Code and design review | `sdp.reviewer` |
-| Security assessment | `sdp.security` |
-| Acceptance criteria validation | `sdp.qa` |
-
-## SDLC Discipline
-- Never write code before an approved implementation plan exists.
-- Implement exactly one story or task at a time — no bundling.
-- Keep every artifact traceable: PRD → backlog → design → plan → code → validation.
-- Flag and block progression if gate exit criteria are not met.
-
----
-
-## Global Coding Standards
+# Global Coding Standards
 
 These apply to all code produced regardless of language, framework, or project type. Adjust specifics to the stack defined in `TECH.md`.
+
+For SDLC orchestration, gate ordering, agent routing, `AGENTS.md` context strategy, plan scope budgets, and hardening policy, see `@/.github/instructions/sdlc-process.instructions.md` — that file is the single source of truth for process. Do not duplicate process rules here; this file governs code quality only.
 
 ### Code Quality
 - **Clean Code first:** small, focused functions with a single clear responsibility.

@@ -26,11 +26,11 @@ Before drafting the PRD, evaluate the input against the checklist below. If any 
 
 ## Core Responsibilities
 1.  Identify and resolve critical information gaps through Q&A before drafting.
-2.  Author or update `spec/<slug>/PRD.md`.
+2.  Author or update `spec/<slug>/PRD.md` using the `PRD.md` template, with `status: draft`.
 3.  Define a clear problem statement, measurable goals, and scope boundaries.
 4.  Identify risks, dependencies, and open questions.
 5.  Flag any minor, unavoidable assumptions as `[ASSUMPTION]` in the `Open Questions` section for user confirmation.
-6.  Create the feature folder `spec/<slug>/` and update `spec/ACTIVE.md`.
+6.  Create the feature folder `spec/<slug>/` and create/update `spec/ACTIVE.md` with `slug`, `title`, `current_gate: 1`, `current_story: n/a`, and `status: in-progress`.
 
 ## Inputs
 -   User's business request.

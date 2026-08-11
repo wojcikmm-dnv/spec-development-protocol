@@ -54,13 +54,13 @@ AI coding assistants are powerful but undisciplined by default — they generate
 
 Before installing SDP, ensure the following are in place:
 
-| Requirement | Version | Notes |
-|---|---|---|
-| [Visual Studio Code](https://code.visualstudio.com/) | Latest | Required to run agents |
-| [GitHub Copilot extension](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) | Latest | Agent Mode must be enabled |
-| GitHub Copilot subscription | — | Individual, Team, or Enterprise |
-| `bash` or PowerShell | bash 3.2+ / PS 5.1+ | Required for the installer scripts |
-| `curl` | Any recent | Required for direct bash installation |
+| Requirement                                                                                    | Version             | Notes                                 |
+| ---------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------- |
+| [Visual Studio Code](https://code.visualstudio.com/)                                           | Latest              | Required to run agents                |
+| [GitHub Copilot extension](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) | Latest              | Agent Mode must be enabled            |
+| GitHub Copilot subscription                                                                    | —                   | Individual, Team, or Enterprise       |
+| `bash` or PowerShell                                                                           | bash 3.2+ / PS 5.1+ | Required for the installer scripts    |
+| `curl`                                                                                         | Any recent          | Required for direct bash installation |
 
 > **Agent Mode** must be enabled in VS Code. Open the Copilot Chat panel and confirm the agent icon is available in the input toolbar.
 
@@ -102,7 +102,8 @@ apm marketplace add WojcikMM/spec-development-protocol
 apm install spec-development-protocol@spec-development-protocol
 ```
 
-# Install from the GitHub repository
+#### Install from the GitHub repository
+
 apm install WojcikMM/spec-development-protocol
 
 The `apm.yml` manifest defines all agents, skills, prompts, and templates included in SDP.
@@ -200,19 +201,19 @@ SDP agents require **GitHub Copilot Agent Mode** in VS Code. Verify that the [Gi
 
 The following example walks through adding a "User Registration" feature to an existing web application using the full SDP gate sequence.
 
-| Step | Action | Prompt | Output |
-|---|---|---|---|
-| 1 | Describe the feature in plain language | `create-prd` | `spec/user-registration/PRD.md`, `spec/ACTIVE.md` |
-| 2 | Review and approve `PRD.md`, then break it into stories | `refine-backlog` | `spec/user-registration/BACKLOG.md`, `EPIC-1-core-flow.md` |
-| 3 | Design the technical solution | `design-system` | `spec/user-registration/DESIGN.md` |
-| 4 | Select story `US-1` and create an implementation plan (no code yet) | `plan-task` + "US-1" | `spec/user-registration/PLAN.md` |
-| 5 | Review and approve the plan, then implement | `implement` + "US-1" | Source code, tests, `HISTORY.md` updated |
-| 6a | Review the implementation | `run-review` | Review findings report |
-| 6b | Perform a security audit | `audit-security` | Security sign-off or findings |
-| 6c | Validate acceptance criteria | `qa-validate` + "US-1" | Pass / Fail verdict |
-| 7 | Repeat Steps 4–6 for the next story | `plan-task` + "US-2" | — |
+| Step | Action                                                                            | Prompt                 | Output                                                     |
+| ---- | --------------------------------------------------------------------------------- | ---------------------- | ---------------------------------------------------------- |
+| 1    | Describe the feature in plain language                                            | `create-prd`           | `spec/user-registration/PRD.md`, `spec/ACTIVE.md`          |
+| 2    | Review and approve `PRD.md` (set `status: approved`), then break it into stories  | `refine-backlog`       | `spec/user-registration/BACKLOG.md`, `EPIC-1-core-flow.md` |
+| 3    | Design the technical solution                                                     | `design-system`        | `spec/user-registration/DESIGN.md`                         |
+| 4    | Select story `US-1` and create a scope-budgeted implementation plan (no code yet) | `plan-task` + "US-1"   | `spec/user-registration/PLAN.md`                           |
+| 5    | Approve the plan (set `status: approved`), then run `implement` explicitly        | `implement` + "US-1"   | Source code, tests, `HISTORY.md` updated                   |
+| 6a   | Review the implementation                                                         | `run-review`           | Review findings report                                     |
+| 6b   | Perform a security audit (unless the epic declares `epic-level`/`waived`)         | `audit-security`       | Security sign-off or findings                              |
+| 6c   | Validate acceptance criteria                                                      | `qa-validate` + "US-1" | Pass / Fail verdict                                        |
+| 7    | Repeat Steps 4–6 for the next story                                               | `plan-task` + "US-2"   | —                                                          |
 
-Each user story passes through Gates 4–6 independently. You retain full control at every approval checkpoint — no agent advances the process without your confirmation.
+Each user story passes through Gates 4–6 independently. You retain full control at every approval checkpoint — no agent advances the process without your confirmation. **`plan-task` and `implement` are separate agents (`sdp.planner` and `sdp.developer`) with no self-referencing handoff**, so they never loop into each other automatically — moving from a plan to code always requires you to approve the plan and run `/implement` explicitly.
 
 ---
 
@@ -220,43 +221,58 @@ Each user story passes through Gates 4–6 independently. You retain full contro
 
 ### The 6-Gate SDLC Process
 
-SDP enforces a sequential gate model. Work cannot advance to the next gate until the current gate is approved. This prevents scope creep, undocumented decisions, and code written without a specification.
+SDP enforces a sequential gate model. Work cannot advance to the next gate until the current gate's artifact has `status: approved`. This prevents scope creep, undocumented decisions, and code written without a specification.
 
+```md
+Gate 1: Discovery → spec/<slug>/PRD.md + spec/ACTIVE.md
+Gate 2: Refinement → spec/<slug>/BACKLOG.md + EPIC-\*.md (declares security_review policy)
+Gate 3: Architecture → spec/<slug>/DESIGN.md (rates story complexity S/M/L)
+Gate 4: Planning → spec/<slug>/PLAN.md (one story at a time, with a mandatory Scope Budget)
+Gate 5: Implementation → Source code + tests → spec/<slug>/HISTORY.md updated
+Gate 6: Hardening → Code review → Security audit (or deferred/waived) → QA validation
 ```
-Gate 1: Discovery      → spec/<slug>/PRD.md  +  spec/ACTIVE.md
-Gate 2: Refinement     → spec/<slug>/BACKLOG.md + EPIC-*.md
-Gate 3: Architecture   → spec/<slug>/DESIGN.md
-Gate 4: Planning       → spec/<slug>/PLAN.md  (one story at a time)
-Gate 5: Implementation → Source code + tests  →  spec/<slug>/HISTORY.md updated
-Gate 6: Hardening      → Code review → Security audit → QA validation
-```
+
+Every gate artifact carries a `status: draft | approved | rejected` header. Agents only treat an artifact as valid input once it is `approved` — approval is a checked field, not inferred from conversation.
 
 **Feedback loops** — gate failures route work back to the correct earlier gate, not the beginning:
 
-| Failure | Returns to |
-|---|---|
-| Code review failure | Gate 5 — fix and re-run Gate 6 from the start |
-| Security finding (Critical or High severity) | Gate 5 |
-| QA validation failure | Gate 5 |
-| Security finding requiring architectural change | Gate 3 |
+| Failure                                            | Returns to                                                                                                          |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Code review failure (Critical/High)                | Gate 5 — fix and re-run Gate 6 from the start                                                                       |
+| Security finding (Critical or High severity)       | Gate 5                                                                                                              |
+| QA validation failure                              | Gate 5                                                                                                              |
+| Security finding requiring architectural change    | Gate 3                                                                                                              |
+| Same story fails the same hardening step **twice** | Escalated to you — the agent stops auto-retrying and asks you to decide (descope, split, or accept documented risk) |
+
+All findings across review, security, and QA use one severity scale: **Critical, High, Medium, Low**.
+
+### Controlling Security Audit Scope
+
+Not every story needs its own security audit. Each epic in `BACKLOG.md`/`EPIC-*.md` declares a `security_review` policy:
+
+- **`per-story` (default)** — audited every time, before QA.
+- **`epic-level`** — deferred until the whole epic is implemented, then audited once as a batch.
+- **`waived`** — explicitly skipped, with a required, documented reason (e.g., internal tooling with no external input or auth changes).
+
+Agents will not complain about a missing security step if the policy is explicitly `epic-level` or `waived` — but they will stop and ask you to set the policy if a story touches auth, secrets, external input, or data boundaries with no policy declared.
 
 ### Feature Folder Structure
 
-All specification artifacts for a feature are co-located in `spec/<feature-slug>/` at the project root. Agents create and update these files automatically — you do not need to manage file placement manually.
+All specification artifacts for a feature are co-located in `spec/<feature-slug>/` at the project root. Agents create and update these files automatically using the templates in `.github/templates/` — you do not need to manage file placement or formatting manually.
 
-```
+```md
 spec/
-  ACTIVE.md                          <- identifies the currently active feature
-  user-registration/
-    PRD.md                           <- Gate 1: product requirements document
-    BACKLOG.md                       <- Gate 2: epic index
-    EPIC-1-core-registration.md      <- Gate 2: stories and acceptance criteria
-    DESIGN.md                        <- Gate 3: technical design document
-    PLAN.md                          <- Gate 4: current story implementation plan
-    HISTORY.md                       <- Gate 5: running log of completed work
-  checkout-flow/
-    PRD.md
-    ...
+ACTIVE.md <- identifies the currently active feature, gate, story, and status
+user-registration/
+PRD.md <- Gate 1: product requirements document
+BACKLOG.md <- Gate 2: epic index + security_review policy
+EPIC-1-core-registration.md <- Gate 2: stories, acceptance criteria, sizing
+DESIGN.md <- Gate 3: technical design + story complexity ratings
+PLAN.md <- Gate 4: current story implementation plan + Scope Budget
+HISTORY.md <- Gate 5/6: running log of completed work and hardening outcomes
+checkout-flow/
+PRD.md
+...
 ```
 
 **`spec/ACTIVE.md`** declares which feature is currently in progress:
@@ -286,36 +302,37 @@ SDP is fully compatible with existing codebases:
 
 Each SDP agent has a single, well-defined responsibility. Agents are implemented as `.agent.md` files and invoked via the Copilot Chat panel in Agent Mode.
 
-| Agent | File | Responsibility |
-| --------------- | ------------------------------- | --------------------------------------------------- |
-| `sdp.prd` | `agents/sdp.prd.agent.md` | Authors `PRD.md` from a business intent description |
-| `sdp.discover` | `agents/sdp.discover.agent.md` | Scans an existing codebase and drafts `TECH.md` |
-| `sdp.analyst` | `agents/sdp.analyst.agent.md` | Refines a PRD into epics, features, and user stories |
-| `sdp.architect` | `agents/sdp.architect.agent.md` | Produces a right-sized technical design document |
-| `sdp.developer` | `agents/sdp.developer.agent.md` | Plans and implements one user story at a time |
-| `sdp.reviewer` | `agents/sdp.reviewer.agent.md` | Performs code and design review |
-| `sdp.security` | `agents/sdp.security.agent.md` | Conducts a security audit against OWASP web baselines |
-| `sdp.qa` | `agents/sdp.qa.agent.md` | Validates story acceptance criteria |
+| Agent           | File                            | Responsibility                                                                                    |
+| --------------- | ------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `sdp.prd`       | `agents/sdp.prd.agent.md`       | Authors `PRD.md` from a business intent description                                               |
+| `sdp.discover`  | `agents/sdp.discover.agent.md`  | Scans an existing codebase and drafts `TECH.md`                                                   |
+| `sdp.analyst`   | `agents/sdp.analyst.agent.md`   | Refines a PRD into epics, features, and user stories; declares each epic's security review policy |
+| `sdp.architect` | `agents/sdp.architect.agent.md` | Produces a right-sized technical design document and rates story complexity                       |
+| `sdp.planner`   | `agents/sdp.planner.agent.md`   | Creates a scope-budgeted implementation plan for one story — never writes code                    |
+| `sdp.developer` | `agents/sdp.developer.agent.md` | Implements one approved plan at a time — never plans, never self-loops                            |
+| `sdp.reviewer`  | `agents/sdp.reviewer.agent.md`  | Performs code and design review; routes security per epic policy                                  |
+| `sdp.security`  | `agents/sdp.security.agent.md`  | Conducts a security audit against OWASP web baselines (per-story, epic-level, or waived)          |
+| `sdp.qa`        | `agents/sdp.qa.agent.md`        | Validates story acceptance criteria                                                               |
 
-Agents propose handoffs to the next role — for example, the reviewer agent offers to invoke the security agent after completing its review. Each handoff requires explicit confirmation before proceeding.
+Agents propose handoffs to the next role — for example, the reviewer agent offers to invoke the security agent after completing its review. Each handoff requires explicit confirmation before proceeding. `sdp.planner` and `sdp.developer` never hand off to themselves, so planning cannot loop into repeated re-implementation.
 
 ---
 
 ### Prompts
 
-Prompts are the entry points that activate agents in the correct mode. Each prompt file documents its prerequisites and describes the expected outcome before the operation begins.
+Prompts are the entry points that activate agents in the correct mode. Each prompt file documents its prerequisites and describes the expected outcome before the operation begins. **Prefer prompts over invoking an agent by name** — each gate has exactly one entry-point prompt.
 
-| Prompt | Activates | Gate |
-| ---------------- | -------------------------------- | ----------------- |
-| `discover-tech` | `sdp.discover` | Legacy onboarding |
-| `create-prd` | `sdp.prd` | Gate 1 |
-| `refine-backlog` | `sdp.analyst` | Gate 2 |
-| `design-system` | `sdp.architect` | Gate 3 |
-| `plan-task` | `sdp.developer` (plan mode) | Gate 4 |
-| `implement` | `sdp.developer` (implement mode) | Gate 5 |
-| `run-review` | `sdp.reviewer` | Gate 6 |
-| `audit-security` | `sdp.security` | Gate 6 |
-| `qa-validate` | `sdp.qa` | Gate 6 |
+| Prompt           | Activates       | Gate                                                           |
+| ---------------- | --------------- | -------------------------------------------------------------- |
+| `discover-tech`  | `sdp.discover`  | Legacy onboarding                                              |
+| `create-prd`     | `sdp.prd`       | Gate 1                                                         |
+| `refine-backlog` | `sdp.analyst`   | Gate 2                                                         |
+| `design-system`  | `sdp.architect` | Gate 3                                                         |
+| `plan-task`      | `sdp.planner`   | Gate 4                                                         |
+| `implement`      | `sdp.developer` | Gate 5                                                         |
+| `run-review`     | `sdp.reviewer`  | Gate 6                                                         |
+| `audit-security` | `sdp.security`  | Gate 6 (skipped if the epic's policy is `epic-level`/`waived`) |
+| `qa-validate`    | `sdp.qa`        | Gate 6                                                         |
 
 Prompts are located in `.github/prompts/` after installation and are accessible from the Copilot Chat prompt picker.
 
@@ -327,13 +344,13 @@ Skills are focused, reusable technical guidance files that agents reference when
 
 Skills are located in `.github/skills/` and follow the [Agent Skills open standard](https://agentskills.io) — each skill is a folder containing a `SKILL.md` file with metadata and instructions.
 
-| Skill | Folder | Purpose |
-|---|---|---|
-| Write Tests | `skills/write-tests/` | Unit and integration tests using the AAA pattern; TDD guidance |
+| Skill                    | Folder                        | Purpose                                                                            |
+| ------------------------ | ----------------------------- | ---------------------------------------------------------------------------------- |
+| Write Tests              | `skills/write-tests/`         | Unit and integration tests using the AAA pattern; TDD guidance                     |
 | Create REST API Endpoint | `skills/create-api-endpoint/` | Route design, input validation, authentication, error responses, and documentation |
-| Create UI Component | `skills/create-ui-component/` | Component structure, accessibility, state management, and testing |
-| Database Migration | `skills/database-migration/` | Safe schema changes, rollback strategies, and zero-downtime patterns |
-| Error Handling | `skills/error-handling/` | Error classification, structured logging, safe error responses, and retry logic |
+| Create UI Component      | `skills/create-ui-component/` | Component structure, accessibility, state management, and testing                  |
+| Database Migration       | `skills/database-migration/`  | Safe schema changes, rollback strategies, and zero-downtime patterns               |
+| Error Handling           | `skills/error-handling/`      | Error classification, structured logging, safe error responses, and retry logic    |
 
 To add a custom skill, create a new folder under `.github/skills/` and add a `SKILL.md` file using `.github/templates/template.skill.md` as the starting point.
 
@@ -341,15 +358,22 @@ To add a custom skill, create a new folder under `.github/skills/` and add a `SK
 
 ### Templates
 
-The `.github/templates/` folder contains starter files for extending SDP:
+The `.github/templates/` folder contains starter files for extending SDP, and canonical templates for every gate artifact (each requires a `status: draft | approved | rejected` header):
 
-| File | Purpose |
-|---|---|
-| `TECH.md` | Blank technology context template for new projects |
-| `AGENTS.md` | Scoped context-map template for repository root, backend modules, and frontend packages |
-| `template.agent.md` | Starter template for authoring a custom agent |
-| `template.prompt.md` | Starter template for authoring a custom prompt |
-| `template.skill.md` | Starter template for authoring a custom skill |
+| File                 | Purpose                                                                                                    |
+| -------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `TECH.md`            | Blank technology context template for new projects                                                         |
+| `AGENTS.md`          | Scoped context-map template for repository root, backend modules, and frontend packages                    |
+| `ACTIVE.md`          | Active feature tracker: slug, title, current gate, current story, status — used to resume interrupted work |
+| `PRD.md`             | Gate 1 artifact template                                                                                   |
+| `BACKLOG.md`         | Gate 2 artifact template, including the `security_review` policy table                                     |
+| `EPIC.md`            | Gate 2 per-epic template: stories, acceptance criteria, sizing, security review policy/reason              |
+| `DESIGN.md`          | Gate 3 artifact template, including the story complexity/effort rating table                               |
+| `PLAN.md`            | Gate 4 artifact template, including the mandatory Scope Budget                                             |
+| `HISTORY.md`         | Append-only log template for completed work, hardening outcomes, and escalations                           |
+| `template.agent.md`  | Starter template for authoring a custom agent                                                              |
+| `template.prompt.md` | Starter template for authoring a custom prompt                                                             |
+| `template.skill.md`  | Starter template for authoring a custom skill                                                              |
 
 ---
 
@@ -357,14 +381,14 @@ The `.github/templates/` folder contains starter files for extending SDP:
 
 SDP is designed to coexist with existing tooling and custom workflows. SDP-managed files are isolated and will not conflict with your own additions.
 
-| What to customize | How |
-|---|---|
-| Project-specific AI coding standards | Extend `.github/instructions/coding-standards.instructions.md` |
-| Custom agents | Add `.agent.md` files to `.github/agents/` — SDP updates will not touch them |
-| Custom prompts | Add prompt files to `.github/prompts/` |
-| Custom skills | Add `<skill-name>/SKILL.md` folders to `.github/skills/` using the provided template |
-| Scoped agent context | Add `AGENTS.md` files at repository root and module boundaries |
-| Technology context | Edit `.github/TECH.md` — this file is never overwritten by SDP updates unless explicitly requested |
+| What to customize                    | How                                                                                                |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| Project-specific AI coding standards | Extend `.github/instructions/coding-standards.instructions.md`                                     |
+| Custom agents                        | Add `.agent.md` files to `.github/agents/` — SDP updates will not touch them                       |
+| Custom prompts                       | Add prompt files to `.github/prompts/`                                                             |
+| Custom skills                        | Add `<skill-name>/SKILL.md` folders to `.github/skills/` using the provided template               |
+| Scoped agent context                 | Add `AGENTS.md` files at repository root and module boundaries                                     |
+| Technology context                   | Edit `.github/TECH.md` — this file is never overwritten by SDP updates unless explicitly requested |
 
 ---
 
@@ -372,79 +396,93 @@ SDP is designed to coexist with existing tooling and custom workflows. SDP-manag
 
 ### Source Layout (this repository)
 
-```
+```md
 .apm/
-├── agents/                          <- Agent definition files
-├── instructions/                    <- Shared SDLC process instructions (includes coding-standards.instructions.md)
-├── prompts/                         <- Gate trigger prompts
+├── agents/ <- Agent definition files
+├── instructions/ <- Shared SDLC process instructions (includes coding-standards.instructions.md)
+├── prompts/ <- Gate trigger prompts
 ├── skills/
-│   ├── create-api-endpoint/
-│   │   └── SKILL.md
-│   ├── create-ui-component/
-│   │   └── SKILL.md
-│   ├── database-migration/
-│   │   └── SKILL.md
-│   ├── error-handling/
-│   │   └── SKILL.md
-│   └── write-tests/
-│       └── SKILL.md
+│ ├── create-api-endpoint/
+│ │ └── SKILL.md
+│ ├── create-ui-component/
+│ │ └── SKILL.md
+│ ├── database-migration/
+│ │ └── SKILL.md
+│ ├── error-handling/
+│ │ └── SKILL.md
+│ └── write-tests/
+│ └── SKILL.md
 └── templates/
-    ├── AGENTS.md
-    ├── TECH.md
-    ├── template.agent.md
-    ├── template.prompt.md
-    └── template.skill.md
+├── ACTIVE.md
+├── AGENTS.md
+├── TECH.md
+├── PRD.md
+├── BACKLOG.md
+├── EPIC.md
+├── DESIGN.md
+├── PLAN.md
+├── HISTORY.md
+├── template.agent.md
+├── template.prompt.md
+└── template.skill.md
 ```
 
 ### Installed Layout (client repository)
 
 After running the installer, the following structure is created under `.github/` in the target repository:
 
-```
+```md
 .github/
-├── TECH.md                          <- Project technology context (fill this in)
-├── sdp-version                      <- Installed SDP version marker
-├── agents/                          <- SDP agent definitions
-├── instructions/                    <- SDLC process instructions (includes coding-standards.instructions.md)
-├── prompts/                         <- Gate trigger prompts
+├── TECH.md <- Project technology context (fill this in)
+├── sdp-version <- Installed SDP version marker
+├── agents/ <- SDP agent definitions
+├── instructions/ <- SDLC process instructions (includes coding-standards.instructions.md)
+├── prompts/ <- Gate trigger prompts
 ├── skills/
-│   ├── <skill-name>/
-│   │   └── SKILL.md
-│   └── ...
+│ ├── <skill-name>/
+│ │ └── SKILL.md
+│ └── ...
 └── templates/
-    ├── AGENTS.md
-    ├── TECH.md
-    ├── template.agent.md
-    ├── template.prompt.md
-    └── template.skill.md
+├── ACTIVE.md
+├── AGENTS.md
+├── TECH.md
+├── PRD.md
+├── BACKLOG.md
+├── EPIC.md
+├── DESIGN.md
+├── PLAN.md
+├── HISTORY.md
+├── template.agent.md
+├── template.prompt.md
+└── template.skill.md
 ```
 
 ### Recommended `AGENTS.md` Placement
 
-```
+```md
 <repository root>/
-├── AGENTS.md                        <- Global context boundaries and repository rules
+├── AGENTS.md <- Global context boundaries and repository rules
 ├── src/
-│   ├── Billing/
-│   │   ├── AGENTS.md                <- Service-local context (e.g., next to .csproj)
-│   │   └── Billing.csproj
-│   └── Frontend/
-│       ├── AGENTS.md                <- App/package-local context
-│       └── package.json
+│ ├── Billing/
+│ │ ├── AGENTS.md <- Service-local context (e.g., next to .csproj)
+│ │ └── Billing.csproj
+│ └── Frontend/
+│ ├── AGENTS.md <- App/package-local context
+│ └── package.json
 ```
 
 ### Runtime Artifacts (created by agents in the client repository)
 
-```
+```md
 spec/
-├── ACTIVE.md                        <- Currently active feature
+├── ACTIVE.md <- Currently active feature
 └── <feature-slug>/
-    ├── PRD.md
-    ├── BACKLOG.md
-    ├── EPIC-*.md
-    ├── DESIGN.md
-    ├── PLAN.md
-    └── HISTORY.md
+├── PRD.md
+├── BACKLOG.md
+├── EPIC-\*.md
+├── DESIGN.md
+├── PLAN.md
+└── HISTORY.md
 ```
 
 ---
