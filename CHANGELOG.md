@@ -8,6 +8,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [v0.5.0]
+
+### Fixed
+- **Plan → Implement infinite loop** — `sdp.developer` previously combined `plan-task` and `implement` modes behind a self-referencing handoff, which in `auto` mode caused agents to repeatedly re-trigger implementation instead of proceeding to review. Split into two agents:
+  - `sdp.planner` (Gate 4) — plans only, never writes code, never self-invokes.
+  - `sdp.developer` (Gate 5) — implements only, never plans, hands off exactly once to `sdp.reviewer`.
+- `coding-standards.instructions.md` and `sdlc-process.instructions.md` both declared `applyTo: "**/*"` and duplicated the same orchestration/routing content, which was concatenated twice into the generated root `AGENTS.md`. `coding-standards.instructions.md` now covers coding standards only; `sdlc-process.instructions.md` is the single source of truth for process/routing.
+- `sdp.reviewer`, `sdp.security`, and `sdp.qa` used inconsistent severity scales (Critical/Major/Minor/Suggestion vs. Critical/High/Medium/Low), making hardening findings hard to aggregate. Unified to a single **Critical/High/Medium/Low** scale across all three.
+
+### Added
+- **Configurable security review policy** — epics now declare `security_review: per-story | epic-level | waived` (with a mandatory reason for the latter two). Reviewer/security/QA respect this without complaining when explicitly deferred or waived, and still block if the policy is missing on stories touching auth, secrets, external input, or data boundaries.
+- **Plan Scope Budget** — `PLAN.md` now requires a mandatory budget (max 8 files, ~300 changed lines, complexity tier S/M/L, stated exploration scope) to keep implementation time and token usage predictable. Oversized stories must be split and returned to Gate 2 instead of being planned/executed as-is.
+- **Missing gate artifact templates** — added `.apm/templates/PRD.md`, `BACKLOG.md`, `EPIC.md`, `DESIGN.md`, `PLAN.md`, `HISTORY.md`, each with a `status: draft | approved | rejected` header so gate approval is a checked field rather than inferred from conversation.
+- **Hardening loop breaker** — after 2 failed hardening cycles on the same story, the responsible agent stops auto-retrying and escalates to the user (descope, split, or accept documented risk) instead of looping through Gate 5/6 a third time.
+- **Resumable session state** — `ACTIVE.md` extended with `current_gate`, `current_story`, and `status` fields so interrupted sessions resume at the correct point.
+- **Story sizing / effort feedback** — `sdp.analyst` applies INVEST sizing (~1 day/1 PR per story); `sdp.architect` rates story complexity (S/M/L) in `DESIGN.md` so oversized stories are caught before planning rather than during it.
+
+### Changed
+- `README.md` — updated Quick Start walkthrough, 6-gate diagram, feedback loop table, agents/prompts/templates reference tables, and source/installed file-tree diagrams to reflect the `sdp.planner`/`sdp.developer` split, security review policy, and new templates.
+- `AGENTS.md` (generated) — regenerated via `apm compile`; no longer contains duplicated routing/orchestration content.
+- Bumped version to `0.5.0`; expanded default `targets` in `apm.yml` to include `claude`, `cursor`, `codex`, and `gemini` alongside `copilot`.
+
 ### Added
 - `apm.json` — Agent Package Manager manifest defining package metadata, components (agents, skills, prompts, templates), and installers
 - `package.json` — npm ecosystem compatibility manifest with scoped package name `@wojcikmm/spec-development-protocol`
