@@ -1,5 +1,5 @@
 name: spec-development-protocol
-version: 0.5.0
+version: 0.5.1
 description: An AI-agentic framework for spec-driven engineering — structured, 
   traceable, and ready for both greenfield and legacy web projects.
 author: Michal Wojcik
@@ -73,8 +73,8 @@ marketplace:
       # ref: main  # pin to an explicit ref instead of a version range
     # Publish this repository package so consumers can install it globally.
     - name: spec-development-protocol
-      source: WojcikMM/spec-development-protocol
+      source: ./
       description: An AI-agentic framework for spec-driven engineering — structured, traceable, and ready for both greenfield and legacy web projects.
-      version: "^0.4.0"
+      version: "^0.5.1"
       tag_pattern: "{name}-v{version}"
       category: Productivity

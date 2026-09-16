@@ -6,7 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [Unreleased]
+## [v0.5.1]
+
+Technical release only — bumps the APM package version and GitHub Copilot plugin release version. No code, agents, prompts, instructions, or skills were changed.
+
+### Changed
+- Bumped version to `0.5.1` in `apm.yml` and `plugin.json`.
 
 ## [v0.5.0]
 
