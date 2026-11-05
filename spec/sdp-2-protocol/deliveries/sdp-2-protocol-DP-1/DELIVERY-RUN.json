@@ -1,0 +1,20 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-protocol-DP-1-run-1",
+  "delivery_id": "sdp-2-protocol-DP-1",
+  "delivery_status": "accepted",
+  "branch": null,
+  "profile": "Lean",
+  "current_stage": "closed",
+  "completed_stages": ["developer", "reviewer"],
+  "changed_paths": ["docs/PROTOCOL.md", "PLAN.md"],
+  "stage_results": [
+    {"stage": "reviewer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": [], "checks": ["initial fail with 8 findings, corrected; design consistency re-read"]},
+    {"stage": "security", "verdict": "not_applicable", "reason": "Design document only; no executable behavior."},
+    {"stage": "qa", "verdict": "not_applicable", "reason": "No observable behavior changed."}
+  ],
+  "autonomous_rejection_count": 1,
+  "pending_audit": [],
+  "acceptance": {"decision": "accepted", "decided_by": "user (chat)", "decided_at": "2026-11-05T11:30:00+01:00", "feedback": "Continue in order until stopped."},
+  "compliance": null
+}
