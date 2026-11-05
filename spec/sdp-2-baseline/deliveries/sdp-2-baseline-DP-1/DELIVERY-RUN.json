@@ -1,0 +1,58 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-baseline-DP-1-run-1",
+  "delivery_id": "sdp-2-baseline-DP-1",
+  "delivery_status": "awaiting-acceptance",
+  "branch": null,
+  "profile": "Balanced",
+  "current_stage": "acceptance",
+  "completed_stages": ["developer", "reviewer"],
+  "changed_paths": [
+    ".apm/templates/template.skill.md",
+    ".apm/skills/sdp-templates/assets/template.skill.md",
+    ".apm/agents/sdp.orchestrator.agent.md",
+    ".github/plugin/plugin.json",
+    ".claude-plugin/plugin.json",
+    "AGENTS.md",
+    "scripts/check-baseline.py",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "stage_results": [
+    {
+      "stage": "developer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md"],
+      "findings": [],
+      "checks": ["baseline regression suite", "installer syntax", "APM validation and generation parity", "template mirror", "diff formatting"]
+    },
+    {
+      "stage": "reviewer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md"],
+      "findings": [],
+      "checks": ["independent read-only candidate inspection", "regression-check logic", "scope and documentation consistency"]
+    },
+    {
+      "stage": "security",
+      "verdict": "not_applicable",
+      "evidence": ["HISTORY.md"],
+      "reason": "Read-only trusted-source maintainer check and existing-policy clarification; no installed dependencies, permission changes, network boundary, or client mutation."
+    },
+    {
+      "stage": "qa",
+      "verdict": "not_applicable",
+      "evidence": ["HISTORY.md"],
+      "reason": "Textual baseline repairs with reviewed focused checks; no changed installation or delivery runtime behavior to independently exercise."
+    }
+  ],
+  "autonomous_rejection_count": 0,
+  "pending_audit": [],
+  "acceptance": {
+    "decision": "pending",
+    "decided_by": null,
+    "decided_at": null,
+    "feedback": null
+  },
+  "compliance": null
+}

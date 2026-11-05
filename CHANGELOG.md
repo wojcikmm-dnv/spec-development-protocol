@@ -8,6 +8,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Added the required name field and folder-matching guidance to the canonical
+  skill starter and synchronized its packaged template mirror.
+- Clarified that developer validation and independent technical review cannot
+  return `not_applicable`; optional security/QA disposition cannot override
+  mandatory project controls.
+- Synchronized native Copilot and Claude plugin manifests with the current
+  0.5.4 package version, without a release-version bump.
+- Regenerated root context from canonical instructions to remove the obsolete
+  shared ACTIVE delivery-state model and reflect package-scoped state.
+
+### Added
+
+- A Python/PyYAML maintainer baseline check with in-memory regression cases for
+  metadata drift, missing skill names, generic review-skip wording, and stale
+  generated instructions. It checks textual consistency, not runtime delivery
+  enforcement. Installer behavior and dependencies are unchanged.
+
 ## [v0.5.4]
 
 ### Added

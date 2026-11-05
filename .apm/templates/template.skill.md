@@ -1,8 +1,11 @@
 ---
+name: "<skill-name>"
 description: "<skill-description>"
 ---
 
 # `<Skill-Name>`
+
+Use a lowercase, hyphen-separated name matching the skill's folder name.
 
 ## Purpose
 

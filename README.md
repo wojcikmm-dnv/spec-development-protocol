@@ -287,6 +287,10 @@ delivery history.
 Balanced is the default. A plan may raise but not silently lower a mandatory
 project profile.
 
+Developer validation and independent technical review are mandatory in every
+profile. Only optional security or QA stages may return `not_applicable` with
+a policy reason; that reason cannot override mandatory project controls.
+
 Compliance preserves the former strict identity controls where they are useful.
 It does not claim to provide a tamper-proof audit system.
 
@@ -612,8 +616,27 @@ Package-scoped state enables parallel delivery. For an existing client:
    ```bash
    bash -n install.sh
    bash scripts/sync-templates.sh --check
+  python scripts/check-baseline.py --self-test
    git diff --check
    ```
+
+The baseline check requires Python 3 and PyYAML (verified with Python 3.11 and
+PyYAML 6.0.3); it does not install dependencies. It parses package metadata,
+checks manifest versions, skill-starter metadata, mandatory-stage wording,
+generated context, and template equality. Its regression cases run in memory
+without changing repository files. These are textual consistency checks, not
+proof that an agent enforced delivery gates.
+
+After changing canonical instructions, regenerate root context with the
+installed APM compiler (verified with APM 0.29.0):
+
+```bash
+apm compile --local-only --single-agents --target copilot --output AGENTS.md
+```
+
+Preview with `--dry-run` first. `--output` limits this command to the root
+context; it does not regenerate other hosts' installed files. Existing
+installers and client copy behavior are unchanged.
 
 ## License
 

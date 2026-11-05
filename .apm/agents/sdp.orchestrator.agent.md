@@ -75,7 +75,10 @@ Always dispatch one worker at a time:
 3. `sdp.security` when triggered by policy or changed security boundaries
 4. `sdp.qa` when acceptance requires independent behavioral validation
 
-Lean/Balanced stages may return `not_applicable` with a policy reason.
+Developer validation and independent technical review are mandatory in every
+profile; neither stage may return `not_applicable`. In Lean/Balanced mode,
+only optional security or QA stages may return `not_applicable` with a policy
+reason that does not override mandatory project controls.
 Compliance runs every mandatory stage and records configured integrity
 evidence.
 
