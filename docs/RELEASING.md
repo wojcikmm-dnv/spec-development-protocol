@@ -55,8 +55,9 @@ to fail, rather than skip, the tests that need APM.
 
 `scripts/check-all.sh` runs every repository check (shell syntax, template and generated-
 content drift, baseline and skill checks, manifest versions, all test suites) and fails if
-the checks changed the working tree. CI and the release build both call it, so they cannot
-drift apart.
+the checks changed the working tree. Run it in a Linux checkout: from WSL on a Windows
+working tree, Git reports every CRLF file as modified and the tree check fails.
+CI and the release build both call it, so they cannot drift apart.
 
 **CI** (`.github/workflows/ci.yml`, pull requests and pushes to `main`): the shared check
 script on Linux, the test suites on Windows, and the suites for the shipped scripts on
