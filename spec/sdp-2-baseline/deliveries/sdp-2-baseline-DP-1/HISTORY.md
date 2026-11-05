@@ -1,5 +1,11 @@
 # Step 01 Delivery History
 
+## 2026-11-05 - Accepted
+
+The user instructed the agent to continue the roadmap and commit its own work,
+which is recorded as acceptance of this package. Acceptance did not authorize a
+release, tag, or publication. The candidate was committed as `dea577f`.
+
 ## 2026-11-05 - Awaiting Human Acceptance
 
 Delivered the approved baseline repairs: canonical skill-starter name and
