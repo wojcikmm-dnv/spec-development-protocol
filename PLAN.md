@@ -83,9 +83,12 @@ user files, credentials, repository settings, or installed global plugins.
 
 ## Ordered Steps
 
-Progress: Steps 01-05 are accepted (packages `sdp-2-baseline-DP-1`,
-`sdp-2-protocol-DP-1`, `sdp-2-core-DP-1`, `sdp-2-skills-DP-1`, `sdp-2-workflow-DP-1`;
-protocol design in
+Progress: Steps 01-06 are accepted (packages `sdp-2-baseline-DP-1`,
+`sdp-2-protocol-DP-1`, `sdp-2-core-DP-1`, `sdp-2-skills-DP-1`, `sdp-2-workflow-DP-1`,
+`sdp-2-hosts-DP-1`). Step 06's exit criterion is only partly met: GitHub Copilot CLI is
+smoke-tested, but Claude Code was unavailable and is blocked, tracked as the open
+obligation `step-06-claude-code-qualification`; no host has executed a full delivery.
+Protocol design in
 [docs/PROTOCOL.md](docs/PROTOCOL.md), validator in `.apm/skills/sdp-core`, stage
 skills under `.apm/skills`).
 All later steps are pending. A step completes only when its checks and independent

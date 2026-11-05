@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "host": "copilot-cli",
+  "display_name": "GitHub Copilot CLI",
+  "tested_versions": ["1.0.85"],
+  "install": {
+    "channels": ["apm", "copilot plugin install <local path> (the host marks direct installs deprecated)"],
+    "skill_locations": [".github/skills", ".agents/skills", ".claude/skills", "plugin skills"]
+  },
+  "capabilities": {
+    "implement": {"provided": "unverified", "how": "main session with edit and shell tools; no delivery was run"},
+    "technical-review": {"provided": "unverified", "how": "custom agent or subagent with read-only tools; not exercised"},
+    "security-review": {"provided": "unverified", "how": "same mechanism as technical-review; not exercised"},
+    "acceptance-validation": {"provided": "unverified", "how": "agent or subagent with read and shell tools; not exercised"},
+    "independent-context": {"provided": "unverified", "how": "needs a separate session or subagent with different permissions; not exercised"}
+  },
+  "observations": [
+    "apm pack output installed with `copilot plugin install` into an isolated COPILOT_HOME; 14 skills were discovered, including every SDP skill",
+    "the installed sdp-core validator resolved its sibling workflow definitions from the plugin location and ran against a scratch repository",
+    "one bounded read-only run: the model loaded sdp-workflows, found and ran `sdp.py next`, reported the returned action correctly, and left the repository unchanged",
+    "one bounded review run in a separate process with write and shell denied: the model loaded sdp-technical-review, found the seeded off-by-one and the test that encodes it, returned a result the shipped grader accepted for case off-by-one-drops-last-item, and was refused when it tried to write a file"
+  ],
+  "qualification": {
+    "package_generated": true,
+    "install_smoke_tested": true,
+    "skill_discovery_verified": true,
+    "model_followed_skill": "one read-only step observed",
+    "delivery_executed": false
+  },
+  "evidence": ["spec/sdp-2-hosts/deliveries/sdp-2-hosts-DP-1/HISTORY.md"]
+}

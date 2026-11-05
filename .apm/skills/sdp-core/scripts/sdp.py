@@ -62,6 +62,7 @@ RECORD_FIELDS = (
     "pending_audit",
     "acceptance",
     "blocked_reason",
+    "capability_source",
     "compliance",
 )
 
@@ -310,6 +311,11 @@ def validate_structure(record):
         errors.append("acceptance is invalid")
     if record["blocked_reason"] is not None and not isinstance(record["blocked_reason"], str):
         errors.append("blocked_reason must be a string or null")
+    if record["capability_source"] is not None and not (
+        isinstance(record["capability_source"], str)
+        and re.match(r"^(explicit|host:[A-Za-z0-9._-]+)$", record["capability_source"])
+    ):
+        errors.append("capability_source must be null, explicit, or host:<name>")
     return errors
 
 
@@ -530,6 +536,7 @@ def new_record(delivery_id, workflow, profile, policy):
         "pending_audit": [],
         "acceptance": {"decision": "pending", "decided_by": None, "decided_at": None, "feedback": None},
         "blocked_reason": None,
+        "capability_source": None,
         "compliance": None,
     }
 
@@ -582,6 +589,7 @@ def transition(record, to, context):
             updated["candidate"] = {
                 "base_revision": context["head"], "changed_paths": [], "fingerprint": context["fingerprint"],
             }
+            updated["capability_source"] = context.get("capability_source", "explicit")
         if current == "changes-requested":
             if updated["rejected_candidates"] >= 2 and not context.get("human_guided"):
                 raise invalid("escalation_required", "Two candidates were rejected; a human must guide the next repair")
@@ -896,8 +904,8 @@ def validate_workflow(document):
     if not (isinstance(limits, dict) and limits.get("rejected_candidates_before_escalation") == 2):
         errors.append("limits.rejected_candidates_before_escalation must be 2")
     capabilities = document.get("capabilities_required")
-    if not (_is_str_list(capabilities) and {"implement", "technical-review"} <= set(capabilities)):
-        errors.append("capabilities_required must include implement and technical-review")
+    if not (_is_str_list(capabilities) and {"implement", "technical-review", "independent-context"} <= set(capabilities)):
+        errors.append("capabilities_required must include implement, technical-review, and independent-context")
     if not isinstance(document.get("pre_delivery", []), list):
         errors.append("pre_delivery must be a list")
     return errors
@@ -990,19 +998,69 @@ def next_action(workflow, record, plan, fingerprint, capabilities=None):
                 gaps = {}
                 for later in STAGE_ORDER[STAGE_ORDER.index(stage):]:
                     if later in stages_needed and (present[later] is None or present[later]["verdict"] != "pass"):
-                        needed = next(item["capability"] for item in workflow["stages"] if item["stage"] == later)
-                        if needed not in capabilities:
-                            gaps[later] = needed
+                        entry = next(item for item in workflow["stages"] if item["stage"] == later)
+                        needed = {entry["capability"]}
+                        if entry["isolation"] == "independent":
+                            needed.add("independent-context")
+                        absent = sorted(needed - set(capabilities))
+                        if absent:
+                            gaps[later] = absent
                 if stage in gaps:
+                    every = sorted({cap for caps in gaps.values() for cap in caps})
                     return {**base, "action": "blocked-capability", "actor": "human", "stage": stage,
-                            "missing": sorted(set(gaps.values())), "missing_by_stage": gaps,
-                            "reason": f"The host cannot provide {', '.join(sorted(set(gaps.values())))}; self-review is not a substitute"}
+                            "missing": every, "missing_by_stage": gaps,
+                            "reason": f"The host cannot provide {', '.join(every)}; self-review is not a substitute"}
             stale_note = None
             if any(r["stage"] == stage for r in record["stage_results"]) and result is None:
                 stale_note = "Earlier results for this stage belong to a previous candidate and are stale"
             return {**base, **_stage_action(workflow, stage, record, notes=stale_note)}
     return {**base, "action": "request-acceptance", "actor": "coordinator", "transition_to": "awaiting-acceptance",
             "required_stages": sorted(stages_needed)}
+
+
+# --- host capability profiles ----------------------------------------------
+
+DEFAULT_HOSTS_DIR = Path(__file__).resolve().parent.parent.parent / "sdp-workflows" / "hosts"
+CAPABILITY_NAMES = (
+    "implement", "technical-review", "security-review", "acceptance-validation", "independent-context",
+)
+
+
+def validate_host_profile(document):
+    errors = []
+    if not isinstance(document, dict):
+        return ["Host profile must be a JSON object"]
+    if document.get("schema_version") != 1:
+        errors.append("schema_version must be 1")
+    if not (isinstance(document.get("host"), str) and TOKEN_RE.match(document["host"])):
+        errors.append("host must be a simple name")
+    capabilities = document.get("capabilities")
+    if not (isinstance(capabilities, dict) and set(capabilities) == set(CAPABILITY_NAMES)):
+        errors.append("capabilities must list exactly: " + ", ".join(CAPABILITY_NAMES))
+    else:
+        for name, entry in capabilities.items():
+            if not (isinstance(entry, dict) and entry.get("provided") in (True, False, "unverified")):
+                errors.append(f"{name}: provided must be true, false, or \"unverified\"")
+            elif entry["provided"] is True and not (isinstance(entry.get("evidence"), list) and entry["evidence"]):
+                errors.append(f"{name}: a verified capability must cite evidence")
+    return errors
+
+
+def load_host_capabilities(name):
+    """Capabilities a host profile has verified; unverified means not provided."""
+    if not (isinstance(name, str) and TOKEN_RE.match(name)):
+        raise invalid("host_unknown", "Invalid host name")
+    folder = Path(os.environ.get("SDP_HOSTS_DIR") or DEFAULT_HOSTS_DIR)
+    try:
+        document = json.loads(read_limited(folder / f"{name}.json", MAX_PLAN_BYTES))
+    except FileNotFoundError:
+        raise invalid("host_unknown", f"No host profile named {name!r}; pass --capabilities explicitly")
+    except (OSError, ValueError, RecursionError) as error:
+        raise invalid("host_invalid", f"Cannot read host profile {name!r}: {error}")
+    problems = validate_host_profile(document)
+    if problems:
+        raise invalid("host_invalid", "; ".join(problems))
+    return [cap for cap, entry in document["capabilities"].items() if entry["provided"] is True]
 
 
 # --- command line ---------------------------------------------------------
@@ -1018,6 +1076,7 @@ def parser():
     following = commands.add_parser("next", help="print the next required action (read-only)")
     following.add_argument("--workflow", default="bug", help="used only before a run record exists")
     following.add_argument("--capabilities", default=None, help="comma-separated host capabilities; omit to skip the check")
+    following.add_argument("--host", default=None, help="derive capabilities from a host profile's verified entries")
     approve = commands.add_parser("approve")
     approve.add_argument("--by", required=True)
     approve.add_argument("--workflow", default="bug")
@@ -1031,6 +1090,7 @@ def parser():
     move.add_argument("--to", required=True, choices=STATUSES)
     move.add_argument("--expected-revision", type=int, required=True)
     move.add_argument("--capabilities", default="")
+    move.add_argument("--host", default=None, help="derive capabilities from a host profile's verified entries")
     move.add_argument("--decided-by")
     move.add_argument("--reason")
     move.add_argument("--human-guided", action="store_true")
@@ -1076,6 +1136,7 @@ def run(arguments):
             "status": record["delivery_status"], "valid": not errors, "errors": errors,
             "state_revision": record["state_revision"],
             "rejected_candidates": record["rejected_candidates"],
+            "capability_source": record["capability_source"],
         }
         if command == "inspect" and record["candidate"]:
             fp = record["candidate"]["fingerprint"]
@@ -1088,13 +1149,20 @@ def run(arguments):
     if command == "next":
         workflow = load_workflow(record["workflow"] if record else arguments.workflow)
         capabilities = None
+        source = "unchecked"
+        if arguments.capabilities is not None and arguments.host is not None:
+            raise ProtocolError(EXIT_USAGE, "usage", "Use either --capabilities or --host, not both")
         if arguments.capabilities is not None:
             capabilities = [item for item in arguments.capabilities.split(",") if item]
+            source = "explicit"
+        elif arguments.host is not None:
+            capabilities = load_host_capabilities(arguments.host)
+            source = f"host:{arguments.host}"
         problems = validate_structure(record) if record else []
         if problems:
             raise invalid("record_invalid", "; ".join(problems))
         fingerprint = facts(repo, package_dir, record)["fingerprint"] if record and record["candidate"] else None
-        return next_action(workflow, record, plan, fingerprint, capabilities)
+        return {**next_action(workflow, record, plan, fingerprint, capabilities), "capability_source": source}
 
     if command == "approve":
         load_workflow(arguments.workflow)
@@ -1122,6 +1190,13 @@ def run(arguments):
         return facts(repo, package_dir, stored)
 
     if command == "transition":
+        if arguments.host is not None and arguments.capabilities:
+            raise ProtocolError(EXIT_USAGE, "usage", "Use either --capabilities or --host, not both")
+        if arguments.host is not None:
+            asserted, source = load_host_capabilities(arguments.host), f"host:{arguments.host}"
+        else:
+            asserted, source = [item for item in arguments.capabilities.split(",") if item], "explicit"
+
         def move(stored, current_plan):
             candidate = locked_facts(stored)
             context = {
@@ -1130,7 +1205,8 @@ def run(arguments):
                 "fingerprint": candidate["fingerprint"],
                 "candidate": candidate,
                 "head": head_revision(repo),
-                "capabilities": [item for item in arguments.capabilities.split(",") if item],
+                "capabilities": asserted,
+                "capability_source": source,
                 "decided_by": arguments.decided_by,
                 "reason": arguments.reason,
                 "human_guided": arguments.human_guided,

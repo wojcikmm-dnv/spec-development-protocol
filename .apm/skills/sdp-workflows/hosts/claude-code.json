@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "host": "claude-code",
+  "display_name": "Claude Code",
+  "tested_versions": [],
+  "install": {
+    "channels": ["apm", "claude plugin marketplace"],
+    "skill_locations": [".claude/skills", "plugin skills"]
+  },
+  "capabilities": {
+    "implement": {"provided": "unverified", "how": "main session"},
+    "technical-review": {"provided": "unverified", "how": "subagent with read-only tools"},
+    "security-review": {"provided": "unverified", "how": "subagent with read-only tools"},
+    "acceptance-validation": {"provided": "unverified", "how": "subagent with read and shell tools"},
+    "independent-context": {"provided": "unverified", "how": "subagent"}
+  },
+  "qualification": {
+    "package_generated": true,
+    "install_smoke_tested": false,
+    "skill_discovery_verified": false,
+    "model_followed_skill": false,
+    "delivery_executed": false
+  },
+  "blocked_reason": "Claude Code is not installed in the maintainer environment, so nothing was executed. Packaging produces the documented layout only.",
+  "evidence": []
+}

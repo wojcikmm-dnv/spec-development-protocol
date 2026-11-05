@@ -1,0 +1,25 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-hosts-DP-1-run-1",
+  "delivery_id": "sdp-2-hosts-DP-1",
+  "delivery_status": "accepted",
+  "branch": null,
+  "profile": "Balanced",
+  "current_stage": "closed",
+  "completed_stages": ["developer", "reviewer", "security", "qa"],
+  "changed_paths": [
+    ".apm/skills/sdp-core/scripts/sdp.py", ".apm/skills/sdp-core/schemas/run-record.schema.json",
+    ".apm/skills/sdp-workflows/", ".apm/agents/sdp.coordinator.agent.md", ".apm/agents/sdp.orchestrator.agent.md",
+    ".apm/prompts/run-workflow.prompt.md", "tests/contracts/", "docs/COMPATIBILITY.md", "docs/PROTOCOL.md", "CHANGELOG.md"
+  ],
+  "stage_results": [
+    {"stage": "developer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": [], "checks": ["96 contract tests", "28 skill tests", "mutation checks", "isolated Copilot CLI install and discovery"]},
+    {"stage": "reviewer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": ["Medium: seven findings triaged; two fixed, three rejected with rationale, two documented"], "checks": ["independent read-only review"]},
+    {"stage": "security", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": ["Medium: asserted capabilities now recorded and host-enforceable; residual assertion limit documented"], "checks": ["capability assertion and approval boundaries reviewed independently"]},
+    {"stage": "qa", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": ["Medium: Claude Code blocked; no delivery executed on any host"], "checks": ["two bounded real-host model runs, graded with the shipped grader"]}
+  ],
+  "autonomous_rejection_count": 1,
+  "pending_audit": ["step-06-claude-code-qualification"],
+  "acceptance": {"decision": "accepted", "decided_by": "user (chat)", "decided_at": "2026-11-05T18:00:00+01:00", "feedback": "Continue in order until stopped. Exit criterion not met for Claude Code; recorded as an open audit obligation."},
+  "compliance": null
+}

@@ -22,7 +22,7 @@ spec.loader.exec_module(sdp)
 
 PLAN = "# Plan\n\nOutcome: fix the greeting.\n"
 HUMAN = "Ada Lovelace"
-CAPS = "implement,technical-review,security-review,acceptance-validation"
+CAPS = "implement,technical-review,security-review,acceptance-validation,independent-context"
 
 
 def run_git(repo, *args):

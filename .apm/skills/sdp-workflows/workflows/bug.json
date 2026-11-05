@@ -13,7 +13,7 @@
     {"stage": "security", "capability": "security-review", "skill": "sdp-security-review", "isolation": "independent", "required": "on-trigger-or-policy"},
     {"stage": "qa", "capability": "acceptance-validation", "skill": "sdp-acceptance-validation", "isolation": "independent", "required": "on-trigger-or-policy"}
   ],
-  "capabilities_required": ["implement", "technical-review"],
+  "capabilities_required": ["implement", "technical-review", "independent-context"],
   "limits": {"rejected_candidates_before_escalation": 2},
   "acceptance": {
     "actor": "human",

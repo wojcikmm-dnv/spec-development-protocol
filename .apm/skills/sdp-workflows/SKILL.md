@@ -29,7 +29,15 @@ The feature workflow arrives in a later release; do not improvise one.
 
 ## Procedure
 
-Set `V` to `python <sdp-core>/scripts/sdp.py --repo <repo> --package <package> --json`.
+Set `V` to `python <sdp-core>/scripts/sdp.py --repo <repo> --package <package> --json`,
+where `<sdp-core>` is the sibling folder `../sdp-core` next to this skill's folder (do
+not search the disk for it).
+
+Capabilities: run `V next --host <name>` when a profile exists in this skill's `hosts/`
+folder (`copilot-cli`, `claude-code`). Only capabilities a profile has verified with
+evidence count; an unverified host blocks the workflow. Use `--capabilities` only with a
+list the human told you the host can really provide, and never to get past a block
+yourself.
 
 1. Run `V next`. It returns one action and who owns it. Do exactly that action.
 2. Act on the result:
@@ -43,14 +51,18 @@ Set `V` to `python <sdp-core>/scripts/sdp.py --repo <repo> --package <package> -
      --expect-plan-fingerprint <plan_fingerprint from next>`. Do not substitute your
      own name or ask the human to repeat themselves.
    - `start-delivery` or `resume-delivery`: run `V transition --to delivering
-     --expected-revision <n> --capabilities <list>`.
+     --expected-revision <n> --host <name>` (or the same human-supplied
+     `--capabilities` list you used with `next`). The run record stores where the
+     capabilities came from (`host:<name>` or `explicit`).
    - `run-stage`: dispatch the named skill in a worker context with the stated
      isolation, give it only the plan outcome, criteria, boundary, changed paths,
      prior findings, and checks, then record its verdict with the `record_with`
      command. A developer repair must change the candidate first.
    - `request-acceptance`: run `V transition --to awaiting-acceptance` and present
      one acceptance brief: outcome and demonstration, criteria coverage, stage
-     verdicts, deviations, remaining risks, and evidence references.
+     verdicts, deviations, remaining risks, evidence references, and the capability
+     source from `V inspect` (say plainly when it was `explicit`, because that means a
+     human asserted isolation rather than a host profile verifying it).
    - `replan`, `resolve-block`, `escalate-to-human`, `blocked-capability`: stop and
      report the reason and options. For `blocked-capability`, list every missing
      capability the action names.

@@ -269,6 +269,28 @@ unchanged candidate failed), `resume-delivery`, `resolve-block`, `escalate-to-hu
 
 Only the `bug` workflow exists. The feature workflow is added in Step 08.
 
+## Host Capabilities
+
+A workflow lists the capabilities a host must provide: `implement`,
+`technical-review`, and `independent-context`; security and QA stages add
+`security-review` and `acceptance-validation`. Every stage whose isolation is
+`independent` also needs `independent-context`, meaning a separate session or subagent
+with different permissions from the implementer. A host profile
+(`sdp-workflows/hosts/<host>.json`) records each capability as `true` with cited
+evidence, `false`, or `"unverified"`; the validator refuses `true` without evidence.
+`next --host <name>` counts only verified capabilities, and an explicit
+`--capabilities` list overrides it only when a human supplies it. The result reports
+`capability_source` (`host:<name>`, `explicit`, or `unchecked`). A missing capability
+produces `blocked-capability`, never a self-review. See `docs/COMPATIBILITY.md` for
+what has actually been observed per host.
+
+`transition --to delivering` accepts the same `--host` or `--capabilities` and records
+the source in the run record's `capability_source` (`host:<name>` or `explicit`),
+which `inspect` reports and the acceptance brief must state. A limit remains: an
+explicit list is a caller's assertion, and nothing local can prove the host really has
+those capabilities or that a human supplied the list. The record makes that choice
+visible; stopping it needs host-level approval prompts or protected CI.
+
 ## Skill Coverage Map
 
 Stage expertise is extracted into skills. Agents keep their current files until

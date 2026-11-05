@@ -10,6 +10,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Host profiles (`sdp-workflows/hosts/*.json`) and `sdp.py next --host <name>`: only
+  capabilities a profile verified with cited evidence count, and isolated stages now
+  also require an `independent-context` capability, so an unverified host blocks
+  instead of allowing self-review. Profiles ship for GitHub Copilot CLI (install and
+  skill discovery verified on 1.0.85; delivery not yet executed) and Claude Code (not
+  tested; Claude Code was unavailable). `docs/COMPATIBILITY.md` states what was
+  observed per host.
+- Preview entry points: the `sdp.coordinator` agent and `/run-workflow` prompt run the
+  schema 4 bug workflow. `/deliver` and `sdp.orchestrator` are unchanged.
 - `sdp-workflows` skill with a validated `bug` workflow definition, and `sdp.py
   next`, a read-only command that derives the next action (dispatch a stage, escalate,
   replan, block for a missing capability, request acceptance) from the stored record,

@@ -13,6 +13,12 @@ Make supervised delivery simple: resolve the active plan, approve it when the
 user invokes `/deliver`, coordinate implementation and proportionate assurance,
 then stop for a human decision. Never write product code.
 
+## Compatibility
+
+This agent writes schema 3 run records. The schema 4 bug workflow is run by the
+preview `sdp.coordinator` agent (`/run-workflow`) and the validator; do not mix the
+two on one package. This agent is retired when the new workflows replace it.
+
 ## User Experience
 
 Bare `/deliver` is the normal path. It:

@@ -58,6 +58,11 @@ class WorkflowDefinitionTests(unittest.TestCase):
         document["stages"][1]["isolation"] = "none"
         self.assertTrue(any("isolation" in e for e in sdp.validate_workflow(document)))
 
+    def test_workflow_cannot_drop_the_isolation_capability(self):
+        document = sdp.load_workflow("bug")
+        document["capabilities_required"].remove("independent-context")
+        self.assertTrue(any("independent-context" in e for e in sdp.validate_workflow(document)))
+
     def test_workflow_stage_order_and_limits_are_fixed(self):
         document = sdp.load_workflow("bug")
         document["stages"].reverse()
@@ -93,6 +98,119 @@ class WorkflowDefinitionTests(unittest.TestCase):
         package = repo.package()
         code, payload = repo.cli(package, "approve", "--by", HUMAN, "--workflow", "feature")
         self.assertEqual("workflow_unknown", payload["error"])
+
+
+class HostProfileTests(Driver):
+    def profile(self, **capabilities):
+        folder = tempfile.mkdtemp()
+        self.addCleanup(lambda: __import__("shutil").rmtree(folder, ignore_errors=True))
+        entries = {name: {"provided": "unverified"} for name in sdp.CAPABILITY_NAMES}
+        entries.update(capabilities)
+        document = {"schema_version": 1, "host": "fake", "capabilities": entries}
+        (Path(folder) / "fake.json").write_text(json.dumps(document))
+        previous = os.environ.get("SDP_HOSTS_DIR")
+        os.environ["SDP_HOSTS_DIR"] = folder
+
+        def restore():
+            if previous is None:
+                os.environ.pop("SDP_HOSTS_DIR", None)
+            else:
+                os.environ["SDP_HOSTS_DIR"] = previous
+
+        self.addCleanup(restore)
+        return folder
+
+    def verified(self, *names):
+        return {name: {"provided": True, "evidence": ["HISTORY.md"]} for name in names}
+
+    def test_shipped_profiles_are_valid_and_claim_no_unproven_capability(self):
+        folder = sdp.DEFAULT_HOSTS_DIR
+        profiles = sorted(folder.glob("*.json"))
+        self.assertTrue(profiles)
+        for path in profiles:
+            with self.subTest(profile=path.name):
+                document = json.loads(path.read_text(encoding="utf-8"))
+                self.assertEqual([], sdp.validate_host_profile(document))
+                self.assertEqual([], sdp.load_host_capabilities(path.stem))
+
+    def test_unverified_host_blocks_instead_of_allowing_self_review(self):
+        self.approve()
+        code, payload = self.repo.cli(self.pkg, "next", "--host", "copilot-cli")
+        self.assertEqual(0, code, payload)
+        self.assertEqual("blocked-capability", payload["action"])
+        self.assertEqual("host:copilot-cli", payload["capability_source"])
+        self.assertIn("independent-context", payload["missing"])
+
+    def test_verified_host_allows_the_workflow(self):
+        self.profile(**self.verified("implement", "technical-review", "independent-context"))
+        self.approve()
+        code, payload = self.repo.cli(self.pkg, "next", "--host", "fake")
+        self.assertEqual("start-delivery", payload["action"])
+        self.assertEqual("host:fake", payload["capability_source"])
+
+    def test_verified_capability_must_cite_evidence(self):
+        self.profile(implement={"provided": True})
+        code, payload = self.repo.cli(self.pkg, "next", "--host", "fake")
+        self.assertEqual("host_invalid", payload["error"])
+        self.assertIn("evidence", payload["message"])
+
+    def test_unknown_and_traversal_host_names_refused(self):
+        for name in ("nope", "../x", ""):
+            with self.subTest(name=name):
+                with self.assertRaises(sdp.ProtocolError):
+                    sdp.load_host_capabilities(name)
+
+    def test_host_and_explicit_capabilities_are_mutually_exclusive(self):
+        code, payload = self.repo.cli(self.pkg, "next", "--host", "copilot-cli", "--capabilities", CAPS)
+        self.assertEqual(2, code)
+        self.assertEqual("usage", payload["error"])
+
+    def test_capability_source_is_reported(self):
+        self.assertEqual("unchecked", self.nxt(capabilities=None)["capability_source"])
+        self.assertEqual("explicit", self.nxt()["capability_source"])
+
+    def test_transition_with_unverified_host_is_refused(self):
+        self.approve()
+        code, payload = self.repo.cli(
+            self.pkg, "transition", "--to", "delivering", "--expected-revision",
+            str(self.repo.revision(self.pkg)), "--host", "copilot-cli")
+        self.assertEqual("capability_missing", payload["error"])
+        self.assertEqual("planned", self.repo.record(self.pkg)["delivery_status"])
+
+    def test_transition_records_where_capabilities_came_from(self):
+        self.profile(**self.verified("implement", "technical-review", "independent-context"))
+        self.approve()
+        code, payload = self.repo.cli(
+            self.pkg, "transition", "--to", "delivering", "--expected-revision",
+            str(self.repo.revision(self.pkg)), "--host", "fake")
+        self.assertEqual(0, code, payload)
+        self.assertEqual("host:fake", self.repo.record(self.pkg)["capability_source"])
+        code, payload = self.repo.cli(self.pkg, "inspect")
+        self.assertEqual("host:fake", payload["capability_source"])
+
+    def test_explicit_assertion_is_recorded_as_explicit(self):
+        self.approve()
+        self.assertEqual(0, self.move("delivering", caps=CAPS)[0])
+        self.assertEqual("explicit", self.repo.record(self.pkg)["capability_source"])
+
+    def test_transition_host_and_capabilities_are_mutually_exclusive(self):
+        self.approve()
+        code, payload = self.repo.cli(
+            self.pkg, "transition", "--to", "delivering", "--expected-revision",
+            str(self.repo.revision(self.pkg)), "--host", "copilot-cli", "--capabilities", CAPS)
+        self.assertEqual(2, code)
+        self.assertEqual("usage", payload["error"])
+
+    def test_forged_capability_source_in_record_is_rejected(self):
+        self.approve()
+        path = self.repo.root / self.pkg / "DELIVERY-RUN.json"
+        record = json.loads(path.read_text())
+        record["capability_source"] = "trust-me"
+        self.assertTrue(any("capability_source" in e for e in sdp.validate_structure(record)))
+
+    def test_profile_must_list_exactly_the_known_capabilities(self):
+        document = {"schema_version": 1, "host": "x", "capabilities": {"implement": {"provided": True, "evidence": ["e"]}}}
+        self.assertTrue(any("exactly" in e for e in sdp.validate_host_profile(document)))
 
 
 class NextActionTests(Driver):
@@ -213,6 +331,16 @@ class NextActionTests(Driver):
         self.assertIn("self-review", payload["reason"])
         self.assertEqual("reviewer", payload["stage"])
 
+    def test_reviewer_capability_without_isolation_still_blocks(self):
+        self.approve()
+        self.move("delivering", caps=CAPS)
+        self.repo.edit("x\n")
+        self.result("developer")
+        payload = self.nxt(capabilities="implement,technical-review")
+        self.assertEqual("blocked-capability", payload["action"])
+        self.assertEqual(["independent-context"], payload["missing"])
+        self.assertEqual("reviewer", payload["stage"])
+
     def test_plan_edit_mid_delivery_requires_replan_not_resume(self):
         self.approve()
         self.move("delivering", caps=CAPS)
@@ -262,9 +390,9 @@ class NextActionTests(Driver):
         self.approve()
         payload = self.nxt(capabilities="implement")
         self.assertEqual("blocked-capability", payload["action"])
-        self.assertEqual(["technical-review"], payload["missing"])
+        self.assertEqual(["independent-context", "technical-review"], payload["missing"])
         payload = self.nxt(capabilities="")
-        self.assertEqual(["implement", "technical-review"], payload["missing"])
+        self.assertEqual(["implement", "independent-context", "technical-review"], payload["missing"])
 
     def test_compliance_reports_every_missing_capability_at_once(self):
         self.approve(None, "--profile", "Compliance")
@@ -272,7 +400,7 @@ class NextActionTests(Driver):
         self.repo.edit("x\n")
         self.result("developer")
         self.result("reviewer")
-        payload = self.nxt(capabilities="implement,technical-review")
+        payload = self.nxt(capabilities="implement,technical-review,independent-context")
         self.assertEqual("blocked-capability", payload["action"])
         self.assertEqual(["acceptance-validation", "security-review"], payload["missing"])
 
