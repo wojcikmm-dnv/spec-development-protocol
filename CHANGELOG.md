@@ -10,6 +10,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- `scripts/build-release.py` builds the release ZIP from `apm pack --archive`: bytecode
+  caches dropped, text normalized to LF, `LICENSE` and `SETUP.md` added, deterministic
+  entry order and timestamps, `SHA256SUMS` and `release-metadata.json`, strict version and
+  manifest-name consistency, and an exact APM version pin in `scripts/release-tools.json`.
+  The bundle is verified for completeness, byte identity with the source, and unsafe,
+  unexpected, or colliding entries before anything is written. `tests/packaging/` covers
+  each rule, reproducibility across line endings, and a clean-extraction smoke run.
+  `docs/RELEASING.md` documents the build, the tag convention (`v<semver>`), the catalog
+  decision, and what is not yet verified. Nothing is published by this change.
 - `sdp-migrate` skill: previews, then migrates SDP 0.5.3 and 0.5.4 projects to schema 4
   with a backup and write-ahead journal, validates the result, and restores everything on
   failure (`restore`, `status` for interrupted runs). Open packages restart as `planned`

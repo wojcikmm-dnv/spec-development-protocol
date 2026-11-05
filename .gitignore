@@ -5,3 +5,6 @@ apm_modules/
 # Python bytecode
 __pycache__/
 *.pyc
+
+# Release output
+dist/

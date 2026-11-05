@@ -1,0 +1,24 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-bundles-DP-1-run-1",
+  "delivery_id": "sdp-2-bundles-DP-1",
+  "delivery_status": "accepted",
+  "branch": null,
+  "profile": "Balanced",
+  "current_stage": "closed",
+  "completed_stages": ["developer", "reviewer", "security", "qa"],
+  "changed_paths": [
+    "scripts/build-release.py", "scripts/release-tools.json", "scripts/release-assets/SETUP.md", "tests/packaging/test_packaging.py",
+    "docs/RELEASING.md", "README.md", "CHANGELOG.md", "PLAN.md", ".gitignore"
+  ],
+  "stage_results": [
+    {"stage": "developer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": [], "checks": ["39 packaging tests", "mutation checks", "byte-identical rebuilds across line endings"]},
+    {"stage": "reviewer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": ["Medium: line-ending dependent bytes, fixed", "Low: partial output on failure, fixed"], "checks": ["independent read-only review with reproductions"]},
+    {"stage": "security", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": ["Medium to low: hostile or extra entries accepted, fixed"], "checks": ["zip-slip, symlink, alternate stream, case collision, hostile apm output"]},
+    {"stage": "qa", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": [], "checks": ["clean extraction smoke run", "apm release gates"]}
+  ],
+  "autonomous_rejection_count": 1,
+  "pending_audit": ["step-06-claude-code-qualification", "step-08b-instruction-reduction", "step-10-hosted-catalog-rehearsal"],
+  "acceptance": {"decision": "accepted", "decided_by": "user (chat)", "decided_at": "2026-11-05T23:59:00+01:00", "feedback": "Continue in order until stopped."},
+  "compliance": null
+}

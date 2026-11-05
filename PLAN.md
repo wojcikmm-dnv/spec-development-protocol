@@ -83,9 +83,9 @@ user files, credentials, repository settings, or installed global plugins.
 
 ## Ordered Steps
 
-Progress: Steps 01-07, 08a, and 09 are accepted (packages `sdp-2-baseline-DP-1`,
+Progress: Steps 01-07, 08a, 09, and the local part of 10 are accepted (packages `sdp-2-baseline-DP-1`,
 `sdp-2-protocol-DP-1`, `sdp-2-core-DP-1`, `sdp-2-skills-DP-1`, `sdp-2-workflow-DP-1`,
-`sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`, `sdp-2-feature-DP-1`, `sdp-2-migrate-DP-1`). Step 06's exit criterion is only partly met: GitHub Copilot CLI is
+`sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`, `sdp-2-feature-DP-1`, `sdp-2-migrate-DP-1`, `sdp-2-bundles-DP-1`). Step 06's exit criterion is only partly met: GitHub Copilot CLI is
 smoke-tested, but Claude Code was unavailable and is blocked, tracked as the open
 obligation `step-06-claude-code-qualification`; no host has executed a full delivery.
 Protocol design in
@@ -302,6 +302,14 @@ unknown versions, unresolved audits, and backup restoration.
 **Exit:** Supported migrations and rollback pass independent QA/security review.
 
 ### Step 10 - Produce Qualified Bundles and Catalogs
+
+**Status:** local part accepted (package `sdp-2-bundles-DP-1`): version authority and
+tag convention, pinned APM, deterministic verified ZIP, `tests/packaging/`, and the
+catalog decision in [docs/RELEASING.md](docs/RELEASING.md). Not done: installing exact
+bundles through hosted native channels and resolving immutable catalog revisions; Copilot
+CLI loads a local marketplace live, so that needs a published repository and a tag
+(tracked as `step-10-hosted-catalog-rehearsal`, to be done with Step 11/14 and the owner's
+authorization).
 
 - [ ] Standardize release tags on `v<semver>` and remove conflicting package
   tag overrides. Derive generated manifest versions from one authority.
