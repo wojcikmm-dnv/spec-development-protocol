@@ -1,0 +1,24 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-workflow-DP-1-run-1",
+  "delivery_id": "sdp-2-workflow-DP-1",
+  "delivery_status": "accepted",
+  "branch": null,
+  "profile": "Balanced",
+  "current_stage": "closed",
+  "completed_stages": ["developer", "reviewer", "security"],
+  "changed_paths": [
+    ".apm/skills/sdp-workflows/SKILL.md", ".apm/skills/sdp-workflows/workflows/bug.json",
+    ".apm/skills/sdp-core/scripts/sdp.py", "tests/contracts/test_workflow.py", "docs/PROTOCOL.md", "CHANGELOG.md"
+  ],
+  "stage_results": [
+    {"stage": "developer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": [], "checks": ["81 contract tests", "28 skill tests", "eight mutation checks"]},
+    {"stage": "reviewer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": ["Medium: eight findings triaged; four fixed, four rejected with rationale"], "checks": ["independent read-only review with repro scripts"]},
+    {"stage": "security", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": ["Low: approval name is asserted, documented"], "checks": ["approval binding, environment override and workflow loading reviewed independently"]},
+    {"stage": "qa", "verdict": "not_applicable", "reason": "Scenario tests exercise the observable workflow; no host is wired yet, so there is nothing further to exercise."}
+  ],
+  "autonomous_rejection_count": 1,
+  "pending_audit": [],
+  "acceptance": {"decision": "accepted", "decided_by": "user (chat)", "decided_at": "2026-11-05T16:00:00+01:00", "feedback": "Continue in order until stopped."},
+  "compliance": null
+}

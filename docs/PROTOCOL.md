@@ -246,6 +246,29 @@ A candidate that failed a stage cannot be re-passed for that stage until it
 changes, so a repair has to alter the candidate and a rerun cannot silently
 replace a failing verdict.
 
+## Workflow Definitions and the Next Action
+
+A workflow is a JSON file in the `sdp-workflows` skill (`workflows/<name>.json`,
+schema 1). It lists pre-delivery steps, the four delivery stages in fixed order with
+their capability, skill, isolation, and whether the stage is `always` or
+`on-trigger-or-policy`, the capabilities a host must offer, the repair limit, and the
+acceptance rule. It names capabilities and skills, never agents. The validator
+refuses a definition that makes developer or reviewer optional, drops isolation from
+assurance, reorders stages, or changes the escalation limit from two.
+
+`sdp.py next` derives the single next action from the stored record, the plan, and
+the working tree, and never writes. A coordinator repeats: run `next`, do that one
+action, record the result through the validator, run `next` again. Because the
+action is derived from stored facts, an interrupted run resumes by running `next`.
+Actions: `approve-plan`, `await-plan-approval`, `start-delivery`, `run-stage`
+(with stage, skill, isolation, and the exact `result` command; `repair` when an
+unchanged candidate failed), `resume-delivery`, `resolve-block`, `escalate-to-human`,
+`blocked-capability`, `replan`, `request-acceptance`, `await-human-decision`, and
+`done`. If the host lacks a capability the next stage needs, the action is
+`blocked-capability`; self-review is never offered as a substitute.
+
+Only the `bug` workflow exists. The feature workflow is added in Step 08.
+
 ## Skill Coverage Map
 
 Stage expertise is extracted into skills. Agents keep their current files until

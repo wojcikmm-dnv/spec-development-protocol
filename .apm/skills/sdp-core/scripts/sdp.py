@@ -569,7 +569,7 @@ def transition(record, to, context):
             raise invalid("plan_stale", "; ".join(errors))
         if current == "planned":
             capabilities = set(context.get("capabilities", ()))
-            missing = {"implement", "technical-review"} - capabilities
+            missing = set(context.get("required_capabilities", ("implement", "technical-review"))) - capabilities
             if missing:
                 raise invalid("capability_missing", f"Required capabilities unavailable: {', '.join(sorted(missing))}")
             for prerequisite in plan["sequenced_after"]:
@@ -810,14 +810,17 @@ def update_record(record_path, mutate, expected_revision, plan_path=None):
         return updated
 
 
-def approve_plan(record_path, plan_path, expected_revision, make_record, by):
+def approve_plan(record_path, plan_path, expected_revision, make_record, by, expected_fingerprint=None):
     """Record approval in PLAN.md and the run record as one locked operation."""
     with exclusive_lock(record_path):
         stored = stored_record(record_path, expected_revision)
         if stored is not None and stored["delivery_status"] != "planned":
             raise invalid("invalid_transition", "A plan can only be approved while the package is planned")
+        current = read_limited(plan_path, MAX_PLAN_BYTES)
+        if expected_fingerprint and parse_plan(current)["fingerprint"] != expected_fingerprint:
+            raise invalid("plan_changed", "PLAN.md changed since the human reviewed it; show the current plan and ask again")
         edited = set_frontmatter(
-            read_limited(plan_path, MAX_PLAN_BYTES),
+            current,
             {"status": "approved", "approved_by": by, "approved_at": now()},
         )
         updated = bind_plan(stored or make_record(), parse_plan(edited))
@@ -853,6 +856,155 @@ def prerequisite_statuses(repo, plan):
     return statuses
 
 
+# --- workflows and next action ---------------------------------------------
+
+DEFAULT_WORKFLOW_DIR = Path(__file__).resolve().parent.parent.parent / "sdp-workflows" / "workflows"
+
+
+def workflow_dir():
+    override = os.environ.get("SDP_WORKFLOW_DIR")
+    return Path(override) if override else DEFAULT_WORKFLOW_DIR
+STAGE_ORDER = ("developer", "reviewer", "security", "qa")
+REQUIRED_KINDS = ("always", "on-trigger-or-policy")
+ISOLATION_BY_STAGE = {"developer": "none", "reviewer": "independent", "security": "independent", "qa": "independent"}
+
+
+def validate_workflow(document):
+    errors = []
+    if not isinstance(document, dict):
+        return ["Workflow must be a JSON object"]
+    if document.get("schema_version") != 1:
+        errors.append("schema_version must be 1")
+    if not (isinstance(document.get("workflow"), str) and TOKEN_RE.match(document["workflow"])):
+        errors.append("workflow must be a simple name")
+    stages = document.get("stages")
+    if not isinstance(stages, list) or [s.get("stage") if isinstance(s, dict) else None for s in stages] != list(STAGE_ORDER):
+        errors.append("stages must be developer, reviewer, security, qa in that order")
+    else:
+        for item in stages:
+            name = item["stage"]
+            for key in ("capability", "skill"):
+                if not (isinstance(item.get(key), str) and item[key]):
+                    errors.append(f"{name}: {key} is required")
+            if item.get("isolation") != ISOLATION_BY_STAGE[name]:
+                errors.append(f"{name}: isolation must be {ISOLATION_BY_STAGE[name]}")
+            if item.get("required") not in REQUIRED_KINDS:
+                errors.append(f"{name}: required must be one of {', '.join(REQUIRED_KINDS)}")
+            if name in ("developer", "reviewer") and item.get("required") != "always":
+                errors.append(f"{name}: must be required always")
+    limits = document.get("limits")
+    if not (isinstance(limits, dict) and limits.get("rejected_candidates_before_escalation") == 2):
+        errors.append("limits.rejected_candidates_before_escalation must be 2")
+    capabilities = document.get("capabilities_required")
+    if not (_is_str_list(capabilities) and {"implement", "technical-review"} <= set(capabilities)):
+        errors.append("capabilities_required must include implement and technical-review")
+    if not isinstance(document.get("pre_delivery", []), list):
+        errors.append("pre_delivery must be a list")
+    return errors
+
+
+def load_workflow(name):
+    if not (isinstance(name, str) and TOKEN_RE.match(name)):
+        raise invalid("workflow_unknown", "Invalid workflow name")
+    path = workflow_dir() / f"{name}.json"
+    try:
+        document = json.loads(read_limited(path, MAX_PLAN_BYTES))
+    except FileNotFoundError:
+        raise invalid("workflow_unknown", f"No workflow definition named {name!r}")
+    except (OSError, ValueError, RecursionError) as error:
+        raise invalid("workflow_invalid", f"Cannot read workflow {name!r}: {error}")
+    problems = validate_workflow(document)
+    if problems:
+        raise invalid("workflow_invalid", "; ".join(problems))
+    return document
+
+
+def _stage_action(workflow, stage, record, **extra):
+    entry = next(item for item in workflow["stages"] if item["stage"] == stage)
+    return {
+        "action": "run-stage", "actor": "worker", "stage": stage,
+        "capability": entry["capability"], "skill": entry["skill"], "isolation": entry["isolation"],
+        "record_with": f"result --stage {stage} --verdict <verdict> --expected-revision {record['state_revision']}",
+        **extra,
+    }
+
+
+def next_action(workflow, record, plan, fingerprint, capabilities=None):
+    """Derive the single next step from stored facts; read-only and deterministic."""
+    if record is None:
+        if plan_is_approved(plan):
+            return {"action": "approve-plan", "actor": "coordinator", "approved_by": plan["approved_by"],
+                    "plan_fingerprint": plan["fingerprint"],
+                    "reason": "PLAN.md is marked approved but no run record exists; record it with the approved_by name and --expect-plan-fingerprint"}
+        return {"action": "await-plan-approval", "actor": "human", "plan_fingerprint": plan["fingerprint"],
+                "reason": "Show the human this exact plan; a named human must approve it before any product change"}
+    status = record["delivery_status"]
+    revision = record["state_revision"]
+    base = {"state_revision": revision, "status": status}
+    if status in TERMINAL:
+        return {**base, "action": "done", "actor": "none", "reason": f"The package is {status}"}
+    if status == "awaiting-acceptance":
+        stale = record["candidate"] and fingerprint != record["candidate"]["fingerprint"]
+        return {**base, "action": "await-human-decision", "actor": "human",
+                "options": ["accepted", "changes-requested", "rejected"],
+                "warning": "The working tree changed after assurance; accepting is refused until changes are requested and assurance reruns" if stale else None}
+    if record["plan"] is None:
+        return {**base, "action": "await-plan-approval", "actor": "human", "plan_fingerprint": plan["fingerprint"],
+                "reason": "The approval was voided; replan, then a named human must approve again"}
+    binding = plan_binding_errors(record, plan)
+    if binding:
+        return {**base, "action": "replan", "actor": "human", "reason": "; ".join(binding),
+                "then": "transition --to planned with a reason, edit the plan, and approve it again"}
+    if status == "planned":
+        granted = workflow["capabilities_required"] if capabilities is None else capabilities
+        missing = sorted(set(workflow["capabilities_required"]) - set(granted))
+        if missing:
+            return {**base, "action": "blocked-capability", "actor": "human", "missing": missing,
+                    "reason": f"The host cannot provide {', '.join(missing)}; delivery cannot start and self-review is not a substitute"}
+        return {**base, "action": "start-delivery", "actor": "coordinator", "transition_to": "delivering",
+                "capabilities_required": workflow["capabilities_required"]}
+    if status == "blocked":
+        return {**base, "action": "resolve-block", "actor": "human", "reason": record["blocked_reason"],
+                "then": "transition --to delivering once the cause is cleared"}
+    if status == "changes-requested":
+        if record["rejected_candidates"] >= workflow["limits"]["rejected_candidates_before_escalation"]:
+            return {**base, "action": "escalate-to-human", "actor": "human",
+                    "reason": "Two candidates were rejected; a human must guide the next repair or decide",
+                    "options": ["transition --to delivering --human-guided --decided-by <human>",
+                                "transition --to planned --reason <why>", "transition --to rejected --decided-by <human>"]}
+        return {**base, "action": "resume-delivery", "actor": "coordinator", "transition_to": "delivering"}
+    results = [r for r in record["stage_results"] if r["candidate_fingerprint"] == fingerprint]
+    failing = [r for r in results if r["verdict"] == "fail"]
+    stages_needed = required_stages(record, fingerprint)
+    present = {s: latest_result(record, s, fingerprint) for s in STAGE_ORDER}
+    if failing:
+        return {**base, **_stage_action(workflow, "developer", record, repair=True,
+                                        findings=[f for r in failing for f in r.get("findings", [])]),
+                "reason": "The candidate failed review and is unchanged; the developer must change it, then record a developer result"}
+    for stage in STAGE_ORDER:
+        if stage != "developer" and stage not in stages_needed:
+            continue
+        result = present[stage]
+        if result is None or result["verdict"] != "pass":
+            if capabilities is not None:
+                gaps = {}
+                for later in STAGE_ORDER[STAGE_ORDER.index(stage):]:
+                    if later in stages_needed and (present[later] is None or present[later]["verdict"] != "pass"):
+                        needed = next(item["capability"] for item in workflow["stages"] if item["stage"] == later)
+                        if needed not in capabilities:
+                            gaps[later] = needed
+                if stage in gaps:
+                    return {**base, "action": "blocked-capability", "actor": "human", "stage": stage,
+                            "missing": sorted(set(gaps.values())), "missing_by_stage": gaps,
+                            "reason": f"The host cannot provide {', '.join(sorted(set(gaps.values())))}; self-review is not a substitute"}
+            stale_note = None
+            if any(r["stage"] == stage for r in record["stage_results"]) and result is None:
+                stale_note = "Earlier results for this stage belong to a previous candidate and are stale"
+            return {**base, **_stage_action(workflow, stage, record, notes=stale_note)}
+    return {**base, "action": "request-acceptance", "actor": "coordinator", "transition_to": "awaiting-acceptance",
+            "required_stages": sorted(stages_needed)}
+
+
 # --- command line ---------------------------------------------------------
 
 def parser():
@@ -863,9 +1015,13 @@ def parser():
     commands = root.add_subparsers(dest="command", required=True)
     commands.add_parser("validate")
     commands.add_parser("inspect")
+    following = commands.add_parser("next", help="print the next required action (read-only)")
+    following.add_argument("--workflow", default="bug", help="used only before a run record exists")
+    following.add_argument("--capabilities", default=None, help="comma-separated host capabilities; omit to skip the check")
     approve = commands.add_parser("approve")
     approve.add_argument("--by", required=True)
-    approve.add_argument("--workflow", default="feature")
+    approve.add_argument("--workflow", default="bug")
+    approve.add_argument("--expect-plan-fingerprint", help="refuse unless PLAN.md still has this fingerprint (from `next`)")
     approve.add_argument("--profile", choices=PROFILES, default="Balanced")
     approve.add_argument("--profile-floor", choices=PROFILES, default="Lean")
     approve.add_argument("--epic-security-policy", choices=EPIC_POLICIES, default="risk-based")
@@ -929,7 +1085,19 @@ def run(arguments):
             raise ProtocolError(EXIT_INVALID, "invalid_record", "; ".join(errors))
         return summary
 
+    if command == "next":
+        workflow = load_workflow(record["workflow"] if record else arguments.workflow)
+        capabilities = None
+        if arguments.capabilities is not None:
+            capabilities = [item for item in arguments.capabilities.split(",") if item]
+        problems = validate_structure(record) if record else []
+        if problems:
+            raise invalid("record_invalid", "; ".join(problems))
+        fingerprint = facts(repo, package_dir, record)["fingerprint"] if record and record["candidate"] else None
+        return next_action(workflow, record, plan, fingerprint, capabilities)
+
     if command == "approve":
+        load_workflow(arguments.workflow)
         if not arguments.by or is_agent_identity(arguments.by):
             raise invalid("human_required", "Approval needs a named human")
         policy = {
@@ -943,7 +1111,7 @@ def run(arguments):
 
         approve_plan(
             record_path, plan_path, arguments.expected_revision if record else None,
-            make_record, arguments.by,
+            make_record, arguments.by, arguments.expect_plan_fingerprint,
         )
         return {"status": "planned", "approved": True}
 
@@ -958,6 +1126,7 @@ def run(arguments):
             candidate = locked_facts(stored)
             context = {
                 "plan": current_plan,
+                "required_capabilities": load_workflow(stored["workflow"])["capabilities_required"],
                 "fingerprint": candidate["fingerprint"],
                 "candidate": candidate,
                 "head": head_revision(repo),

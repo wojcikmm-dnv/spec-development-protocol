@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "workflow": "bug",
+  "description": "Fix a reported defect: investigate, plan, approve, implement, review, specialists on trigger, human acceptance.",
+  "pre_delivery": [
+    {"step": "investigate", "actor": "worker", "skill": "sdp-investigate", "output": "reproduction, root cause, bounded fix proposal"},
+    {"step": "plan", "actor": "worker", "skill": "sdp-plan-delivery", "output": "draft PLAN.md"},
+    {"step": "approve", "actor": "human", "output": "approved plan; edits after this void the approval"}
+  ],
+  "stages": [
+    {"stage": "developer", "capability": "implement", "skill": "sdp-implement", "isolation": "none", "required": "always"},
+    {"stage": "reviewer", "capability": "technical-review", "skill": "sdp-technical-review", "isolation": "independent", "required": "always"},
+    {"stage": "security", "capability": "security-review", "skill": "sdp-security-review", "isolation": "independent", "required": "on-trigger-or-policy"},
+    {"stage": "qa", "capability": "acceptance-validation", "skill": "sdp-acceptance-validation", "isolation": "independent", "required": "on-trigger-or-policy"}
+  ],
+  "capabilities_required": ["implement", "technical-review"],
+  "limits": {"rejected_candidates_before_escalation": 2},
+  "acceptance": {
+    "actor": "human",
+    "never_automatic": ["commit", "merge", "deploy", "select-next-package"]
+  }
+}

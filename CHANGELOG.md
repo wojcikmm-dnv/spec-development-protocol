@@ -10,6 +10,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- `sdp-workflows` skill with a validated `bug` workflow definition, and `sdp.py
+  next`, a read-only command that derives the next action (dispatch a stage, escalate,
+  replan, block for a missing capability, request acceptance) from the stored record,
+  plan, and working tree. Resume after interruption is `next`. Plan approval can be
+  bound to the plan the human reviewed with `--expect-plan-fingerprint`. Not yet
+  wired into agents or prompts; the existing orchestrator is unchanged and still uses
+  schema 3 records, so do not mix the two on one package.
 - Extracted stage skills: `sdp-investigate`, `sdp-plan-delivery`, `sdp-implement`,
   `sdp-technical-review`, `sdp-security-review`, and `sdp-acceptance-validation`,
   each with an `sdp.skill.json` descriptor and `evals/cases.json` (correct,
