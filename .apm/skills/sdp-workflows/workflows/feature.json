@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "workflow": "feature",
+  "description": "Deliver a new capability or material behavior change: PRD, backlog, design, then bounded delivery packages with independent assurance and human acceptance.",
+  "gates": [
+    {"gate": 1, "artifact": "PRD", "entry_point": "/create-prd"},
+    {"gate": 2, "artifact": "BACKLOG", "entry_point": "/refine-backlog"},
+    {"gate": 2, "artifact": "EPIC", "entry_point": "/refine-backlog"},
+    {"gate": 3, "artifact": "DESIGN", "entry_point": "/design-system"}
+  ],
+  "pre_delivery": [
+    {"step": "plan", "actor": "worker", "skill": "sdp-plan-delivery", "output": "draft PLAN.md for one coherent package"},
+    {"step": "approve", "actor": "human", "output": "approved plan; edits after this void the approval"}
+  ],
+  "stages": [
+    {"stage": "developer", "capability": "implement", "skill": "sdp-implement", "isolation": "none", "required": "always"},
+    {"stage": "reviewer", "capability": "technical-review", "skill": "sdp-technical-review", "isolation": "independent", "required": "always"},
+    {"stage": "security", "capability": "security-review", "skill": "sdp-security-review", "isolation": "independent", "required": "on-trigger-or-policy"},
+    {"stage": "qa", "capability": "acceptance-validation", "skill": "sdp-acceptance-validation", "isolation": "independent", "required": "on-trigger-or-policy"}
+  ],
+  "capabilities_required": ["implement", "technical-review", "independent-context"],
+  "limits": {"rejected_candidates_before_escalation": 2},
+  "acceptance": {
+    "actor": "human",
+    "never_automatic": ["commit", "merge", "deploy", "select-next-package"]
+  }
+}

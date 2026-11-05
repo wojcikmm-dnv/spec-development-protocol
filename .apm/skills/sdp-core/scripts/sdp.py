@@ -127,6 +127,15 @@ def parse_frontmatter(front):
     return values
 
 
+APPROVAL_KEYS = ("status", "approved_by", "approved_at")
+
+
+def plan_fingerprint(meta, body):
+    """Digest of the body and every frontmatter field except the approval fields themselves."""
+    extra = "\n".join(f"{key}={json.dumps(value)}" for key, value in sorted(meta.items()) if key not in APPROVAL_KEYS)
+    return sha256_hex((body + "\0frontmatter\0" + extra).encode("utf-8"))
+
+
 def parse_plan(text):
     front, body = split_plan(text)
     meta = parse_frontmatter(front)
@@ -136,7 +145,9 @@ def parse_plan(text):
         "approved_at": meta.get("approved_at", "pending"),
         "stories": meta.get("stories", []),
         "sequenced_after": meta.get("sequenced_after", []),
-        "fingerprint": sha256_hex(body.encode("utf-8")),
+        "gates": meta.get("gates", "full"),
+        "basis": meta.get("basis", ""),
+        "fingerprint": plan_fingerprint(meta, body),
     }
 
 
@@ -156,11 +167,19 @@ def set_frontmatter(text, updates):
     return "---\n" + "\n".join(lines) + "\n---\n" + body
 
 
+PLACEHOLDERS = ("", "pending", "tbd", "todo", "none", "n/a", "na", "null", "unknown", "?", "-", "<identity>", "<iso timestamp>")
+
+
+def is_placeholder(value):
+    return not isinstance(value, str) or value.strip().lower() in PLACEHOLDERS or not value.strip()
+
+
 def plan_is_approved(plan):
     return (
-        plan["status"] == "approved"
-        and plan["approved_by"] not in ("", "pending")
-        and plan["approved_at"] not in ("", "pending")
+        isinstance(plan["status"], str)
+        and plan["status"].strip() == "approved"
+        and not not_a_human(plan["approved_by"])
+        and not is_placeholder(plan["approved_at"])
     )
 
 
@@ -382,6 +401,11 @@ def is_agent_identity(name):
     )
 
 
+def not_a_human(name):
+    """True for placeholders and obvious agent identities; the one check for human-only decisions."""
+    return is_placeholder(name) or is_agent_identity(name)
+
+
 def all_triggers(record):
     found = []
     for result in record["stage_results"]:
@@ -397,7 +421,7 @@ def risk_accepted(record, trigger, fingerprint):
         and item["candidate_fingerprint"] == fingerprint
         and item["disposition"] == "accepted_risk"
         and item["reason"]
-        and not is_agent_identity(item["by"])
+        and not not_a_human(item["by"])
         for item in record["trigger_dispositions"]
     )
 
@@ -453,7 +477,7 @@ def validate_record(record, plan=None, current_fingerprint=None):
     for index, item in enumerate(record["trigger_dispositions"]):
         stage = item["trigger"].split(":", 1)[0]
         if item["disposition"] == "accepted_risk":
-            if is_agent_identity(item["by"]) or not item["reason"]:
+            if not_a_human(item["by"]) or not item["reason"]:
                 errors.append(f"trigger_dispositions[{index}]: accepted_risk needs a human and a reason")
         elif item["by"] != stage:
             errors.append(f"trigger_dispositions[{index}]: only the {stage} stage can record {item['disposition']}")
@@ -478,7 +502,7 @@ def validate_record(record, plan=None, current_fingerprint=None):
                 errors.append("The working tree changed after assurance; results are stale")
     acceptance = record["acceptance"]
     if status == "accepted" and not (
-        acceptance["decision"] == "accepted" and _is_str(acceptance["decided_by"]) and not is_agent_identity(acceptance["decided_by"])
+        acceptance["decision"] == "accepted" and _is_str(acceptance["decided_by"]) and not not_a_human(acceptance["decided_by"])
     ):
         errors.append("accepted requires a recorded human decision")
     if status == "rejected" and acceptance["decision"] != "rejected":
@@ -565,7 +589,7 @@ def transition(record, to, context):
     reason = context.get("reason")
 
     def need_human():
-        if not human or is_agent_identity(human):
+        if not human or not_a_human(human):
             raise invalid("human_required", "This decision needs a named human, not an agent identity")
 
     if to == "delivering":
@@ -818,7 +842,7 @@ def update_record(record_path, mutate, expected_revision, plan_path=None):
         return updated
 
 
-def approve_plan(record_path, plan_path, expected_revision, make_record, by, expected_fingerprint=None):
+def approve_plan(record_path, plan_path, expected_revision, make_record, by, expected_fingerprint=None, gate_check=None):
     """Record approval in PLAN.md and the run record as one locked operation."""
     with exclusive_lock(record_path):
         stored = stored_record(record_path, expected_revision)
@@ -827,6 +851,8 @@ def approve_plan(record_path, plan_path, expected_revision, make_record, by, exp
         current = read_limited(plan_path, MAX_PLAN_BYTES)
         if expected_fingerprint and parse_plan(current)["fingerprint"] != expected_fingerprint:
             raise invalid("plan_changed", "PLAN.md changed since the human reviewed it; show the current plan and ask again")
+        if gate_check is not None:
+            gate_check(parse_plan(current))
         edited = set_frontmatter(
             current,
             {"status": "approved", "approved_by": by, "approved_at": now()},
@@ -860,7 +886,7 @@ def prerequisite_statuses(repo, plan):
     for prerequisite in plan["sequenced_after"]:
         found = list(Path(repo, "spec").glob(f"*/deliveries/{prerequisite}/DELIVERY-RUN.json"))
         record = read_record(found[0]) if found else None
-        statuses[prerequisite] = record["delivery_status"] if record else "planned"
+        statuses[prerequisite] = record.get("delivery_status", "unknown") if isinstance(record, dict) else "planned"
     return statuses
 
 
@@ -908,6 +934,32 @@ def validate_workflow(document):
         errors.append("capabilities_required must include implement, technical-review, and independent-context")
     if not isinstance(document.get("pre_delivery", []), list):
         errors.append("pre_delivery must be a list")
+    errors.extend(_gate_errors(document.get("gates")))
+    return errors
+
+
+GATE_ARTIFACTS = ("PRD", "BACKLOG", "EPIC", "DESIGN")
+GATE_NUMBER = {"PRD": 1, "BACKLOG": 2, "EPIC": 2, "DESIGN": 3}
+
+
+def _gate_errors(gates):
+    if gates is None:
+        return []
+    if not isinstance(gates, list) or not gates:
+        return ["gates must be a non-empty list when present"]
+    errors, seen = [], []
+    for index, gate in enumerate(gates):
+        artifact = gate.get("artifact") if isinstance(gate, dict) else None
+        if artifact not in GATE_NUMBER or gate.get("gate") != GATE_NUMBER[artifact]:
+            errors.append(f"gates[{index}] must use artifact PRD (gate 1), BACKLOG or EPIC (gate 2), or DESIGN (gate 3)")
+            continue
+        if artifact in seen:
+            errors.append(f"gates[{index}] repeats {artifact}")
+        seen.append(artifact)
+    if not errors and seen != [a for a in GATE_ARTIFACTS if a in seen]:
+        errors.append("gates must follow PRD, BACKLOG, EPIC, DESIGN order")
+    if not errors and not {"PRD", "BACKLOG", "DESIGN"} <= set(seen):
+        errors.append("a workflow with gates must include PRD, BACKLOG, and DESIGN")
     return errors
 
 
@@ -1063,14 +1115,213 @@ def load_host_capabilities(name):
     return [cap for cap, entry in document["capabilities"].items() if entry["provided"] is True]
 
 
+# --- feature gates and derived status -------------------------------------
+
+ARTIFACT_RE = re.compile(r"^(PRD|BACKLOG|DESIGN|EPIC-[A-Za-z0-9._-]+)\.md$")
+STORY_ROW_RE = re.compile(r"^\|\s*([A-Za-z]+-\d+)\s*\|")
+ACTIVE_STATUSES = ("delivering", "blocked", "changes-requested", "awaiting-acceptance")
+
+
+def slug_dir(repo, slug):
+    if not (isinstance(slug, str) and TOKEN_RE.match(slug)):
+        raise invalid("slug_invalid", "Feature slug must be a simple name")
+    folder = Path(repo).resolve() / "spec" / slug
+    if folder.is_symlink() or not folder.is_dir():
+        raise ProtocolError(EXIT_USAGE, "slug_missing", f"No feature folder spec/{slug}")
+    return folder
+
+
+def artifact_state(path):
+    if path.is_symlink():
+        return {"state": "invalid", "path": path.name, "problem": f"{path.name} must not be a symbolic link"}
+    if not path.is_file():
+        return {"state": "missing", "path": path.name}
+    try:
+        text = read_limited(path, MAX_PLAN_BYTES)
+        front, body = split_plan(text)
+        meta = parse_frontmatter(front)
+    except ProtocolError as error:
+        return {"state": "invalid", "path": path.name, "problem": error.message}
+    probe = {"status": meta.get("status", "draft"), "approved_by": meta.get("approved_by", "pending"),
+             "approved_at": meta.get("approved_at", "pending")}
+    state = "approved" if plan_is_approved(probe) else "draft"
+    return {"state": state, "path": path.name, "fingerprint": plan_fingerprint(meta, body)}
+
+
+def gate_report(folder, workflow):
+    """Each gate's state, derived from the artifacts' own approval metadata."""
+    gates = []
+    for gate in workflow.get("gates", []):
+        if gate.get("artifact") == "EPIC":
+            files = sorted(folder.glob("EPIC-*.md"))
+            states = [artifact_state(path) for path in files] or [{"state": "missing", "path": "EPIC-*.md"}]
+        else:
+            states = [artifact_state(folder / f"{gate['artifact']}.md")]
+        if all(item["state"] == "approved" for item in states):
+            overall = "approved"
+        else:
+            order = ("invalid", "missing", "draft")
+            overall = next(s for s in order if any(item["state"] == s for item in states))
+        gates.append({**{k: gate[k] for k in ("gate", "artifact", "entry_point") if k in gate},
+                      "state": overall, "files": states})
+    return gates
+
+
+def first_open_gate(gates):
+    return next((gate for gate in gates if gate["state"] != "approved"), None)
+
+
+def parse_backlog_stories(folder):
+    path = folder / "BACKLOG.md"
+    if not path.is_file() or path.is_symlink():
+        return {}
+    in_stories, stories = False, {}
+    for line in read_limited(path, MAX_PLAN_BYTES).replace("\r\n", "\n").split("\n"):
+        if line.startswith("## "):
+            in_stories = line.strip().lower() == "## stories"
+            continue
+        match = STORY_ROW_RE.match(line) if in_stories else None
+        if match:
+            cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+            raw = cells[4] if len(cells) > 4 else ""
+            deps = [item.strip() for item in raw.replace(";", ",").split(",") if item.strip() and item.strip().lower() != "none"]
+            stories[match.group(1)] = deps
+    return stories
+
+
+def package_statuses(folder):
+    """Return {package id: (status, stories, pending_audit)} for a feature."""
+    found = {}
+    for plan_path in sorted(folder.glob("deliveries/*/PLAN.md")):
+        package = plan_path.parent
+        record = read_record(package / "DELIVERY-RUN.json")
+        plan = parse_plan(read_limited(plan_path, MAX_PLAN_BYTES))
+        if record is not None:
+            problems = validate_structure(record)
+            if problems:
+                raise invalid("record_invalid", f"{package.name}: " + "; ".join(problems[:3]))
+        status = record["delivery_status"] if record else "planned"
+        audits = list(record.get("pending_audit", [])) if record else []
+        found[package.name] = (status, plan["stories"], audits)
+    return found
+
+
+def feature_next(repo, slug, workflow):
+    folder = slug_dir(repo, slug)
+    gates = gate_report(folder, workflow)
+    open_gate = first_open_gate(gates)
+    summary = {"slug": slug, "gates": [{"gate": g["gate"], "artifact": g["artifact"], "state": g["state"]} for g in gates]}
+    if open_gate:
+        detail = next(f for f in open_gate["files"] if f["state"] != "approved")
+        base = {**summary, "gate": open_gate["gate"], "artifact": open_gate["artifact"],
+                "entry_point": open_gate.get("entry_point")}
+        if open_gate["state"] == "missing":
+            return {**base, "action": "complete-gate", "actor": "worker",
+                    "reason": f"Author {open_gate['artifact']} as a draft; a human approves it"}
+        if open_gate["state"] == "invalid":
+            return {**base, "action": "fix-artifact", "actor": "worker", "reason": detail.get("problem")}
+        return {**base, "action": "await-gate-approval", "actor": "human",
+                "path": f"spec/{slug}/{detail['path']}", "artifact_fingerprint": detail.get("fingerprint"),
+                "reason": "Show the human this exact artifact; a named human must approve it"}
+    stories = parse_backlog_stories(folder)
+    unknown = sorted({dep for deps in stories.values() for dep in deps if dep not in stories})
+    if unknown:
+        return {**summary, "action": "fix-artifact", "actor": "worker",
+                "reason": "BACKLOG.md lists dependencies that are not stories in the backlog: " + ", ".join(unknown)}
+    packages = package_statuses(folder)
+    done, held = set(), {}
+    for pid, (status, members, _) in packages.items():
+        if status == "accepted":
+            done.update(members)
+        elif status != "rejected":
+            for story in members:
+                held[story] = pid
+    open_packages = {pid: status for pid, (status, _, _) in packages.items() if status not in TERMINAL}
+    audits = sorted({a for (_, _, audit_list) in packages.values() for a in audit_list})
+    available = [s for s, deps in stories.items() if s not in done and s not in held and all(d in done for d in deps)]
+    blocked = [s for s, deps in stories.items() if s not in done and s not in held and s not in available]
+    summary.update({"stories_done": sorted(done & set(stories)), "stories_in_open_packages": held,
+                    "open_packages": open_packages})
+    if open_packages:
+        return {**summary, "action": "continue-packages", "actor": "coordinator",
+                "reason": "Run `next --package` for each open package"}
+    if available:
+        return {**summary, "action": "plan-package", "actor": "worker", "skill": "sdp-plan-delivery",
+                "available_stories": available, "waiting_on_dependencies": blocked}
+    if blocked:
+        return {**summary, "action": "blocked-stories", "actor": "human",
+                "reason": "Remaining stories depend on stories that are not accepted: " + ", ".join(blocked)}
+    if not stories:
+        return {**summary, "action": "fix-artifact", "actor": "worker",
+                "reason": "BACKLOG.md has no story rows under '## Stories'"}
+    if audits:
+        return {**summary, "action": "close-audits", "actor": "human", "pending_audit": audits,
+                "reason": "Every story is accepted but audit obligations remain open"}
+    return {**summary, "action": "feature-complete", "actor": "none",
+            "reason": "Every backlog story is accepted and no audit obligation remains"}
+
+
+def check_plan_gates(folder, workflow, plan):
+    """Refuse to approve a plan whose upstream gates are not satisfied."""
+    if not workflow.get("gates"):
+        return
+    if plan["gates"] not in ("full", "lightweight"):
+        raise invalid("gates_invalid", "gates must be full or lightweight")
+    if plan["gates"] == "lightweight":
+        basis = plan["basis"].strip()
+        if is_placeholder(basis) or len(basis) < 10:
+            raise invalid("lightweight_basis", "A lightweight plan must state the existing contract and design it relies on (basis, at least 10 characters, not a placeholder); the approving human judges whether it is real")
+        return
+    open_gate = first_open_gate(gate_report(folder, workflow))
+    if open_gate:
+        raise invalid("gate_open", f"Gate {open_gate['gate']} ({open_gate['artifact']}) is {open_gate['state']}; "
+                                   "approve the upstream artifacts or approve a lightweight plan with a stated basis")
+    known = parse_backlog_stories(folder)
+    missing = sorted(set(plan["stories"]) - set(known))
+    if missing:
+        raise invalid("unknown_story", "The plan lists stories that are not in BACKLOG.md: " + ", ".join(missing))
+
+
+def approve_artifact(repo, relative, by, expected_fingerprint):
+    repo = Path(repo).resolve()
+    path = (repo / relative)
+    parts = Path(relative).parts
+    if len(parts) != 3 or parts[0] != "spec" or not ARTIFACT_RE.match(parts[2]):
+        raise invalid("artifact_invalid", "Path must be spec/<slug>/PRD.md, BACKLOG.md, DESIGN.md, or EPIC-<id>.md")
+    folder = slug_dir(repo, parts[1])
+    if path.is_symlink() or not path.is_file() or (repo / "spec") not in path.resolve().parents:
+        raise ProtocolError(EXIT_USAGE, "path_escape", "Artifact must be a regular file inside spec/")
+    if not by or not_a_human(by):
+        raise invalid("human_required", "Approval needs a named human")
+    with exclusive_lock(path):
+        active = {pid: status for pid, (status, _, _) in package_statuses(folder).items() if status in ACTIVE_STATUSES}
+        if active:
+            raise invalid("delivery_in_progress", "Shared specs are read-only during delivery; open packages: " + ", ".join(sorted(active)))
+        text = read_limited(path, MAX_PLAN_BYTES)
+        front, body = split_plan(text)
+        meta = parse_frontmatter(front)
+        if expected_fingerprint and plan_fingerprint(meta, body) != expected_fingerprint:
+            raise invalid("artifact_changed", "The artifact changed since the human reviewed it; show it again")
+        edited = set_frontmatter(text, {"status": "approved", "approved_by": by, "approved_at": now()})
+        write_atomic_text(path, edited)
+    return {"approved": relative}
+
+
 # --- command line ---------------------------------------------------------
 
 def parser():
     root = argparse.ArgumentParser(description=__doc__)
     root.add_argument("--repo", default=".")
-    root.add_argument("--package", required=True, help="package folder under spec/")
+    root.add_argument("--package", default=None, help="package folder under spec/ (package commands)")
     root.add_argument("--json", action="store_true")
     commands = root.add_subparsers(dest="command", required=True)
+    feature = commands.add_parser("feature-next", help="print the next feature-level action (read-only)")
+    feature.add_argument("--slug", required=True)
+    feature.add_argument("--workflow", default="feature")
+    artifact = commands.add_parser("approve-artifact", help="record a human's approval of a PRD, backlog, epic, or design")
+    artifact.add_argument("--path", required=True, help="spec/<slug>/<ARTIFACT>.md")
+    artifact.add_argument("--by", required=True)
+    artifact.add_argument("--expect-fingerprint", help="refuse unless the artifact still has this fingerprint (from feature-next)")
     commands.add_parser("validate")
     commands.add_parser("inspect")
     following = commands.add_parser("next", help="print the next required action (read-only)")
@@ -1117,6 +1368,12 @@ def facts(repo, package_dir, record):
 
 
 def run(arguments):
+    if arguments.command == "feature-next":
+        return feature_next(arguments.repo, arguments.slug, load_workflow(arguments.workflow))
+    if arguments.command == "approve-artifact":
+        return approve_artifact(arguments.repo, arguments.path, arguments.by, arguments.expect_fingerprint)
+    if not arguments.package:
+        raise ProtocolError(EXIT_USAGE, "usage", "--package is required for this command")
     repo, package_dir = resolve_package(arguments.repo, arguments.package)
     plan_path, record_path = package_dir / "PLAN.md", package_dir / "DELIVERY-RUN.json"
     if not plan_path.is_file():
@@ -1165,8 +1422,8 @@ def run(arguments):
         return {**next_action(workflow, record, plan, fingerprint, capabilities), "capability_source": source}
 
     if command == "approve":
-        load_workflow(arguments.workflow)
-        if not arguments.by or is_agent_identity(arguments.by):
+        selected = load_workflow(arguments.workflow)
+        if not arguments.by or not_a_human(arguments.by):
             raise invalid("human_required", "Approval needs a named human")
         policy = {
             "profile_floor": arguments.profile_floor,
@@ -1180,6 +1437,7 @@ def run(arguments):
         approve_plan(
             record_path, plan_path, arguments.expected_revision if record else None,
             make_record, arguments.by, arguments.expect_plan_fingerprint,
+            lambda parsed: check_plan_gates(package_dir.parent.parent, selected, parsed),
         )
         return {"status": "planned", "approved": True}
 

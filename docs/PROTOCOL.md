@@ -267,7 +267,36 @@ unchanged candidate failed), `resume-delivery`, `resolve-block`, `escalate-to-hu
 `done`. If the host lacks a capability the next stage needs, the action is
 `blocked-capability`; self-review is never offered as a substitute.
 
-Only the `bug` workflow exists. The feature workflow is added in Step 08.
+Only the `bug` and `feature` workflows exist.
+
+### Feature gates
+
+The `feature` workflow lists upstream gates: PRD (gate 1), BACKLOG and every EPIC
+(gate 2), DESIGN (gate 3). A gate is approved when its artifact's own frontmatter has
+`status: approved` with a named `approved_by` and an `approved_at`; nothing else is
+stored. `feature-next --slug <slug>` reports the first open gate, then story
+availability derived from the backlog's story table and accepted packages: a story is
+done when an accepted package includes it, held while an open package includes it,
+and offered only when its listed dependencies are done. The feature is complete when
+every backlog story is done and no package has a pending audit. `approve-artifact`
+records a named human's approval (optionally bound to the artifact fingerprint the
+human saw) and refuses while any package of that feature is delivering, blocked,
+awaiting acceptance, or in changes-requested, because shared specs are read-only
+during delivery.
+
+Plan approval for a feature package is refused while a gate is open, unless the plan
+declares `gates: lightweight` with a non-empty `basis`. A lightweight plan skips only
+the upstream documents: it still needs this plan and its boundary, executable
+verification, independent review, and human acceptance.
+
+### What the plan approval covers
+
+The plan fingerprint covers the body and every frontmatter field other than
+`status`, `approved_by`, and `approved_at` (for example `stories`, `sequenced_after`,
+`gates`, `basis`), so none of them can change after approval without voiding it.
+Upstream gate artifacts are not hashed into the plan: editing an approved PRD or
+design later does not void an approved plan, which is why shared specs are frozen
+during delivery. Gate authoring stays with the existing gate agents for now.
 
 ## Host Capabilities
 
@@ -290,6 +319,21 @@ which `inspect` reports and the acceptance brief must state. A limit remains: an
 explicit list is a caller's assertion, and nothing local can prove the host really has
 those capabilities or that a human supplied the list. The record makes that choice
 visible; stopping it needs host-level approval prompts or protected CI.
+
+### Command mapping
+
+Existing commands keep working until Step 13. The schema 4 path maps to them as follows:
+
+| Existing command | Schema 4 equivalent |
+| --- | --- |
+| `/discover-tech` | unchanged (gate authoring stays with agents) |
+| `/create-prd`, `/refine-backlog`, `/design-system` | unchanged entry points; approval moves to `approve-artifact` |
+| `/plan-task` | the `sdp-plan-delivery` skill, then `approve --by <human>` |
+| `/deliver`, `/deliver inspect`, `/deliver resume`, `/deliver reject` | `/run-workflow` (preview): `next`, `inspect`, `transition --to rejected` |
+| `/implement` | the `sdp-implement` and `write-tests` skills |
+| `/run-review` | the `sdp-technical-review` skill |
+| `/audit-security` | the `sdp-security-review` skill |
+| `/qa-validate` | the `sdp-acceptance-validation` skill |
 
 ## Skill Coverage Map
 

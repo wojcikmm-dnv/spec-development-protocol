@@ -96,7 +96,7 @@ class WorkflowDefinitionTests(unittest.TestCase):
     def test_approval_rejects_unknown_workflow(self):
         repo = tv.Repo(self)
         package = repo.package()
-        code, payload = repo.cli(package, "approve", "--by", HUMAN, "--workflow", "feature")
+        code, payload = repo.cli(package, "approve", "--by", HUMAN, "--workflow", "incident")
         self.assertEqual("workflow_unknown", payload["error"])
 
 

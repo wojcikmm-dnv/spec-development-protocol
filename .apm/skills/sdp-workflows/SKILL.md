@@ -24,8 +24,33 @@ decides what happens next; you dispatch the work and record what came back.
 | Workflow | Definition | Use for |
 | --- | --- | --- |
 | `bug` | `workflows/bug.json` | fixing a reported defect |
+| `feature` | `workflows/feature.json` | a new capability or material behavior change |
 
-The feature workflow arrives in a later release; do not improvise one.
+The feature workflow adds three upstream gates (PRD, backlog and epics, design) before any
+package is planned. Gate state is derived from each artifact's own approval fields, not
+stored anywhere else.
+
+## Feature loop
+
+Set `F` to `python <sdp-core>/scripts/sdp.py --repo <repo> --json` (no `--package`).
+
+1. Run `F feature-next --slug <slug>`. Actions:
+   - `complete-gate` or `fix-artifact`: a worker authors or repairs the named artifact
+     as a draft through its `entry_point` (for example `/create-prd`). Never approve it.
+   - `await-gate-approval`: show the human the exact artifact at `path`. When they
+     approve, run `F approve-artifact --path <path> --by <their name>
+     --expect-fingerprint <artifact_fingerprint>`. On `artifact_changed`, show it again.
+   - `plan-package`: run the `sdp-plan-delivery` skill for one coherent package from
+     `available_stories`, then continue with the package loop below.
+   - `continue-packages`: run the package loop for each open package.
+   - `blocked-stories`, `close-audits`: stop and report. `feature-complete`: report it.
+2. Shared specs cannot be approved or edited while a package is being delivered; finish
+   or reject the package first.
+3. A plan may set `gates: lightweight` and `basis: <the existing contract and design it
+   relies on>` when the human has approved a lightweight path. It still needs this plan,
+   independent review, and human acceptance. Approve plans with `--workflow feature`.
+
+## Package loop (both workflows)
 
 ## Procedure
 

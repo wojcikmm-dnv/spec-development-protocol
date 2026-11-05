@@ -1,0 +1,24 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-feature-DP-1-run-1",
+  "delivery_id": "sdp-2-feature-DP-1",
+  "delivery_status": "accepted",
+  "branch": null,
+  "profile": "Balanced",
+  "current_stage": "closed",
+  "completed_stages": ["developer", "reviewer", "security"],
+  "changed_paths": [
+    ".apm/skills/sdp-core/scripts/sdp.py", ".apm/skills/sdp-workflows/", ".apm/skills/sdp-plan-delivery/SKILL.md",
+    "tests/contracts/test_feature.py", "tests/contracts/test_workflow.py", "docs/PROTOCOL.md", "PLAN.md", "CHANGELOG.md"
+  ],
+  "stage_results": [
+    {"stage": "developer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": [], "checks": ["144 contract tests", "mutation checks", "regression reproduction of the approval bypass"]},
+    {"stage": "reviewer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": ["Medium: nine findings triaged; six fixed, three rejected or reclassified"], "checks": ["independent read-only review with repro scripts"]},
+    {"stage": "security", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": ["High: placeholder approval bypass fixed", "Low: freeze race window documented"], "checks": ["approval paths, artifact approval, lightweight path reviewed independently"]},
+    {"stage": "qa", "verdict": "not_applicable", "reason": "Scenario tests exercise the observable workflow; no host executes it yet (Step 06 limits apply)."}
+  ],
+  "autonomous_rejection_count": 1,
+  "pending_audit": ["step-06-claude-code-qualification", "step-08b-instruction-reduction"],
+  "acceptance": {"decision": "accepted", "decided_by": "user (chat)", "decided_at": "2026-11-05T22:00:00+01:00", "feedback": "Continue in order until stopped."},
+  "compliance": null
+}

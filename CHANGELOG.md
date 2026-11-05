@@ -10,6 +10,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- `feature` workflow: upstream gates derived from each artifact's own approval fields
+  (`feature-next`), human-only `approve-artifact` (optionally bound to the fingerprint
+  the human saw, refused while a package is in delivery), story availability from the
+  backlog's dependencies and accepted packages, plan approval refused while a gate is
+  open, and a lightweight path (`gates: lightweight` plus a stated `basis`) that still
+  requires a plan, independent review, and human acceptance.
+- Plan approval now covers the machine-read frontmatter (`stories`, `sequenced_after`,
+  `gates`, `basis`) as well as the body; changing any of them after approval voids it.
 - `sdp-init` skill: a non-destructive project initializer that is separate from
   installing the package. It previews first, then with `--apply` creates only a
   missing `.github/TECH.md` (from the installed package's template) and `spec/`,

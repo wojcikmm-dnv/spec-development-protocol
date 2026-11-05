@@ -43,6 +43,10 @@ change, how it is verified, and what requires coming back for approval.
    section. Also set machine-readable frontmatter that the validator reads, for
    example `stories: [US-3, US-4]` and `sequenced_after: [auth-DP-1]` (inline lists
    only). Keep `status`, `approved_by`, and `approved_at` as they are.
+   For a human-approved lightweight path add `gates: lightweight` and `basis:
+   <existing contract and design it relies on>`; otherwise leave `gates` out (full).
+   Every frontmatter field except the approval fields is covered by the approval, so
+   changing any of them afterwards voids it.
 9. **State autonomy:** the implementer owns local naming, idiom, and adjacent tests;
    replanning is required for new dependencies, public contract changes, expanded
    data or security boundaries, destructive operations, weakened criteria, or paths

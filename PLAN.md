@@ -83,9 +83,9 @@ user files, credentials, repository settings, or installed global plugins.
 
 ## Ordered Steps
 
-Progress: Steps 01-07 are accepted (packages `sdp-2-baseline-DP-1`,
+Progress: Steps 01-07 and 08a are accepted (packages `sdp-2-baseline-DP-1`,
 `sdp-2-protocol-DP-1`, `sdp-2-core-DP-1`, `sdp-2-skills-DP-1`, `sdp-2-workflow-DP-1`,
-`sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`). Step 06's exit criterion is only partly met: GitHub Copilot CLI is
+`sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`, `sdp-2-feature-DP-1`). Step 06's exit criterion is only partly met: GitHub Copilot CLI is
 smoke-tested, but Claude Code was unavailable and is blocked, tracked as the open
 obligation `step-06-claude-code-qualification`; no host has executed a full delivery.
 Protocol design in
@@ -247,6 +247,19 @@ conflicts without partial overwrite. Security and independent QA both review.
 **Exit:** Project setup works without either legacy installer.
 
 ### Step 08 - Add the Feature Workflow and Reduce Global Instructions
+
+**Status:** split. 08a (feature workflow) is accepted. 08b (reducing global instructions
+and replacing agent handoff chains) is deferred to Step 13: the legacy agents, prompts,
+and `/deliver` still read the always-on process instructions, so slimming them now would
+break the supported path before its replacement is the default. The new path does not
+depend on that file; it is self-contained in the `sdp-core` and `sdp-workflows` skills.
+
+- [x] 08a: express the six gates as the `feature` workflow with approved contracts,
+  derived gate and story status, a lightweight path, and a frozen-spec rule.
+- [ ] 08b: reduce always-on process instructions to startup routing, ownership, safety
+  invariants, and links; replace duplicated agent procedures and handoff chains with
+  workflow references; preserve or explicitly migrate user-facing commands (mapping in
+  `docs/PROTOCOL.md`). Deferred to Step 13.
 
 - [ ] Express the existing six gates as the feature workflow using approved
   contracts, skills, and adapters; retain useful PRD/backlog/design templates.
