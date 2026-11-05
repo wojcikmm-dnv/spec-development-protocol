@@ -623,13 +623,14 @@ Package-scoped state enables parallel delivery. For an existing client:
    python -m unittest discover -s tests/init
    python -m unittest discover -s tests/migrate
    python -m unittest discover -s tests/packaging
+   python -m unittest discover -s tests/release
    python scripts/build-release.py --output dist
    git diff --check
    ```
 
 Release packaging (version authority, the ZIP, its checks, and what is not yet verified) is
 described in [docs/RELEASING.md](docs/RELEASING.md); it needs the APM version pinned in
-`scripts/release-tools.json`.
+`scripts/release-tools.json`. `bash scripts/check-all.sh` runs everything CI runs on Linux.
 
 The Python checks and tests need Python 3.9 or newer, Git, and PyYAML (verified with
 Python 3.11 and PyYAML 6.0.3); `jsonschema` is used when present for descriptor and

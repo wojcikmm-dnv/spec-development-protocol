@@ -83,9 +83,9 @@ user files, credentials, repository settings, or installed global plugins.
 
 ## Ordered Steps
 
-Progress: Steps 01-07, 08a, 09, and the local part of 10 are accepted (packages `sdp-2-baseline-DP-1`,
+Progress: Steps 01-07, 08a, 09, 10 (local part), and 11 (authored, not yet run on GitHub) are accepted (packages `sdp-2-baseline-DP-1`,
 `sdp-2-protocol-DP-1`, `sdp-2-core-DP-1`, `sdp-2-skills-DP-1`, `sdp-2-workflow-DP-1`,
-`sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`, `sdp-2-feature-DP-1`, `sdp-2-migrate-DP-1`, `sdp-2-bundles-DP-1`). Step 06's exit criterion is only partly met: GitHub Copilot CLI is
+`sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`, `sdp-2-feature-DP-1`, `sdp-2-migrate-DP-1`, `sdp-2-bundles-DP-1`, `sdp-2-release-DP-1`). Step 06's exit criterion is only partly met: GitHub Copilot CLI is
 smoke-tested, but Claude Code was unavailable and is blocked, tracked as the open
 obligation `step-06-claude-code-qualification`; no host has executed a full delivery.
 Protocol design in
@@ -331,6 +331,11 @@ expected components and run initialization plus a representative workflow.
 are not presented as ready-to-install plugin bundles.
 
 ### Step 11 - Automate Validation and Tag Releases
+
+**Status:** authored and tested locally (package `sdp-2-release-DP-1`), authorized by the
+owner. Not done: a separately authorized prerelease rehearsal on GitHub and a native catalog
+install (tracked as `step-11-github-rehearsal`); the workflows and the publisher's REST usage
+have never run against GitHub. See [docs/RELEASING.md](docs/RELEASING.md).
 
 - [ ] Add pull-request CI for metadata, template/generated-content drift,
   contracts, fixtures, packaging, and version consistency.

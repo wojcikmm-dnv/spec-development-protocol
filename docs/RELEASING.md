@@ -1,8 +1,8 @@
 # Building and Verifying a Release
 
-This is the maintainer reference for producing the release ZIP. It covers what is built
-and checked today. Publishing (tags, GitHub releases, marketplace updates) is a separate
-step that needs the owner's explicit authorization and is not automated here.
+This is the maintainer reference for producing and publishing the release ZIP. It covers
+what is built and checked, and how the CI and release workflows use it. Creating the tag
+that starts a release is always a manual, owner-authorized act.
 
 ## One version authority
 
@@ -51,6 +51,57 @@ migration, and validator scripts from it, and runs `apm pack --check-versions
 --check-clean --dry-run` against the committed marketplace files. Set `SDP_REQUIRE_APM=1`
 to fail, rather than skip, the tests that need APM.
 
+## Automation
+
+`scripts/check-all.sh` runs every repository check (shell syntax, template and generated-
+content drift, baseline and skill checks, manifest versions, all test suites) and fails if
+the checks changed the working tree. CI and the release build both call it, so they cannot
+drift apart.
+
+**CI** (`.github/workflows/ci.yml`, pull requests and pushes to `main`): the shared check
+script on Linux, the test suites on Windows, and the suites for the shipped scripts on
+Python 3.9 with no third-party packages. Tools are pinned: actions by commit, `apm-cli` from
+`scripts/release-tools.json`, `PyYAML` and `jsonschema` by version.
+
+**Release** (`.github/workflows/release.yml`, a pushed `v*` tag): two jobs.
+
+1. `build` (read-only token): refuses a tag whose commit is not on `main`; extracts the
+   `CHANGELOG.md` section for exactly that version (`scripts/changelog.py`; never
+   `Unreleased`, and a missing, duplicated, or empty section stops the release); runs every
+   check; builds the ZIP for that tag and commit (`build-release.py --tag --revision`, which
+   also refuses a dirty or different tree); uploads the assets as a run artifact.
+2. `publish` (the only job with `contents: write`): `scripts/publish-release.py` verifies
+   the artifact against the tag, creates or resumes a draft release for the built commit,
+   uploads only missing or differing assets, re-downloads and compares every asset, confirms
+   the tag still points at the built commit, then publishes. A tag with a prerelease suffix
+   is published as a prerelease and never as the latest release. A published release is
+   never modified.
+
+A changelog section uses `## [1.2.3] - 2027-01-31` (the date and a leading `v` are optional).
+Release notes end with a note that checksums show integrity, not who published.
+
+### Failures and recovery
+
+| Where | Meaning | What to do |
+| --- | --- | --- |
+| `build` job fails | A check, the changelog section, the version, or the tree is wrong. Nothing was published. | Fix on `main`, delete and recreate the tag on the corrected commit (the tag has no release yet), or use a new version. |
+| `publish` exit 10 | The build output is not what the tag expects. | Rerun the workflow after fixing the cause; nothing was contacted. |
+| `publish` exit 20 | Refused: a published release differs from the build, the tag moved, or a draft holds foreign assets. | Do not force it. Publish a new version; remove foreign assets from the draft by hand if it is a draft. |
+| `publish` exit 30 | Upload or verification failed. The draft is kept. | Re-run failed jobs; the run resumes. |
+| `publish` exit 31 | Assets are verified but the final publish step failed. | Re-run failed jobs; only the publish step repeats. |
+
+After a release is published, a catalog update should reference the tag and the commit shown
+in the run summary. Re-running all jobs of one run replaces that run's artifact.
+
+### Cutting a release
+
+These steps are manual: move the `Unreleased` notes into a `## [x.y.z] - date` section; set
+the version in `apm.yml`, `plugin.json`, `.github/plugin/plugin.json`, and
+`.claude-plugin/plugin.json` and regenerate the marketplace files with `apm pack`; run
+`bash scripts/check-all.sh`; merge to `main`; then tag that commit `vx.y.z` and push the
+tag. Protecting `v*` tags and requiring approval for a `release` environment are repository
+settings that this repository does not configure.
+
 ## Catalog decision
 
 The marketplace manifests (`.claude-plugin/marketplace.json`,
@@ -63,6 +114,16 @@ publish catalog updates independently of the code; that is a publishing decision
 owner.
 
 ## What is not verified
+
+- The workflows have never run on GitHub. They were checked statically (pinned actions,
+  permissions, triggers, no interpolation into shell) and by tests of the scripts they call.
+  The publisher's GitHub REST usage was tested only against a local fake server, so real
+  API behavior (draft listing, redirects, `make_latest`, rate limits) is unconfirmed until a
+  separately authorized prerelease rehearsal.
+- Whether pinned third-party actions still run on the runners' Node version in future.
+- `apm-cli` is pinned by version, but its dependencies are not hash-pinned.
+- A byte-identical build across operating systems was observed on Windows only; the release
+  builds on Linux, so the published bytes may differ from a local Windows build.
 
 - Installing from a hosted marketplace. GitHub Copilot CLI registers a local directory as a
   marketplace and then loads the plugin live from that directory without copying it, so a

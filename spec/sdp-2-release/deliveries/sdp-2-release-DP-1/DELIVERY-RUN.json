@@ -1,0 +1,25 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-release-DP-1-run-1",
+  "delivery_id": "sdp-2-release-DP-1",
+  "delivery_status": "accepted",
+  "branch": null,
+  "profile": "Balanced",
+  "current_stage": "closed",
+  "completed_stages": ["developer", "reviewer", "security", "qa"],
+  "changed_paths": [
+    ".github/workflows/ci.yml", ".github/workflows/release.yml", ".gitattributes", ".gitignore", "scripts/changelog.py",
+    "scripts/publish-release.py", "scripts/check-all.sh", "scripts/build-release.py", "tests/release/", "tests/packaging/test_packaging.py",
+    "docs/RELEASING.md", "README.md", "CHANGELOG.md", "PLAN.md"
+  ],
+  "stage_results": [
+    {"stage": "developer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": [], "checks": ["92 release tests", "47 packaging tests", "mutation checks"]},
+    {"stage": "reviewer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": ["Medium: tree not verified against the tagged commit, fixed", "Medium: tag not confirmed at publish, fixed"], "checks": ["independent read-only review with reproductions"]},
+    {"stage": "security", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": ["No injection or token leak found", "Low-Medium: resumed draft trusted wholesale, fixed"], "checks": ["workflow permissions, pins, interpolation, token redirect handling"]},
+    {"stage": "qa", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": [], "checks": ["publisher against in-memory and local fake GitHub servers", "changelog parser edge cases"]}
+  ],
+  "autonomous_rejection_count": 1,
+  "pending_audit": ["step-06-claude-code-qualification", "step-08b-instruction-reduction", "step-10-hosted-catalog-rehearsal", "step-11-github-rehearsal"],
+  "acceptance": {"decision": "accepted", "decided_by": "user (chat)", "decided_at": "2026-11-05T23:59:45+01:00", "feedback": "11"},
+  "compliance": null
+}

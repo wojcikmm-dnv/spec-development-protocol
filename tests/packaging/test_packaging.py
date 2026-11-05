@@ -34,6 +34,18 @@ def copy_ignore(directory, names):
     return skipped
 
 
+def git_commit_all(path):
+    """Make `path` a throwaway git checkout with everything committed; return the commit hash."""
+    def run(*arguments):
+        return subprocess.run(["git", "-C", str(path), "-c", "user.name=t", "-c", "user.email=t@example.invalid",
+                               "-c", "commit.gpgsign=false", *arguments], capture_output=True, text=True, check=True).stdout.strip()
+
+    run("init", "-q")
+    run("add", "-A")
+    run("commit", "-q", "-m", "scratch")
+    return run("rev-parse", "HEAD")
+
+
 def apm_available():
     try:
         release.check_apm_version(ROOT)
@@ -326,6 +338,39 @@ class BuildFailureTests(unittest.TestCase):
         self.assertFalse(self.out.exists())
 
 
+class TreeGuardTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        write(self.root / "tracked.txt", "one\n")
+        write(self.root / ".gitignore", "ignored.txt\n__pycache__/\n")
+        self.head = git_commit_all(self.root)
+
+    def test_the_committed_tree_matches_its_own_revision(self):
+        self.assertEqual([], release.tree_problems(self.root, self.head))
+
+    def test_ignored_files_do_not_count_as_changes(self):
+        write(self.root / "ignored.txt", "x\n")
+        write(self.root / "__pycache__/x.pyc", "x")
+        self.assertEqual([], release.tree_problems(self.root, self.head))
+
+    def test_a_modified_tracked_file_is_reported(self):
+        write(self.root / "tracked.txt", "two\n")
+        self.assertTrue(any("tracked.txt" in p for p in release.tree_problems(self.root, self.head)))
+
+    def test_an_untracked_file_is_reported(self):
+        write(self.root / "new/dir/file.txt", "x\n")
+        self.assertTrue(any("file.txt" in p for p in release.tree_problems(self.root, self.head)))
+
+    def test_another_revision_is_reported(self):
+        self.assertTrue(any("not " + "b" * 40 in p for p in release.tree_problems(self.root, "b" * 40)))
+
+    def test_a_directory_that_is_not_a_checkout_cannot_vouch_for_a_revision(self):
+        with tempfile.TemporaryDirectory() as bare:
+            self.assertTrue(release.tree_problems(Path(bare), self.head))
+
+
 @NEEDS_APM
 class RealBundleTests(unittest.TestCase):
     @classmethod
@@ -400,6 +445,35 @@ class RealBundleTests(unittest.TestCase):
                         path.write_bytes(data.replace(b"\n", b"\r\n") if style == "crlf" else data)
             _, digests[style] = release.build(scratch / "dist", scratch)
         self.assertEqual(digests["lf"], digests["crlf"])
+
+    def test_the_tag_must_match_the_manifest_version_and_the_revision_is_recorded(self):
+        version = release.manifest_version(ROOT)
+        for bad_tag in (f"{version}", f"v{version}x", "v9.9.9", "V" + version):
+            with self.subTest(tag=bad_tag), self.assertRaises(release.BuildError):
+                release.build(self.work / "tagged-bad", ROOT, tag=bad_tag)
+        for bad_revision in ("abc", "A" * 40, "g" * 40, "a" * 41):
+            with self.subTest(revision=bad_revision), self.assertRaises(release.BuildError):
+                release.build(self.work / "tagged-bad", ROOT, tag=f"v{version}", revision=bad_revision)
+        self.assertFalse((self.work / "tagged-bad").exists())
+        scratch = self.work / "tagged-src"
+        shutil.copytree(ROOT, scratch, ignore=copy_ignore)
+        head = git_commit_all(scratch)
+        built, digest = release.build(self.work / "tagged", scratch, tag=f"v{version}", revision=head)
+        metadata = json.loads((built.parent / "release-metadata.json").read_text())
+        self.assertEqual((head, version, digest), (metadata["revision"], metadata["version"], metadata["sha256"]))
+        self.assertEqual(self.digest, digest, "recording a revision must not change the archive")
+
+    def test_a_revision_that_is_not_the_packed_tree_is_refused_before_anything_is_written(self):
+        version = release.manifest_version(ROOT)
+        scratch = self.work / "guard-src"
+        shutil.copytree(ROOT, scratch, ignore=copy_ignore)
+        head = git_commit_all(scratch)
+        agent = next((scratch / ".apm" / "agents").glob("*.md"))
+        agent.write_text(agent.read_text() + "\nlocal edit\n")
+        with self.assertRaises(release.BuildError) as raised:
+            release.build(self.work / "guard-out", scratch, tag=f"v{version}", revision=head)
+        self.assertIn("not the tagged commit", str(raised.exception))
+        self.assertFalse((self.work / "guard-out").exists())
 
     def test_a_version_mismatch_stops_the_build(self):
         scratch = self.work / "mismatch"

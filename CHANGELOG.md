@@ -10,6 +10,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- CI and tag-release workflows (`.github/workflows/`), authored but not yet run on GitHub.
+  CI runs the shared `scripts/check-all.sh` on Linux, the suites on Windows, and the shipped
+  scripts on Python 3.9 with no third-party packages. A `v*` tag builds in a read-only job
+  (changelog section for exactly that version, all checks, a build that refuses a dirty or
+  different tree) and publishes in a separate job: `scripts/publish-release.py` creates or
+  resumes a draft, uploads only missing or differing assets, verifies every asset and the
+  tag's commit, then publishes; prereleases are never marked latest and a published release
+  is never modified. `scripts/changelog.py` extracts the section (no `Unreleased` fallback;
+  missing, duplicate, empty, or unterminated sections are errors). All actions are pinned by
+  commit. `tests/release/` covers the changelog parser, the publisher (against an in-memory
+  store and a local fake GitHub server), and static workflow safety rules. Nothing is
+  published by this change.
 - `scripts/build-release.py` builds the release ZIP from `apm pack --archive`: bytecode
   caches dropped, text normalized to LF, `LICENSE` and `SETUP.md` added, deterministic
   entry order and timestamps, `SHA256SUMS` and `release-metadata.json`, strict version and

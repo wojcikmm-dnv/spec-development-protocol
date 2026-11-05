@@ -7,9 +7,10 @@ the checkout's line endings, the license and setup guidance are added, entries a
 with fixed timestamps, and a SHA-256 checksum file is written. The version comes from
 `apm.yml` only; every other manifest must agree or the build stops.
 
-    python scripts/build-release.py [--output dist] [--check]
+    python scripts/build-release.py [--output dist] [--check] [--tag v1.2.3] [--revision <commit>]
 
-`--check` runs the consistency checks and does not build.
+`--check` runs the consistency checks and does not build. `--tag` refuses a tag that is not
+`v` plus the apm.yml version; `--revision` is recorded in release-metadata.json.
 """
 
 import argparse
@@ -24,7 +25,7 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SEMVER = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$")
+SEMVER = re.compile(r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?\Z")
 EXCLUDED_PARTS = {"__pycache__", ".git", ".github", ".DS_Store", "node_modules"}
 EXCLUDED_SUFFIXES = (".pyc", ".pyo")
 ADDED_FILES = ("LICENSE", "SETUP.md")
@@ -226,10 +227,36 @@ def write_atomic(path, data):
             temporary.unlink()
 
 
-def build(output, root=ROOT):
+def tree_problems(root, revision):
+    """A recorded revision is only true if the tree being packed is exactly that commit."""
+    def git(*arguments):
+        return subprocess.run(["git", "-C", str(root), *arguments], capture_output=True, text=True)
+
+    head = git("rev-parse", "HEAD")
+    if head.returncode != 0:
+        return [f"{root} is not a git checkout, so revision {revision} cannot be verified"]
+    problems = []
+    if head.stdout.strip() != revision:
+        problems.append(f"HEAD is {head.stdout.strip()}, not {revision}")
+    status = git("status", "--porcelain", "--untracked-files=all")
+    if status.returncode != 0 or status.stdout.strip():
+        shown = ", ".join(line[3:] for line in status.stdout.splitlines()[:3])
+        problems.append(f"the working tree is not the tagged commit (changed or untracked: {shown or 'git status failed'})")
+    return problems
+
+
+def build(output, root=ROOT, tag=None, revision=None):
     problems = consistency_problems(root)
     if problems:
         raise BuildError("; ".join(problems))
+    if tag is not None and tag != f"v{manifest_version(root)}":
+        raise BuildError(f"tag {tag!r} does not match apm.yml version {manifest_version(root)!r}; expected v{manifest_version(root)}")
+    if revision is not None and not re.fullmatch(r"[0-9a-f]{40}", revision):
+        raise BuildError(f"revision {revision!r} is not a full lowercase commit hash")
+    if revision is not None:
+        problems = tree_problems(root, revision)
+        if problems:
+            raise BuildError("; ".join(problems))
     pinned = check_apm_version(root)
     version, name = manifest_version(root), manifest_field("name", root)
     folder = f"{name}-{version}"
@@ -254,6 +281,8 @@ def build(output, root=ROOT):
         data = built.read_bytes()
     digest = hashlib.sha256(data).hexdigest()
     metadata = {"name": name, "version": version, "apm": pinned, "sha256": digest, "files": len(entries)}
+    if revision is not None:
+        metadata["revision"] = revision
     output.mkdir(parents=True, exist_ok=True)
     target = output / target_name
     write_atomic(target, data)
@@ -266,6 +295,8 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--output", default="dist")
     parser.add_argument("--check", action="store_true", help="only run the consistency checks")
+    parser.add_argument("--tag", help="release tag the build is for; must equal v<apm.yml version>")
+    parser.add_argument("--revision", help="full commit hash to record in release-metadata.json")
     arguments = parser.parse_args(argv)
     try:
         if arguments.check:
@@ -275,7 +306,7 @@ def main(argv=None):
             if not problems:
                 print("PASS: manifest versions agree")
             return 1 if problems else 0
-        target, digest = build(Path(arguments.output))
+        target, digest = build(Path(arguments.output), tag=arguments.tag, revision=arguments.revision)
     except (BuildError, OSError, ValueError, KeyError, TypeError, AttributeError) as error:
         print(f"FAIL: {type(error).__name__ if not isinstance(error, BuildError) else 'build'}: {error}", file=sys.stderr)
         return 1
