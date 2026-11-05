@@ -229,7 +229,20 @@ independence must use external identity or protected CI evidence.
 
 The validator only reads and writes inside the active package folder and
 `spec/ACTIVE.md`, and refuses absolute paths, parent traversal, and symlinks that
-leave the repository. It never edits product code, shared specs, or `TECH.md`.
+leave the repository. `PLAN.md` and `DELIVERY-RUN.json` must be regular files,
+and reads are size-capped (2 MiB plan, 5 MiB record). The plan, the candidate
+fingerprint, and the stored record are all evaluated under the write lock, and
+approval updates `PLAN.md` and the record as one locked operation. It never
+edits product code, shared specs, or `TECH.md`.
+
+Identities (`--by`, `--decided-by`) are asserted strings, not authenticated. A
+heuristic refuses obvious agent identities such as `sdp.*`, stage names, `bot`,
+`copilot`, or `claude` for human-only decisions. Any caller can still assert a
+human name; stopping that needs host-level approval prompts or external identity.
+
+A candidate that failed a stage cannot be re-passed for that stage until it
+changes, so a repair has to alter the candidate and a rerun cannot silently
+replace a failing verdict.
 
 ## Invariant-to-Test Map
 

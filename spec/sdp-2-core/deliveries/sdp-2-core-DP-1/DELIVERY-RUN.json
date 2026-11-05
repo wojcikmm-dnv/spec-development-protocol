@@ -1,0 +1,30 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-core-DP-1-run-1",
+  "delivery_id": "sdp-2-core-DP-1",
+  "delivery_status": "accepted",
+  "branch": null,
+  "profile": "Balanced",
+  "current_stage": "closed",
+  "completed_stages": ["developer", "reviewer", "security"],
+  "changed_paths": [
+    ".apm/skills/sdp-core/SKILL.md",
+    ".apm/skills/sdp-core/scripts/sdp.py",
+    ".apm/skills/sdp-core/schemas/run-record.schema.json",
+    "tests/contracts/test_validator.py",
+    "docs/PROTOCOL.md",
+    ".gitignore",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "stage_results": [
+    {"stage": "developer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": [], "checks": ["52 contract tests on Windows and WSL", "mutation checks", "schema parity", "apm pack dry run"]},
+    {"stage": "reviewer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": [], "checks": ["independent read-only review; findings triaged and fixed"]},
+    {"stage": "security", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": ["Medium: in-lock evaluation, size caps, symlink refusal fixed", "Low: identity strings are asserted, documented"], "checks": ["independent read-only security review"]},
+    {"stage": "qa", "verdict": "not_applicable", "reason": "Contract tests exercise the observable behavior on two operating systems; nothing user-facing is installed or wired yet."}
+  ],
+  "autonomous_rejection_count": 0,
+  "pending_audit": [],
+  "acceptance": {"decision": "accepted", "decided_by": "user (chat)", "decided_at": "2026-11-05T12:30:00+01:00", "feedback": "Continue in order until stopped."},
+  "compliance": null
+}

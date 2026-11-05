@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SDP delivery run record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "run_id", "delivery_id", "workflow", "profile", "branch",
+    "delivery_status", "state_revision", "policy", "plan", "candidate",
+    "stage_results", "trigger_dispositions", "rejected_candidates",
+    "human_corrections", "pending_audit", "acceptance", "blocked_reason",
+    "compliance"
+  ],
+  "$defs": {
+    "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "profile": {"enum": ["Lean", "Balanced", "Compliance"]},
+    "stage": {"enum": ["developer", "reviewer", "security", "qa"]},
+    "trigger": {"type": "string", "pattern": "^(security|qa):[A-Za-z0-9._-]+$"},
+    "strings": {"type": "array", "items": {"type": "string"}}
+  },
+  "properties": {
+    "schema_version": {"const": 4},
+    "run_id": {"type": "string", "minLength": 1},
+    "delivery_id": {"type": "string", "minLength": 1},
+    "workflow": {"type": "string", "minLength": 1},
+    "profile": {"$ref": "#/$defs/profile"},
+    "branch": {"type": ["string", "null"]},
+    "delivery_status": {
+      "enum": ["planned", "delivering", "blocked", "awaiting-acceptance", "changes-requested", "accepted", "rejected"]
+    },
+    "state_revision": {"type": "integer", "minimum": 0},
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile_floor", "epic_security_policy", "mandatory_stages"],
+      "properties": {
+        "profile_floor": {"$ref": "#/$defs/profile"},
+        "epic_security_policy": {"enum": ["risk-based", "per-story", "epic-level", "waived"]},
+        "mandatory_stages": {"type": "array", "items": {"$ref": "#/$defs/stage"}}
+      }
+    },
+    "plan": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["fingerprint", "approval"],
+      "properties": {
+        "fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "approval": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["approved_by", "approved_at"],
+          "properties": {
+            "approved_by": {"type": "string", "minLength": 1},
+            "approved_at": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "candidate": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["base_revision", "changed_paths", "fingerprint"],
+      "properties": {
+        "base_revision": {"type": "string", "minLength": 1},
+        "changed_paths": {"$ref": "#/$defs/strings"},
+        "fingerprint": {"$ref": "#/$defs/fingerprint"}
+      }
+    },
+    "stage_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["stage", "verdict", "candidate_fingerprint"],
+        "properties": {
+          "stage": {"$ref": "#/$defs/stage"},
+          "verdict": {"enum": ["pass", "fail", "blocked", "not_applicable"]},
+          "candidate_fingerprint": {"$ref": "#/$defs/fingerprint"},
+          "findings": {"$ref": "#/$defs/strings"},
+          "checks": {"$ref": "#/$defs/strings"},
+          "evidence": {"$ref": "#/$defs/strings"},
+          "detected_triggers": {"type": "array", "items": {"$ref": "#/$defs/trigger"}},
+          "next_action": {"type": ["string", "null"]},
+          "reason": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "trigger_dispositions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["trigger", "candidate_fingerprint", "disposition", "by", "reason"],
+        "properties": {
+          "trigger": {"$ref": "#/$defs/trigger"},
+          "candidate_fingerprint": {"$ref": "#/$defs/fingerprint"},
+          "disposition": {"enum": ["confirmed", "not_present", "accepted_risk"]},
+          "by": {"type": "string", "minLength": 1},
+          "reason": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "rejected_candidates": {"type": "integer", "minimum": 0},
+    "human_corrections": {"type": "integer", "minimum": 0},
+    "pending_audit": {"$ref": "#/$defs/strings"},
+    "acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision", "decided_by", "decided_at", "feedback"],
+      "properties": {
+        "decision": {"enum": ["pending", "accepted", "rejected"]},
+        "decided_by": {"type": ["string", "null"]},
+        "decided_at": {"type": ["string", "null"]},
+        "feedback": {"type": ["string", "null"]}
+      }
+    },
+    "blocked_reason": {"type": ["string", "null"]},
+    "compliance": {"type": ["object", "null"]}
+  }
+}

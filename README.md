@@ -616,8 +616,7 @@ Package-scoped state enables parallel delivery. For an existing client:
    ```bash
    bash -n install.sh
    bash scripts/sync-templates.sh --check
-  python scripts/check-baseline.py --self-test
-   git diff --check
+  python scripts/check-baseline.py --self-test   python -m unittest discover -s tests/contracts   git diff --check
    ```
 
 The baseline check requires Python 3 and PyYAML (verified with Python 3.11 and

@@ -8,6 +8,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- `sdp-core` skill (not yet wired into agents or workflows): a standard-library
+  Python validator for delivery run records (schema 4) that enforces plan
+  approval binding, mandatory review, trigger-driven specialist stages,
+  candidate fingerprints, repair counting, legal status transitions, and locked
+  atomic updates. Contract tests run with `python -m unittest discover -s
+  tests/contracts`. See `docs/PROTOCOL.md`; it validates records and is not a
+  sandbox.
+
 ### Fixed
 
 - Added the required name field and folder-matching guidance to the canonical
