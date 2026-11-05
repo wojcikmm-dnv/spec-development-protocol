@@ -83,9 +83,9 @@ user files, credentials, repository settings, or installed global plugins.
 
 ## Ordered Steps
 
-Progress: Steps 01-07 and 08a are accepted (packages `sdp-2-baseline-DP-1`,
+Progress: Steps 01-07, 08a, and 09 are accepted (packages `sdp-2-baseline-DP-1`,
 `sdp-2-protocol-DP-1`, `sdp-2-core-DP-1`, `sdp-2-skills-DP-1`, `sdp-2-workflow-DP-1`,
-`sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`, `sdp-2-feature-DP-1`). Step 06's exit criterion is only partly met: GitHub Copilot CLI is
+`sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`, `sdp-2-feature-DP-1`, `sdp-2-migrate-DP-1`). Step 06's exit criterion is only partly met: GitHub Copilot CLI is
 smoke-tested, but Claude Code was unavailable and is blocked, tracked as the open
 obligation `step-06-claude-code-qualification`; no host has executed a full delivery.
 Protocol design in
@@ -281,15 +281,17 @@ instructions with canonical source and verify no duplicate state ownership.
 
 ### Step 09 - Implement and Test Legacy Migration
 
-- [ ] Build fixtures for the supported legacy range chosen in Step 02,
+**Status:** accepted (package `sdp-2-migrate-DP-1`).
+
+- [x] Build fixtures for the supported legacy range chosen in Step 02,
   including shared ACTIVE state, package-scoped state, and customizations.
-- [ ] Implement preview, backup, transformation on a copy, validation, and
+- [x] Implement preview, backup, transformation on a copy, validation, and
   explicit application. Preserve scope, decisions, findings, and pending audits.
-- [ ] Detect already-migrated and unknown-newer schemas. Ask for human mapping
+- [x] Detect already-migrated and unknown-newer schemas. Ask for human mapping
   of ambiguous statuses; never fabricate historical approval or evidence.
-- [ ] Detect duplicate copied/native installations and propose cleanup only
+- [x] Detect duplicate copied/native installations and propose cleanup only
   for verified SDP-owned files, with explicit consent and restoration data.
-- [ ] Document coordinated rollback of package version and project-state
+- [x] Document coordinated rollback of package version and project-state
   backup, including how interrupted migrations are recovered.
 
 **Why:** A major refactor must not discard client policy or delivery evidence.

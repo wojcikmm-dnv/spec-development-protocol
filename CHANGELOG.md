@@ -10,6 +10,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- `sdp-migrate` skill: previews, then migrates SDP 0.5.3 and 0.5.4 projects to schema 4
+  with a backup and write-ahead journal, validates the result, and restores everything on
+  failure (`restore`, `status` for interrupted runs). Open packages restart as `planned`
+  with their approval voided and recorded; accepted and rejected packages are carried
+  over only with a recorded human decision; original records are preserved as
+  `DELIVERY-RUN.legacy.json`. Copied legacy files are removed only on explicit request,
+  by content hash, and move into the backup. Nothing is deleted.
 - `feature` workflow: upstream gates derived from each artifact's own approval fields
   (`feature-next`), human-only `approve-artifact` (optionally bound to the fingerprint
   the human saw, refused while a package is in delivery), story availability from the

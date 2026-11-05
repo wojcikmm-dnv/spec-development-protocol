@@ -8,7 +8,7 @@
     "delivery_status", "state_revision", "policy", "plan", "candidate",
     "stage_results", "trigger_dispositions", "rejected_candidates",
     "human_corrections", "pending_audit", "acceptance", "blocked_reason",
-    "capability_source", "compliance"
+    "capability_source", "migrated_from", "compliance"
   ],
   "$defs": {
     "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
@@ -115,6 +115,18 @@
     },
     "blocked_reason": {"type": ["string", "null"]},
     "capability_source": {"type": ["string", "null"], "pattern": "^(explicit|host:[A-Za-z0-9._-]+)$"},
+    "migrated_from": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["schema_version", "tool", "at", "original_sha256", "notes"],
+      "properties": {
+        "schema_version": {"enum": [2, 3]},
+        "tool": {"type": "string", "minLength": 1},
+        "at": {"type": "string", "minLength": 1},
+        "original_sha256": {"$ref": "#/$defs/fingerprint"},
+        "notes": {"$ref": "#/$defs/strings"}
+      }
+    },
     "compliance": {"type": ["object", "null"]}
   }
 }

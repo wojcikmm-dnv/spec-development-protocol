@@ -63,6 +63,7 @@ RECORD_FIELDS = (
     "acceptance",
     "blocked_reason",
     "capability_source",
+    "migrated_from",
     "compliance",
 )
 
@@ -335,6 +336,16 @@ def validate_structure(record):
         and re.match(r"^(explicit|host:[A-Za-z0-9._-]+)$", record["capability_source"])
     ):
         errors.append("capability_source must be null, explicit, or host:<name>")
+    migrated = record["migrated_from"]
+    if migrated is not None and not (
+        isinstance(migrated, dict)
+        and set(migrated) == {"schema_version", "tool", "at", "original_sha256", "notes"}
+        and migrated["schema_version"] in (2, 3)
+        and _is_str(migrated["tool"]) and _is_str(migrated["at"])
+        and FINGERPRINT_RE.match(str(migrated["original_sha256"]))
+        and _is_str_list(migrated["notes"])
+    ):
+        errors.append("migrated_from must be null or describe the migrated legacy record")
     return errors
 
 
@@ -490,7 +501,9 @@ def validate_record(record, plan=None, current_fingerprint=None):
         errors.append("blocked status needs blocked_reason")
     if status in ("awaiting-acceptance", "accepted"):
         candidate = record["candidate"]
-        if candidate is None:
+        if record["migrated_from"] is not None and status == "accepted":
+            pass  # historical evidence from an earlier schema cannot be re-verified; see migrated_from
+        elif candidate is None:
             errors.append(f"{status} requires a candidate")
         else:
             errors.extend(unsatisfied_stages(record, candidate["fingerprint"]))
@@ -561,6 +574,7 @@ def new_record(delivery_id, workflow, profile, policy):
         "acceptance": {"decision": "pending", "decided_by": None, "decided_at": None, "feedback": None},
         "blocked_reason": None,
         "capability_source": None,
+        "migrated_from": None,
         "compliance": None,
     }
 

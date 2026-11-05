@@ -621,6 +621,7 @@ Package-scoped state enables parallel delivery. For an existing client:
    python -m unittest discover -s tests/contracts
    python -m unittest discover -s tests/skills
    python -m unittest discover -s tests/init
+   python -m unittest discover -s tests/migrate
    git diff --check
    ```
 

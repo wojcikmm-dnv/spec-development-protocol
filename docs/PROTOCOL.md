@@ -218,6 +218,29 @@ Supported source layouts: SDP 0.5.3 (schema 2, shared `ACTIVE.md` state) and
 the tooling stops and names the upgrade path. Ambiguous statuses require a
 human mapping; approvals and evidence are never fabricated.
 
+`sdp-migrate` (`scripts/migrate.py`) implements the move. It previews by default;
+`apply` writes `.sdp-backup/<timestamp>/` (originals plus a write-ahead journal), applies
+the changes with atomic replaces, validates every migrated record, and restores
+everything if anything fails. Rules:
+
+- Nested packages are identified by their folder name; a feature-level (0.5.3) package
+  moves to `spec/<slug>/deliveries/<id>/` with the record's `delivery_id` when it is a
+  safe token, otherwise `<slug>-DP-1`.
+- `accepted` and `rejected` packages keep their recorded decision only when it names a
+  human; otherwise the migration stops for a human decision. Every open status restarts as
+  `planned` with `plan: null`; an approved plan's approval is voided in `PLAN.md` (body
+  untouched) and recorded in `HISTORY.md`.
+- The original record is preserved as `DELIVERY-RUN.legacy.json` and its hash recorded in
+  `migrated_from`. Pending audit obligations are preserved; notes and audits in the old
+  `ACTIVE.md` that no migrated package can hold stop the migration.
+- Copied legacy files are removed only with `--remove-legacy-files
+  --confirm-replacement-installed`, only when the old installer marker exists, the file is
+  not APM-managed, and its content matches a released file; they move into the backup.
+- An interrupted migration is detected by `status`; `apply` refuses until `restore` runs.
+  `restore` never overwrites a file edited after the migration; it reports it instead.
+- Exit codes: 0 success, 1 blocked or ambiguous (nothing changed), 2 usage, 3 conflict
+  or restored failure.
+
 ## Assurance Limits
 
 The validator enforces that required stages have a passing result recorded for

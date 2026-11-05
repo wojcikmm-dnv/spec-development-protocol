@@ -131,7 +131,7 @@ def plan(repo, explicit_root):
         legacy = [".github/sdp-version", *sdp_files]
         warnings.append("Files copied by the earlier install script were found (.github/sdp-version). They may "
                         "duplicate or conflict with the installed package. Do not run both; review them "
-                        "with the migration step. Nothing was changed.")
+                        "with the sdp-migrate skill. Nothing was changed.")
     elif sdp_files and not (repo / "apm.lock.yaml").is_file():
         legacy = list(sdp_files)
         warnings.append("SDP agent or instruction files exist under .github but there is no APM lockfile or "
