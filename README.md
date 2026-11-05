@@ -2,14 +2,10 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/WojcikMM/spec-development-protocol)](https://github.com/WojcikMM/spec-development-protocol/releases)
-[![GitHub stars](https://img.shields.io/github/stars/WojcikMM/spec-development-protocol)](https://github.com/WojcikMM/spec-development-protocol/stargazers)
 
-SDP is an open-source, spec-driven delivery framework for GitHub Copilot Agent
-Mode. It keeps product intent, implementation, independent assurance, and human
-acceptance connected without forcing compliance-grade ceremony onto every
-change.
-
-The normal delivery experience is:
+SDP is an open-source, spec-driven delivery framework for AI coding agents, built for GitHub
+Copilot Agent Mode. It keeps product intent, implementation, independent assurance, and human
+acceptance connected without forcing compliance-grade ceremony onto every change.
 
 ```text
 /plan-task
@@ -18,639 +14,170 @@ review PLAN.md
 accept, reject, or describe a correction
 ```
 
-SDP installs into the `.github/` folder of greenfield or existing repositories.
+AI coding assistants can implement quickly before intent, constraints, and verification are
+clear. SDP puts the specification first, right-sizes the artifacts to the work, keeps
+independent review proportional to risk, and ends every delivery with a human decision.
 
 ## Contents
 
-- [Why SDP](#why-sdp)
-- [Installation](#installation)
-- [Setup](#setup)
-- [Quick Start](#quick-start)
-- [How the Process Works](#how-the-process-works)
-- [Delivery Profiles](#delivery-profiles)
-- [Security and QA Routing](#security-and-qa-routing)
-- [Manual and Supervised Delivery](#manual-and-supervised-delivery)
-- [Parallel Delivery with Git Worktrees](#parallel-delivery-with-git-worktrees)
-- [Artifacts and State](#artifacts-and-state)
-- [Reference](#reference)
-- [Customization](#customization)
-- [Repository and Package Structure](#repository-and-package-structure)
-- [Upgrading from the Strict Identity Workflow](#upgrading-from-the-strict-identity-workflow)
+- [Choose a workflow](#choose-a-workflow)
+- [Install](#install)
+- [Initialize a project](#initialize-a-project)
+- [Quick start](#quick-start)
+- [Scope, evidence, and acceptance](#scope-evidence-and-acceptance)
+- [The schema 4 preview](#the-schema-4-preview)
+- [Requirements and limits](#requirements-and-limits)
+- [Documentation](#documentation)
 - [Contributing](#contributing)
 
-## Why SDP
+## Choose a workflow
 
-AI coding assistants can implement quickly before intent, constraints, and
-verification are clear. SDP provides:
-
-- specification before implementation;
-- right-sized product, design, and delivery artifacts;
-- explicit change boundaries and non-goals;
-- developer autonomy inside approved outcomes;
-- independent review proportional to risk;
-- security and QA only when they add evidence;
-- concise traceability in specs and delivery history, not production comments;
-- a final human acceptance decision.
-
-SDP uses six gates, but the cost of each gate is proportional to the work. A
-small resolved change can use existing product/design contracts. A high-risk or
-regulated change can opt into retained integrity evidence.
-
-## Prerequisites
-
-| Requirement | Version | Notes |
+| You want to | Use | Notes |
 | --- | --- | --- |
-| Visual Studio Code | Latest | Runs Copilot agents |
-| GitHub Copilot extension | Latest | Agent Mode must be enabled |
-| GitHub Copilot subscription | Current | Individual, Team, or Enterprise |
-| Bash or PowerShell | bash 3.2+ / PS 5.1+ | Direct installer |
-| `curl` | Recent | Bash installer |
+| Fix a reported defect | the `bug` workflow (preview) or `/plan-task` then `/deliver` | Diagnose first, then a small plan. |
+| Build a capability or change behavior materially | the six gates: `/create-prd`, `/refine-backlog`, `/design-system`, `/plan-task`, `/deliver` | Each gate is a draft until a named human approves it. |
+| Make a small change with an existing contract and design | a lightweight plan (`/plan-task`, `/deliver`) | Still needs a plan, executable verification, independent review, and human acceptance. |
+| Adopt SDP in an existing codebase | `/discover-tech` first, then any of the above | Drafts `TECH.md` from repository evidence. |
 
-## Installation
+The process is the same six gates every time (discovery, refinement, architecture, planning,
+implementation, assurance); the cost of each gate is proportional to the work. See the
+[workflow guide](docs/WORKFLOW.md) for profiles (Lean, Balanced, Compliance), security and QA
+routing, and parallel delivery.
 
-Run an installer from the target repository root.
+## Install
 
-### macOS / Linux
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/WojcikMM/spec-development-protocol/main/install.sh | bash
-```
-
-### Windows
-
-```powershell
-iwr -useb https://raw.githubusercontent.com/WojcikMM/spec-development-protocol/main/install.ps1 | iex
-```
-
-If PowerShell blocks script execution:
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-```
-
-The installers recursively copy canonical `.apm/` content into `.github/`
-without overwriting existing files by default. `.github/sdp-version` records the
-source version. Existing `TECH.md` is preserved unless explicitly overwritten.
-
-### Installer Options
-
-| Variable | Default | Description |
+| Channel | Command | Status |
 | --- | --- | --- |
-| `SDP_BRANCH` | `main` | Branch or release tag |
-| `SDP_FORCE` | `false` | Overwrite existing SDP-managed files |
-| `SDP_TECH_MODE` | `init` | `init`, `overwrite`, or `skip` TECH handling |
-| `SDP_TARGET` | current directory | Target repository root |
+| APM | `apm install WojcikMM/spec-development-protocol` | Bundle built and tested here; hosted install not re-run for the current candidate |
+| GitHub Copilot CLI marketplace | `copilot plugin marketplace add WojcikMM/spec-development-protocol` | Verified with a local directory only |
+| Claude Code marketplace | generated `.claude-plugin/` files | Not tested (Claude Code was unavailable) |
+| Release ZIP | from a GitHub release | None published for 2.0 yet |
+| Install scripts | `install.sh`, `install.ps1` | Original 0.5.x channel, still present |
 
-Bash examples:
+Which version has what: the released 0.5.x tags contain the stable agents, prompts,
+instructions, and six skills (API, UI, migration, errors, tests, and the template assets). The `sdp-init`, `sdp-migrate`,
+validator, and workflow skills described below exist on the current `main` branch and will ship
+in the first 2.0 release, which has not been published. Pin a released tag rather than a moving
+branch, for example `apm install WojcikMM/spec-development-protocol#v0.5.4`; that gives you the
+stable workflow only. Details, the APM versus native plugin difference, stable versus
+prerelease tags, updating, and the manual fallback are in
+[docs/INSTALLATION.md](docs/INSTALLATION.md).
 
-```bash
-# Install a release
-curl -fsSL https://raw.githubusercontent.com/WojcikMM/spec-development-protocol/main/install.sh \
-  | SDP_BRANCH=v0.5.2 bash
+## Initialize a project
 
-# Upgrade managed files while preserving project TECH.md
-curl -fsSL https://raw.githubusercontent.com/WojcikMM/spec-development-protocol/main/install.sh \
-  | SDP_FORCE=true SDP_TECH_MODE=skip bash
-```
-
-PowerShell examples:
-
-```powershell
-$env:SDP_BRANCH='v0.5.2'
-iwr -useb https://raw.githubusercontent.com/WojcikMM/spec-development-protocol/main/install.ps1 | iex
-
-$env:SDP_FORCE='true'
-$env:SDP_TECH_MODE='skip'
-iwr -useb https://raw.githubusercontent.com/WojcikMM/spec-development-protocol/main/install.ps1 | iex
-```
-
-### APM Installation
+Installing gives you skills and agents; initializing creates your project's own files. With
+the 0.5.x install scripts this happens during installation (they create `.github/TECH.md`).
+With a version that includes the `sdp-init` skill, run it from the installed package's `skills`
+folder (`<installed skills>` below; use `python3` where `python` is not available). It
+previews first and never overwrites:
 
 ```bash
-apm marketplace add WojcikMM/spec-development-protocol
-apm install spec-development-protocol@spec-development-protocol
+python <installed skills>/sdp-init/scripts/init.py --repo .          # preview
+python <installed skills>/sdp-init/scripts/init.py --repo . --apply  # create what is missing
 ```
 
-Or install directly:
+It creates `.github/TECH.md` and an empty `spec/` folder; Git does not track an empty folder,
+so commit your first spec file before relying on `spec/` being in the repository. Fill in
+`TECH.md`: stack and commands, conventions, the default delivery profile (Balanced is
+recommended; missing model telemetry never blocks Lean or Balanced), security and
+independent-QA triggers, and optional model routing. Add scoped `AGENTS.md` files where they
+reduce scanning, starting from the `AGENTS.md` template (`.github/templates/AGENTS.md` with the
+install scripts, otherwise the `sdp-templates` skill's `assets/AGENTS.md`). Then enable Agent
+Mode in VS Code and confirm the custom agents and prompts appear.
 
-```bash
-apm install WojcikMM/spec-development-protocol
-```
-
-APM cannot package `.apm/templates/` directly, so generated copies are shipped
-as assets of the `sdp-templates` skill. Maintainers author only
-`.apm/templates/` and regenerate the mirror.
-
-### Manual Installation
-
-1. Clone or download this repository.
-2. Create `.github/` in the target repository.
-3. Copy the contents of `.apm/` into `.github/`.
-4. Do not overwrite project customizations unless intentionally upgrading.
-
-## Setup
-
-### 1. Complete `.github/TECH.md`
-
-Define:
-
-- stack, module structure, and external boundaries;
-- build, test, lint, and formatting commands;
-- architecture and compatibility conventions;
-- default SDP delivery profile;
-- project-specific security and independent-QA triggers;
-- Compliance integrity/retention requirements, if any;
-- optional model routing.
-
-`Balanced` is the recommended default. Missing model telemetry does not block
-Lean or Balanced delivery. Compliance may require verified model/tool
-configuration when project policy explicitly says so.
-
-### 2. Add scoped `AGENTS.md` files
-
-Place context maps where they reduce unnecessary scanning:
-
-- repository root for global boundaries;
-- service/library roots;
-- frontend application or package roots.
-
-Use `.github/templates/AGENTS.md` as a starter.
-
-### 3. Enable Agent Mode
-
-Open Copilot Chat in VS Code and confirm Agent Mode and custom agents/prompts are
-available.
-
-## Quick Start
+## Quick start
 
 Example: add user registration.
 
 | Step | Action | Prompt | Output |
 | --- | --- | --- | --- |
 | 1 | Define outcome and scope | `/create-prd` | `PRD.md`, `ACTIVE.md` |
-| 2 | Approve PRD and refine behavior | `/refine-backlog` | `BACKLOG.md`, `EPIC-*.md` |
-| 3 | Approve backlog and design contracts | `/design-system` | `DESIGN.md` |
-| 4 | Approve design and plan active package | `/plan-task` | concise `PLAN.md` |
+| 2 | Approve the PRD and refine behavior | `/refine-backlog` | `BACKLOG.md`, `EPIC-*.md` |
+| 3 | Approve the backlog and design contracts | `/design-system` | `DESIGN.md` |
+| 4 | Approve the design and plan the package | `/plan-task` | `PLAN.md` |
 | 5 | Read the plan and deliver it | `/deliver` | code, tests, proportional assurance |
-| 6 | Review acceptance brief | normal language | accept, reject, or describe correction |
-
-Bare `/deliver` resolves the active package, approves the current visible plan,
-implements it, runs the required assurance profile, and stops for human
-acceptance. It does not require delivery IDs, revisions, digests, or candidate
-hashes when active state is unambiguous.
-
-Example correction:
-
-```text
-The empty state is wrong. Keep the action visible but disabled, and explain why.
-```
-
-The orchestrator classifies this as a bounded correction or a contract change.
-Bounded work is repaired and rechecked; changed requirements return to planning.
-
-## How the Process Works
-
-```text
-Gate 1: Discovery     -> PRD.md
-Gate 2: Refinement    -> BACKLOG.md + EPIC-*.md
-Gate 3: Architecture  -> DESIGN.md
-Gate 4: Planning      -> PLAN.md
-Gate 5: Implementation
-Gate 6: Assurance -> human acceptance
-```
-
-Gate artifacts start as draft and carry:
-
-```yaml
-status: draft | approved | rejected
-approved_by: pending | <identity>
-approved_at: pending | <ISO timestamp>
-```
-
-Manual downstream gates require approval metadata. Bare `/deliver` is the
-convenience action that records approval of the current plan before execution.
-
-### Right-sized earlier gates
-
-Use the full chain for new capabilities and material behavior. For a small fix
-with an established product contract and design, the user may explicitly
-approve a lightweight path that references existing artifacts.
-
-The lightweight path still requires:
-
-- a clear outcome and non-goals;
-- a plan and change boundary;
-- executable verification;
-- proportionate independent review;
-- human acceptance.
-
-### Capability sizing
-
-Every delivery declares:
-
-- size: `S`, `M`, `L`, or `XL`;
-- risk: `Low`, `Moderate`, or `High`;
-- uncertainty: `Resolved`, `Bounded`, or `Open`.
-
-XL work is split. Open uncertainty about behavior, data, security, or
-architecture returns to refinement/design.
-
-### Implementation autonomy
-
-The plan locks outcome, contracts, safety constraints, non-goals, and
-verification. The developer owns naming, idiomatic local design, helper
-reuse/extraction, and adjacent tests inside the boundary.
-
-A simpler in-boundary solution may proceed when outcome, risk, and verification
-remain unchanged. Public-contract, dependency, security/data-boundary, or
-destructive changes require replanning.
-
-### Durable comments
-
-Production comments must not contain story, task, epic, delivery, ticket, or AC
-identifiers; implementation-step narration; change history; obvious
-restatements; or completed planning notes.
-
-Keep comments only for durable non-obvious invariants, compatibility
-constraints, security rationale, protocol quirks, or deliberate trade-offs.
-Traceability belongs in specs, meaningful tests, PR/commit descriptions, and
-delivery history.
-
-## Delivery Profiles
-
-| Profile | Use | Assurance | Evidence |
-| --- | --- | --- | --- |
-| Lean | Small, low-risk, resolved work | Developer validation + reviewer; specialists only on trigger | Final summary |
-| Balanced | Normal product work | Reviewer always; security/QA when they add evidence | Compact run checkpoint + final summary |
-| Compliance | Regulated/high-risk or explicitly requested | Full policy-required sequence | Configured hashes, manifests, environment, retained evidence |
-
-Balanced is the default. A plan may raise but not silently lower a mandatory
-project profile.
-
-Developer validation and independent technical review are mandatory in every
-profile. Only optional security or QA stages may return `not_applicable` with
-a policy reason; that reason cannot override mandatory project controls.
-
-Compliance preserves the former strict identity controls where they are useful.
-It does not claim to provide a tamper-proof audit system.
-
-## Security and QA Routing
-
-Each epic selects:
-
-- `risk-based` (default);
-- `per-story`;
-- `epic-level`;
-- `waived` with a reason.
-
-Risk-based security dispatches the specialist when changes affect:
-
-- authentication or authorization;
-- secrets;
-- untrusted input;
-- sensitive data;
-- cryptography;
-- network trust;
-- dependency/infrastructure security;
-- regulated controls.
-
-Secure coding remains active in every profile.
-
-QA runs when independently exercising behavior adds confidence, such as user
-journeys, integrations, accessibility, compatibility, migrations, performance,
-or critical workflows. If QA can only repeat the same review and focused tests,
-Lean/Balanced may record it as not applicable.
-
-Reviewer answers: "Is the code technically correct and maintainable?"
-
-QA answers: "Does independently observable behavior satisfy acceptance?"
-
-## Manual and Supervised Delivery
-
-### Supervised
-
-```text
-/deliver
-/deliver --profile compliance
-/deliver resume
-/deliver inspect
-/deliver reject
-```
-
-IDs are requested only when several active/resumable runs are ambiguous.
-
-The orchestrator dispatches one worker at a time and never writes product code.
-One autonomous repair is allowed after the first rejected candidate; a second
-autonomous rejection escalates. Explicit human-guided correction does not
-consume that ceiling merely because feedback was given.
-
-### Manual
-
-Use:
-
-```text
-/implement
-/run-review
-/audit-security
-/qa-validate
-```
-
-Manual mode remains useful for expert control, troubleshooting, or runtimes
-without specialist dispatch.
-
-Both modes stop at an acceptance brief. Acceptance never automatically commits,
-merges, deploys, or selects the next package.
-
-## Parallel Delivery with Git Worktrees
-
-Independent packages (one or a few stories each) can be delivered at the same
-time on separate branches, typically in separate git worktrees. Single-package
-work is unchanged; parallel delivery adds no step unless you use it.
-
-SDP stays merge-friendly by construction:
-
-- every package writes only its own `spec/<slug>/deliveries/<delivery-id>/`
-  folder (plan, run record, history), so spec files never conflict;
-- shared specs (`PRD.md`, `BACKLOG.md`, `EPIC-*.md`, `DESIGN.md`, `TECH.md`)
-  are read-only during delivery; feature and story status are derived from
-  accepted packages instead of edited;
-- a story belongs to at most one open package;
-- when other packages are open, `/plan-task` compares change boundaries and
-  marks the plan `independent`, `additive-overlap` (shared hotspots with a named
-  merge-friendly technique), or `sequenced` (wait or re-split);
-- the developer edits shared hotspots additively: new files where possible,
-  self-contained blocks, unique migration IDs, no lockfile churn or mass
-  reformatting;
-- the acceptance brief reports merge readiness: overlap with the integration
-  branch and with other open packages. It is informational and never blocks.
-
-Typical flow:
-
-```text
-# primary worktree
-/plan-task US-3          -> spec/<slug>/deliveries/<slug>-DP-1/PLAN.md
-/plan-task US-5 US-6     -> spec/<slug>/deliveries/<slug>-DP-2/PLAN.md (independent)
-git add spec && git commit -m "Plan DP-1 and DP-2"
-git worktree add ../app-<slug>-DP-1 -b sdp/<slug>-DP-1
-git worktree add ../app-<slug>-DP-2 -b sdp/<slug>-DP-2
-
-# each worktree, in its own VS Code window or agent session
-/deliver                 -> the sdp/<delivery-id> branch selects the package
-```
-
-Merge accepted packages in any order. The later package updates from the
-integration branch and reruns the affected verification. Agents propose Git
-commands but create worktrees, commit, or merge only on explicit request.
-
-The active package resolves from, in order: an explicit ID, the
-`sdp/<delivery-id>` branch, `spec/ACTIVE.md`, or the only open package.
-`/deliver inspect` lists open packages when none is resolvable. Teams using
-parallel delivery should add `spec/ACTIVE.md` to `.gitignore`; it is only a
-local pointer.
-
-## Artifacts and State
-
-```text
-spec/
-  ACTIVE.md                  # local pointer
-  <feature-slug>/
-    PRD.md
-    BACKLOG.md
-    EPIC-*.md
-    DESIGN.md
-    deliveries/
-      <delivery-id>/
-        PLAN.md
-        DELIVERY-RUN.json
-        HISTORY.md
-```
-
-`ACTIVE.md` points at the active feature, gate, and package:
-
-```yaml
-slug: user-registration
-title: User Registration
-current_gate: 5
-current_delivery: user-registration-DP-1
-```
-
-`ACTIVE.md` is a marker: front-matter pointer fields only, no body. Progress
-notes, summaries, and findings go to the package `HISTORY.md` or
-`DELIVERY-RUN.json`; product and design notes go to their gate artifacts.
-
-`delivery_status` lives in the package `DELIVERY-RUN.json`; a package with a
-plan and no run record is `planned`. Feature and story status are derived from
-accepted packages. Delivery states:
-
-```text
-planned -> delivering -> awaiting-acceptance -> accepted
-               |                 |
-               -> blocked        -> changes-requested -> delivering
-                                 -> rejected
-```
-
-`DELIVERY-RUN.json` is a compact resume checkpoint containing delivery status,
-branch, profile, current stage, completed stages, changed paths, compact
-verdicts, material findings, audit obligations, and acceptance decision.
-
-The package `HISTORY.md` stores one concise final entry per delivery plus
-unresolved blocking/escalation entries. Detailed command logs remain in
-test/CI output and are referenced rather than copied.
-
-## Reference
-
-### Agents
-
-| Agent | Responsibility |
+| 6 | Review the acceptance brief | plain language | accept, reject, or describe a correction |
+
+Bare `/deliver` resolves the active package, approves the plan you just read, implements it,
+runs the required assurance, and stops for your decision. A correction such as "the empty
+state is wrong: keep the action visible but disabled" is repaired and rechecked when it stays
+inside the approved outcome; a changed requirement returns to planning.
+
+## Scope, evidence, and acceptance
+
+- **Scope is approved before code.** A plan names the outcome, change boundary, non-goals,
+  and verification. Developers choose local design inside it; a changed public contract,
+  dependency, data or security boundary, or destructive operation needs replanning.
+- **Assurance is independent and proportional.** Developer validation and independent
+  technical review always run. Security and QA run when a trigger or policy says they add
+  evidence. A passing check is recorded as evidence, never as acceptance.
+- **A named human accepts.** The acceptance brief lists the outcome, criteria coverage, stage
+  verdicts, deviations, risks, and checks with where to find their output. Acceptance never
+  commits, merges, or deploys.
+
+## The schema 4 preview
+
+A validator-backed path is being built alongside the stable commands. It stores each package
+as a schema 4 run record, derives the next action from files instead of conversation, enforces
+legal transitions, binds approval to the exact plan a human saw, and refuses to substitute
+self-review when a host cannot run an independent reviewer. Entry points are the
+`sdp.coordinator` agent and `/run-workflow`; the `bug` and `feature` workflows exist.
+
+Status, stated plainly: the validator and its tests are in place, and GitHub Copilot CLI
+loaded the skills and followed two read-only steps in bounded trials. No host has executed a
+full delivery, so no host is qualified, and Claude Code is untested. See
+[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md). Projects on 0.5.3 or 0.5.4 move with
+`sdp-migrate` ([docs/UPGRADING.md](docs/UPGRADING.md)); keep using `/deliver` for real work
+until a host is qualified.
+
+## Requirements and limits
+
+- Visual Studio Code with the GitHub Copilot extension and Agent Mode, and a Copilot
+  subscription, for the stable prompts. Note that no host observation covers a full delivery
+  on either path; the only host with any recorded observation is GitHub Copilot CLI (see
+  [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)), and VS Code is untested.
+- Python 3.9 or newer and Git for the shipped scripts, which use only the standard library.
+  Without Python the schema 4 workflow stops with an explicit message and the stable prompts
+  keep working. APM itself needs its own runtime (see [docs/INSTALLATION.md](docs/INSTALLATION.md)).
+- The validator checks records and enforces transitions. It is not a sandbox: approver names
+  are asserted strings, and it cannot prove who reviewed what. Compliance profile adds
+  retained evidence but is not a tamper-proof audit system.
+- Nothing here claims that a model follows the skills, or any productivity gain.
+
+## Documentation
+
+| Document | Contents |
 | --- | --- |
-| `sdp.discover` | Discover legacy technology context |
-| `sdp.prd` | Define product outcome and scope |
-| `sdp.analyst` | Create coherent stories and acceptance criteria |
-| `sdp.architect` | Record right-sized technical decisions |
-| `sdp.planner` | Create an implementation-grade plan |
-| `sdp.developer` | Implement product code and tests |
-| `sdp.reviewer` | Review technical correctness and maintainability |
-| `sdp.security` | Audit security-sensitive changes |
-| `sdp.qa` | Validate independently observable acceptance |
-| `sdp.orchestrator` | Coordinate delivery and human acceptance |
-
-### Prompts
-
-| Prompt | Purpose |
-| --- | --- |
-| `/discover-tech` | Draft TECH from repository evidence |
-| `/create-prd` | Draft product requirements |
-| `/refine-backlog` | Draft stories and ACs |
-| `/design-system` | Draft technical design |
-| `/plan-task` | Plan the active delivery |
-| `/deliver` | Approve and deliver the active plan |
-| `/implement` | Manual implementation |
-| `/run-review` | Manual review |
-| `/audit-security` | Manual security audit |
-| `/qa-validate` | Manual acceptance validation |
-
-### Skills
-
-| Skill | Purpose |
-| --- | --- |
-| `create-api-endpoint` | Secure REST endpoint guidance |
-| `create-ui-component` | Accessible UI component guidance |
-| `database-migration` | Safe migration and recovery guidance |
-| `error-handling` | Consistent observable failure handling |
-| `write-tests` | Meaningful behavior-focused tests |
-| `sdp-templates` | Generated APM template assets |
-
-### Templates
-
-| Template | Purpose |
-| --- | --- |
-| `TECH.md` | Stack, commands, conventions, delivery policy |
-| `AGENTS.md` | Scoped context map |
-| `ACTIVE.md` | Local pointer to the active feature and package |
-| `PRD.md` | Product outcome |
-| `BACKLOG.md`, `EPIC.md` | Stories, ACs, security policy |
-| `DESIGN.md` | Contracts, boundaries, decisions |
-| `PLAN.md` | Outcome, work, boundary, verification, autonomy |
-| `DELIVERY-RUN.json` | Compact resume state |
-| `HISTORY.md` | Final outcomes and unresolved blocks |
-
-## Customization
-
-| Need | Location |
-| --- | --- |
-| Project coding standards | `.github/instructions/coding-standards.instructions.md` |
-| Delivery/security/QA policy | `.github/TECH.md` |
-| Custom agents | `.github/agents/*.agent.md` |
-| Custom prompts | `.github/prompts/*.prompt.md` |
-| Custom skills | `.github/skills/<name>/SKILL.md` |
-| Module context | repository/module `AGENTS.md` files |
-
-The installer is non-destructive by default. `SDP_FORCE=true` is explicit
-overwrite behavior.
-
-## Repository and Package Structure
-
-Canonical distributable source:
-
-```text
-.apm/
-  agents/
-  instructions/
-  prompts/
-  skills/
-    sdp-templates/
-      assets/        # generated APM mirror
-  templates/         # canonical authoring source
-```
-
-Direct installers copy `.apm/*` to client `.github/*`. APM packages templates
-through the generated `sdp-templates` skill assets because the package format
-does not include arbitrary template directories.
-
-After changing `.apm/templates/`:
-
-```bash
-apm run sync-templates
-apm run check-templates
-```
-
-Package metadata is in `apm.yml`. Marketplace build:
-
-```bash
-apm marketplace check
-apm pack --marketplace=claude,codex
-```
-
-## Upgrading from the Strict Identity Workflow
-
-This redesign intentionally changes delivery state and the default evidence
-model.
-
-When upgrading an existing client:
-
-1. Back up project customizations.
-2. Upgrade SDP-managed files together:
-
-   ```bash
-   curl -fsSL https://raw.githubusercontent.com/WojcikMM/spec-development-protocol/main/install.sh \
-     | SDP_FORCE=true SDP_TECH_MODE=skip bash
-   ```
-
-3. Update `TECH.md` with the new SDP Delivery Policy.
-4. Migrate active state:
-   - `current_story` -> `current_delivery`;
-   - `status` -> `feature_status`;
-   - `final_status` -> the closest `delivery_status`.
-5. Regenerate the active `PLAN.md` using the simplified template.
-6. Start new run checkpoints with the current `DELIVERY-RUN.json` schema.
-7. Preserve unresolved security obligations in `pending_audit`.
-
-Do not mix old plan/run semantics with new agents. Default non-overwriting
-installation may leave mixed versions, so deliberate upgrades should use
-`SDP_FORCE=true` after review.
-
-Projects that still need strict digests, manifests, and retained stage evidence
-should set Compliance as their mandatory profile.
-
-### Upgrading to package-scoped state
-
-Package-scoped state enables parallel delivery. For an existing client:
-
-1. Move `spec/<slug>/PLAN.md` to
-   `spec/<slug>/deliveries/<delivery-id>/PLAN.md`, and move the run record
-   and feature `HISTORY.md` entries for that delivery into the same folder.
-2. Move `delivery_status` and `pending_audit` from `ACTIVE.md` into the
-   package `DELIVERY-RUN.json` (schema version 3); drop `feature_status`.
-3. Optionally add `spec/ACTIVE.md` to `.gitignore` and fill the new
-   integration-branch and merge-hotspot lines in `TECH.md`.
+| [docs/INSTALLATION.md](docs/INSTALLATION.md) | Channels, pinning, updating, requirements, mixed installs |
+| [docs/WORKFLOW.md](docs/WORKFLOW.md) | Gates, profiles, routing, supervised and manual delivery, parallel work, state |
+| [docs/REFERENCE.md](docs/REFERENCE.md) | Agents, prompts, skills, templates, customization, structure |
+| [docs/UPGRADING.md](docs/UPGRADING.md) | `sdp-migrate`, rollback, older layouts |
+| [docs/PROTOCOL.md](docs/PROTOCOL.md) | The record, transition, and approval contract |
+| [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) | What was observed on each host |
+| [docs/RELEASING.md](docs/RELEASING.md) | Building, verifying, and publishing a release |
+| [CHANGELOG.md](CHANGELOG.md) | History |
 
 ## Contributing
 
-1. Edit distributable content in `.apm/`, never repository `.github/`.
-2. Treat `.apm/templates/` as canonical.
-3. Run `scripts/sync-templates.sh` after template changes.
-4. Keep process instructions, agents, prompts, templates, installer output, and
-   this README aligned.
-5. Run:
+1. Edit distributable content in `.apm/`, never the repository's own `.github/` (maintainer
+   automation only). `.apm/templates/` is canonical; run `bash scripts/sync-templates.sh`
+   after changing it.
+2. Keep instructions, agents, prompts, templates, documentation, and installer output aligned.
+3. Run the Linux checks CI runs: `bash scripts/check-all.sh`, in a Linux checkout (CI also runs
+   the suites on Windows and the shipped scripts on Python 3.9). It needs Python 3.10 or newer
+   (APM requires it), Git, PyYAML 6.0.3, `jsonschema`, and the APM version pinned
+   in `scripts/release-tools.json`. The individual commands are listed in that script. The
+   shipped scripts themselves need only Python 3.9.
+4. After changing canonical instructions, regenerate the root context with the installed APM
+   (verified with 0.29.0) and preview first with `--dry-run`:
 
    ```bash
-   bash -n install.sh
-   bash scripts/sync-templates.sh --check
-   python scripts/check-baseline.py --self-test
-   python scripts/check-skills.py
-   python -m unittest discover -s tests/contracts
-   python -m unittest discover -s tests/skills
-   python -m unittest discover -s tests/init
-   python -m unittest discover -s tests/migrate
-   python -m unittest discover -s tests/packaging
-   python -m unittest discover -s tests/release
-   python scripts/build-release.py --output dist
-   git diff --check
+   apm compile --local-only --single-agents --target copilot --output AGENTS.md
    ```
 
-Release packaging (version authority, the ZIP, its checks, and what is not yet verified) is
-described in [docs/RELEASING.md](docs/RELEASING.md); it needs the APM version pinned in
-`scripts/release-tools.json`. `bash scripts/check-all.sh` runs everything CI runs on Linux.
-
-The Python checks and tests need Python 3.9 or newer, Git, and PyYAML (verified with
-Python 3.11 and PyYAML 6.0.3); `jsonschema` is used when present for descriptor and
-record schema checks. Nothing is installed for you. The baseline check parses package
-metadata,
-checks manifest versions, skill-starter metadata, mandatory-stage wording,
-generated context, and template equality. Its regression cases run in memory
-without changing repository files. These are textual consistency checks, not
-proof that an agent enforced delivery gates.
-
-After changing canonical instructions, regenerate root context with the
-installed APM compiler (verified with APM 0.29.0):
-
-```bash
-apm compile --local-only --single-agents --target copilot --output AGENTS.md
-```
-
-Preview with `--dry-run` first. `--output` limits this command to the root
-context; it does not regenerate other hosts' installed files. Existing
-installers and client copy behavior are unchanged.
+Release packaging and publishing are described in [docs/RELEASING.md](docs/RELEASING.md). The
+baseline checks are textual consistency checks, not proof that an agent enforced delivery
+gates.
 
 ## License
 

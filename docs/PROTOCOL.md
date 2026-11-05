@@ -218,7 +218,7 @@ Supported source layouts: SDP 0.5.3 (schema 2, shared `ACTIVE.md` state) and
 the tooling stops and names the upgrade path. Ambiguous statuses require a
 human mapping; approvals and evidence are never fabricated.
 
-`sdp-migrate` (`scripts/migrate.py`) implements the move. It previews by default;
+`sdp-migrate` (`.apm/skills/sdp-migrate/scripts/migrate.py`) implements the move. It previews by default;
 `apply` writes `.sdp-backup/<timestamp>/` (originals plus a write-ahead journal), applies
 the changes with atomic replaces, validates every migrated record, and restores
 everything if anything fails. Rules:

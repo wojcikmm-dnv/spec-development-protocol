@@ -83,9 +83,9 @@ user files, credentials, repository settings, or installed global plugins.
 
 ## Ordered Steps
 
-Progress: Steps 01-07, 08a, 09, 10 (local part), and 11 (authored, not yet run on GitHub) are accepted (packages `sdp-2-baseline-DP-1`,
+Progress: Steps 01-07, 08a, 09, 10 (local part), 11 (authored, not yet run on GitHub), and 12 are accepted (packages `sdp-2-baseline-DP-1`,
 `sdp-2-protocol-DP-1`, `sdp-2-core-DP-1`, `sdp-2-skills-DP-1`, `sdp-2-workflow-DP-1`,
-`sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`, `sdp-2-feature-DP-1`, `sdp-2-migrate-DP-1`, `sdp-2-bundles-DP-1`, `sdp-2-release-DP-1`). Step 06's exit criterion is only partly met: GitHub Copilot CLI is
+`sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`, `sdp-2-feature-DP-1`, `sdp-2-migrate-DP-1`, `sdp-2-bundles-DP-1`, `sdp-2-release-DP-1`, `sdp-2-docs-DP-1`). Step 06's exit criterion is only partly met: GitHub Copilot CLI is
 smoke-tested, but Claude Code was unavailable and is blocked, tracked as the open
 obligation `step-06-claude-code-qualification`; no host has executed a full delivery.
 Protocol design in
@@ -361,6 +361,11 @@ separately authorized prerelease rehearsal and native catalog install.
 checksums are not described as publisher authentication.
 
 ### Step 12 - Rewrite User Documentation and Migration Guidance
+
+**Status:** accepted for the current state (package `sdp-2-docs-DP-1`). Installation examples
+were followed from a scratch repository by an independent reviewer; hosted-channel installs
+and the 2.0 changelog entry (kept under `Unreleased`, labeled as planned) stay open until a
+release exists. Docs must be updated again after Step 13 and Step 14.
 
 - [ ] Rewrite README around choosing a workflow, installation channel,
   initialization, scope approval, evidence, and acceptance.

@@ -8,6 +8,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Planned for 2.0 (nothing here is in effect yet)
+
+- Delivery records move to schema 4. Existing 0.5.3 and 0.5.4 projects migrate with the
+  `sdp-migrate` skill (preview, backup, restore); open packages restart as `planned` and
+  their plan approval must be given again. See `docs/UPGRADING.md`.
+- The install scripts and superseded agents and prompts are candidates for removal in 2.0.
+  They are still present and still work; their removal needs a separate, explicit approval and
+  a verified replacement channel, and the existing commands map to schema 4 equivalents in
+  `docs/PROTOCOL.md`.
+- No 2.0 release exists. No host has executed a full delivery, and Claude Code is untested.
+
+### Documentation
+
+- README rewritten around choosing a workflow, installation channel, initialization, scope,
+  evidence, and acceptance. Long material moved to `docs/INSTALLATION.md`, `docs/WORKFLOW.md`,
+  `docs/REFERENCE.md`, and `docs/UPGRADING.md`. Statuses are stated as observed: which
+  channels were verified, what each host was seen to do, and what is untested.
+- `tests/release/test_docs.py` checks links and anchors, named paths, slash commands,
+  documented flags and install-script variables and defaults, the state list against the
+  validator, the agent, prompt, skill, and template inventories, pinned tags, and that host
+  claims do not exceed the compatibility matrix. It does not prove that prose is correct.
+
 ### Added
 
 - CI and tag-release workflows (`.github/workflows/`), authored but not yet run on GitHub.

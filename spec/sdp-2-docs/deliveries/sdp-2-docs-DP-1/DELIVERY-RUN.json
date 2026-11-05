@@ -1,0 +1,24 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-docs-DP-1-run-1",
+  "delivery_id": "sdp-2-docs-DP-1",
+  "delivery_status": "accepted",
+  "branch": null,
+  "profile": "Balanced",
+  "current_stage": "closed",
+  "completed_stages": ["developer", "reviewer", "qa"],
+  "changed_paths": [
+    "README.md", "docs/INSTALLATION.md", "docs/WORKFLOW.md", "docs/REFERENCE.md", "docs/UPGRADING.md", "docs/COMPATIBILITY.md",
+    "docs/PROTOCOL.md", "tests/release/test_docs.py", "CHANGELOG.md", "PLAN.md"
+  ],
+  "stage_results": [
+    {"stage": "developer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": [], "checks": ["19 documentation tests", "mutation checks"]},
+    {"stage": "reviewer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": ["High: pin example contradicted the initialize step, fixed", "Medium: dropped install commands, fixed"], "checks": ["independent review by following the documents in scratch repositories"]},
+    {"stage": "security", "verdict": "not_applicable", "reason": "Documentation only; no executable or trust-boundary change."},
+    {"stage": "qa", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": [], "checks": ["init and migrate commands run as documented", "Copilot CLI marketplace commands run against a scratch home"]}
+  ],
+  "autonomous_rejection_count": 1,
+  "pending_audit": ["step-06-claude-code-qualification", "step-08b-instruction-reduction", "step-10-hosted-catalog-rehearsal", "step-11-github-rehearsal"],
+  "acceptance": {"decision": "accepted", "decided_by": "user (chat)", "decided_at": "2026-11-06T00:45:00+01:00", "feedback": "continue with next task"},
+  "compliance": null
+}

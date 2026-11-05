@@ -72,4 +72,5 @@ One observation on one model does not show that other models follow a skill. The
 `independent-context` capability needs a separate session or subagent with different
 permissions; until a delivery is run with one, it stays unverified. Direct plugin
 installs are marked deprecated by Copilot CLI; the supported route is a marketplace
-install, which Step 10 provides.
+install. A local marketplace was checked (it loads live from the checkout); a hosted one has
+not been (see [RELEASING.md](RELEASING.md)).
