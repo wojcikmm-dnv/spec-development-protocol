@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "capability": "investigate",
+  "applies_to": ["bugs", "regressions", "failing checks"],
+  "inputs": ["bug report or failing check", "readable code", "a way to run the code"],
+  "outputs": ["stage-result", "reproduction", "root cause", "bounded fix proposal"],
+  "isolation": "none",
+  "mutates_product": false,
+  "result_contract": "stage-result",
+  "evaluation": "evals/cases.json"
+}

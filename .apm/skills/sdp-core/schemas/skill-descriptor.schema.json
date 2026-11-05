@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SDP skill companion descriptor (sdp.skill.json)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "capability", "applies_to", "inputs", "outputs", "isolation", "mutates_product", "evaluation"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "capability": {
+      "enum": ["investigate", "plan", "implement", "technical-review", "security-review", "acceptance-validation", "write-tests"]
+    },
+    "applies_to": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "inputs": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "outputs": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "isolation": {"enum": ["independent", "none"]},
+    "mutates_product": {"type": "boolean"},
+    "result_contract": {"const": "stage-result"},
+    "evaluation": {"type": "string", "pattern": "^evals/[A-Za-z0-9._/-]+\\.json$"}
+  }
+}

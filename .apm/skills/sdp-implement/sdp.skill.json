@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "capability": "implement",
+  "applies_to": ["any language", "an approved plan with an unchanged body"],
+  "inputs": ["approved PLAN.md", "scoped AGENTS.md", "owning code and tests"],
+  "outputs": ["code and tests inside the boundary", "stage-result"],
+  "isolation": "none",
+  "mutates_product": true,
+  "result_contract": "stage-result",
+  "evaluation": "evals/cases.json"
+}

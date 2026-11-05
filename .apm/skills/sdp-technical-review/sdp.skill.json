@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "capability": "technical-review",
+  "applies_to": ["any language", "code changes with a stated plan boundary"],
+  "inputs": ["changed files or diff", "approved PLAN.md boundary and acceptance criteria", "neighboring code and tests"],
+  "outputs": ["stage-result"],
+  "isolation": "independent",
+  "mutates_product": false,
+  "result_contract": "stage-result",
+  "evaluation": "evals/cases.json"
+}

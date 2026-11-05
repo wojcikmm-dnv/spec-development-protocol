@@ -1,0 +1,51 @@
+{
+  "skill": "sdp-acceptance-validation",
+  "stage": "qa",
+  "cases": [
+    {
+      "id": "all-criteria-demonstrated",
+      "kind": "correct",
+      "title": "Every criterion is exercised with observed output",
+      "input": {
+        "acceptance_criteria": ["AC-1 an empty cart disables Checkout", "AC-2 adding an item enables Checkout"],
+        "observations": {"AC-1": "Checkout button had disabled attribute with an empty cart", "AC-2": "After adding one item the button was enabled and the click reached /pay"}
+      },
+      "expect": {"verdict": "pass", "forbidden_patterns": ["^(Critical|High):"], "finding_patterns": ["AC-1", "AC-2"]},
+      "reference_result": {"stage": "qa", "verdict": "pass", "findings": ["Covered AC-1: button disabled for an empty cart (observed disabled attribute)", "Covered AC-2: button enabled after adding an item and the click reached /pay"], "checks": ["ran the UI against the dev server"], "detected_triggers": []}
+    },
+    {
+      "id": "unmet-criterion",
+      "kind": "seeded-defect",
+      "title": "The empty-cart button is still enabled",
+      "input": {
+        "acceptance_criteria": ["AC-1 an empty cart disables Checkout"],
+        "observations": {"AC-1": "With an empty cart the Checkout button was clickable and POSTed an empty order"}
+      },
+      "expect": {"verdict": "fail", "finding_patterns": ["AC-1", "enabled|clickable|not disabled"], "min_severity": "High"},
+      "reference_result": {"stage": "qa", "verdict": "fail", "findings": ["High: AC-1 not met; Checkout is clickable with an empty cart and POSTs an empty order - disable the button when the cart has no items"], "detected_triggers": []}
+    },
+    {
+      "id": "environment-unavailable",
+      "kind": "escalation",
+      "title": "No environment is available, so nothing can be claimed",
+      "input": {
+        "acceptance_criteria": ["AC-1 the export finishes in under 5 seconds for 10k rows"],
+        "description": "The staging database is down, so the performance scenario cannot run."
+      },
+      "expect": {"verdict": "blocked", "finding_patterns": ["environment|staging|unavailable|cannot run"], "forbidden_patterns": ["^(Pass|Covered)"]},
+      "reference_result": {"stage": "qa", "verdict": "blocked", "findings": ["Blocked: staging database is down, so AC-1 (10k-row export under 5 seconds) was not exercised; this is not a pass"], "detected_triggers": ["qa:performance"]}
+    },
+    {
+      "id": "covered-by-review-not-applicable",
+      "kind": "negative",
+      "title": "Review and focused tests already give the same evidence",
+      "input": {
+        "acceptance_criteria": ["AC-1 the helper trims whitespace"],
+        "triggers": [],
+        "description": "A pure helper function with focused unit tests already reviewed; no user-visible behavior, integration, or trigger."
+      },
+      "expect": {"verdict": "not_applicable", "finding_patterns": ["review|unit tests|no (qa )?trigger|already"]},
+      "reference_result": {"stage": "qa", "verdict": "not_applicable", "findings": [], "reason": "Pure helper fully covered by reviewed unit tests; no observable behavior, integration, or qa trigger adds independent evidence.", "detected_triggers": []}
+    }
+  ]
+}

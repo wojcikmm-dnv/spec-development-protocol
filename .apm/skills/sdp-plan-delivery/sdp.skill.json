@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "capability": "plan",
+  "applies_to": ["approved requirements and design", "diagnosed bugs with a bounded fix proposal"],
+  "inputs": ["approved backlog or bug diagnosis", "design", "TECH.md", "open packages"],
+  "outputs": ["draft PLAN.md", "stage-result"],
+  "isolation": "none",
+  "mutates_product": false,
+  "result_contract": "stage-result",
+  "evaluation": "evals/cases.json"
+}

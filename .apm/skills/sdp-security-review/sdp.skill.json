@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "capability": "security-review",
+  "applies_to": ["any language", "changes touching a security boundary or carrying a security trigger"],
+  "inputs": ["changed files or diff", "reported triggers and epic security policy", "relevant trust boundaries"],
+  "outputs": ["stage-result"],
+  "isolation": "independent",
+  "mutates_product": false,
+  "result_contract": "stage-result",
+  "evaluation": "evals/cases.json"
+}

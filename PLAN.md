@@ -83,9 +83,10 @@ user files, credentials, repository settings, or installed global plugins.
 
 ## Ordered Steps
 
-Progress: Steps 01-03 are accepted (packages `sdp-2-baseline-DP-1`,
-`sdp-2-protocol-DP-1`, `sdp-2-core-DP-1`; protocol design in
-[docs/PROTOCOL.md](docs/PROTOCOL.md), validator in `.apm/skills/sdp-core`).
+Progress: Steps 01-04 are accepted (packages `sdp-2-baseline-DP-1`,
+`sdp-2-protocol-DP-1`, `sdp-2-core-DP-1`, `sdp-2-skills-DP-1`; protocol design in
+[docs/PROTOCOL.md](docs/PROTOCOL.md), validator in `.apm/skills/sdp-core`, stage
+skills under `.apm/skills`).
 All later steps are pending. A step completes only when its checks and independent
 assurance pass and a human accepts the package. Record actual evidence in that
 package rather than duplicating reports here.

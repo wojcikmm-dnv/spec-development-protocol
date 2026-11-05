@@ -1,0 +1,71 @@
+{
+  "skill": "sdp-security-review",
+  "stage": "security",
+  "cases": [
+    {
+      "id": "sql-built-from-input",
+      "kind": "seeded-defect",
+      "title": "A query is assembled by concatenating request input",
+      "input": {
+        "triggers": ["security:input"],
+        "files": {
+          "src/users.py": "def find(db, name):\n    return db.execute(\"SELECT * FROM users WHERE name = '\" + name + \"'\")\n"
+        }
+      },
+      "expect": {"verdict": "fail", "finding_patterns": ["inject|parameteri[sz]|concatenat"], "min_severity": "High", "triggers": ["security:input"]},
+      "reference_result": {"stage": "security", "verdict": "fail", "findings": ["Critical: name is concatenated into SQL, so input such as ' OR '1'='1 returns every user (src/users.py:2) - use a parameterized query"], "detected_triggers": ["security:input"]}
+    },
+    {
+      "id": "missing-ownership-check",
+      "kind": "seeded-defect",
+      "title": "A record is returned by id without checking who owns it",
+      "input": {
+        "triggers": ["security:authz"],
+        "files": {
+          "src/orders.py": "def get_order(request, order_id):\n    require_login(request)\n    return Order.get(order_id)\n"
+        }
+      },
+      "expect": {"verdict": "fail", "finding_patterns": ["authoriz|ownership|IDOR|other users"], "min_severity": "High", "triggers": ["security:authz"]},
+      "reference_result": {"stage": "security", "verdict": "fail", "findings": ["High: any logged-in user can read any order by changing order_id; ownership is never checked (src/orders.py:3) - compare order.owner_id to request.user.id and return 403 or 404"], "detected_triggers": ["security:authz"]}
+    },
+    {
+      "id": "hardcoded-secret-under-waiver",
+      "kind": "escalation",
+      "title": "A waived epic policy does not hide a hard-coded credential",
+      "input": {
+        "epic_security_policy": "waived",
+        "triggers": ["security:secrets"],
+        "files": {
+          "src/mail.py": "API_KEY = 'sk_live_51H8exampleexample'\n\ndef send(msg):\n    return post('https://mail.example/send', key=API_KEY, body=msg)\n"
+        }
+      },
+      "expect": {"verdict": "fail", "finding_patterns": ["secret|credential|api key|hard-?coded"], "min_severity": "High", "triggers": ["security:secrets"], "forbidden_patterns": ["waived.*(skip|not applicable)"]},
+      "reference_result": {"stage": "security", "verdict": "fail", "findings": ["Critical: a live API key is hard-coded and will ship in source control (src/mail.py:1) - load it from the secret store and rotate the exposed key; the waiver does not cover an undisposed secrets trigger"], "detected_triggers": ["security:secrets"]}
+    },
+    {
+      "id": "safe-parameterized-and-authorized",
+      "kind": "correct",
+      "title": "A parameterized query behind an ownership check passes",
+      "input": {
+        "triggers": ["security:input", "security:authz"],
+        "files": {
+          "src/orders.py": "def get_order(request, order_id):\n    order = db.execute('SELECT * FROM orders WHERE id = ?', (order_id,)).one()\n    if order is None or order.owner_id != request.user.id:\n        raise NotFound()\n    return order\n"
+        }
+      },
+      "expect": {"verdict": "pass", "forbidden_patterns": ["^(Critical|High):"]},
+      "reference_result": {"stage": "security", "verdict": "pass", "findings": [], "checks": ["traced order_id to the query", "confirmed ownership check precedes return"], "detected_triggers": ["security:input", "security:authz"]}
+    },
+    {
+      "id": "docs-only-not-applicable",
+      "kind": "negative",
+      "title": "A docs-only change with no trigger needs no security audit",
+      "input": {
+        "epic_security_policy": "risk-based",
+        "triggers": [],
+        "files": {"docs/usage.md": "Added an example command.\n"}
+      },
+      "expect": {"verdict": "not_applicable", "finding_patterns": ["docs|documentation|no (security )?trigger|no security"]},
+      "reference_result": {"stage": "security", "verdict": "not_applicable", "findings": [], "reason": "Documentation-only change; no trust boundary touched and no trigger reported.", "detected_triggers": []}
+    }
+  ]
+}

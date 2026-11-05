@@ -1,6 +1,6 @@
 ---
 name: create-api-endpoint
-description: Guidance for implementing secure, well-structured REST API endpoints.
+description: Guidance for implementing secure, well-structured REST API endpoints. Use when adding or changing an HTTP endpoint, route handler, or API contract.
 ---
 
 # Skill: Create REST API Endpoint

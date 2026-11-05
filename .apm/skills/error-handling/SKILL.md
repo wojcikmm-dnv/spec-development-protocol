@@ -1,6 +1,6 @@
 ---
 name: error-handling
-description: Guidance for implementing consistent, observable error handling.
+description: Guidance for implementing consistent, observable error handling. Use when adding error handling, failure logging, retries, timeouts, or user-facing error messages.
 ---
 
 # Skill: Error Handling

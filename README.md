@@ -616,11 +616,17 @@ Package-scoped state enables parallel delivery. For an existing client:
    ```bash
    bash -n install.sh
    bash scripts/sync-templates.sh --check
-  python scripts/check-baseline.py --self-test   python -m unittest discover -s tests/contracts   git diff --check
+   python scripts/check-baseline.py --self-test
+   python scripts/check-skills.py
+   python -m unittest discover -s tests/contracts
+   python -m unittest discover -s tests/skills
+   git diff --check
    ```
 
-The baseline check requires Python 3 and PyYAML (verified with Python 3.11 and
-PyYAML 6.0.3); it does not install dependencies. It parses package metadata,
+The Python checks and tests need Python 3.9 or newer, Git, and PyYAML (verified with
+Python 3.11 and PyYAML 6.0.3); `jsonschema` is used when present for descriptor and
+record schema checks. Nothing is installed for you. The baseline check parses package
+metadata,
 checks manifest versions, skill-starter metadata, mandatory-stage wording,
 generated context, and template equality. Its regression cases run in memory
 without changing repository files. These are textual consistency checks, not

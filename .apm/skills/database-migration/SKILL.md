@@ -1,6 +1,6 @@
 ---
 name: database-migration
-description: Guidance for writing safe, reversible database schema migrations.
+description: Guidance for writing safe, reversible database schema migrations. Use when adding or changing a schema, data migration, index, or constraint.
 ---
 
 # Skill: Write Database Migration

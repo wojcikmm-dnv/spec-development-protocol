@@ -1,7 +1,9 @@
 # SDP Protocol Contract (draft 1)
 
-Status: design for SDP 2.0, not yet implemented. Step 03 turns this into
-schemas and a validator. Nothing here describes shipped behavior.
+Status: Steps 02-04 are implemented: the record validator and schema live in
+`.apm/skills/sdp-core`, and stage expertise lives in the skills below. Workflows,
+host adapters, and agent wiring (Steps 05-08) are not implemented yet, so nothing
+here describes behavior an installed agent already follows.
 
 The protocol makes delivery records checkable by software. It validates records;
 it is not a sandbox, an authentication system, or tamper-proof audit. Local files
@@ -243,6 +245,34 @@ human name; stopping that needs host-level approval prompts or external identity
 A candidate that failed a stage cannot be re-passed for that stage until it
 changes, so a repair has to alter the candidate and a rerun cannot silently
 replace a failing verdict.
+
+## Skill Coverage Map
+
+Stage expertise is extracted into skills. Agents keep their current files until
+Step 08 replaces their procedures with workflow references, so no coverage is
+removed yet.
+
+| Current agent responsibility | Skill | Notes |
+| --- | --- | --- |
+| `sdp.developer` implement within boundary, autonomy, durable comments | `sdp-implement`, `write-tests` | merge-friendly hotspots included |
+| `sdp.planner` plan, sizing, parallel safety | `sdp-plan-delivery` | uses the PLAN template |
+| `sdp.reviewer` correctness, scope, tests, comment hygiene, trigger reports | `sdp-technical-review` | independence is a host requirement |
+| `sdp.security` threat model, aggregate epic audit | `sdp-security-review` | waiver cannot hide a trigger |
+| `sdp.qa` scenario derivation and execution | `sdp-acceptance-validation` | human acceptance stays separate |
+| bug diagnosis (new) | `sdp-investigate` | feeds the bug workflow |
+| `sdp.discover`, `sdp.prd`, `sdp.analyst`, `sdp.architect` | not extracted | gate authoring stays with agents for now |
+| `sdp.orchestrator` | not a skill | coordination uses `sdp-core` and, later, workflows |
+
+Each extracted skill carries `sdp.skill.json` and `evals/cases.json`. Evaluation
+cases are deterministic graders for a result a host produced; they do not run a
+model and do not prove a given model follows the skill. The grader checks that
+required evidence is present (verdict, expected findings, triggers, severity floor),
+not that the reasoning is good: a keyword-stuffed answer can pass, so review real
+output with human judgment. Case kinds: `correct` input should pass; `seeded-defect`
+contains a defect that must be found; `negative` is a tempting wrong action or false
+alarm that must be declined; `escalation` is a boundary that must be handed back.
+Grade real output with
+`python scripts/grade_eval.py --cases <cases.json> --case <id> --result <file>`.
 
 ## Invariant-to-Test Map
 

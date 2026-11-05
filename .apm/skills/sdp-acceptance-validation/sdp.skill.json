@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "capability": "acceptance-validation",
+  "applies_to": ["observable behavior", "user journeys, integrations, accessibility, compatibility, migration, performance"],
+  "inputs": ["acceptance criteria", "runnable candidate", "representative environment", "reported qa triggers"],
+  "outputs": ["stage-result"],
+  "isolation": "independent",
+  "mutates_product": false,
+  "result_contract": "stage-result",
+  "evaluation": "evals/cases.json"
+}

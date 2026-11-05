@@ -1,0 +1,50 @@
+{
+  "skill": "sdp-investigate",
+  "stage": "developer",
+  "cases": [
+    {
+      "id": "reproduced-with-cause",
+      "kind": "correct",
+      "title": "A reproducible defect is traced to its mechanism",
+      "input": {
+        "report": "Discount applies twice when a coupon and a loyalty card are both used.",
+        "evidence": "Running checkout(cart, coupon, card) printed 30 off a 100 cart; with only the coupon, 15 off."
+      },
+      "expect": {"verdict": "pass", "finding_patterns": ["reproduc", "root cause|because|mechanism", "boundary|paths?|fix"]},
+      "reference_result": {"stage": "developer", "verdict": "pass", "findings": ["Reproduced: checkout(cart, coupon, card) gives 30 off 100 instead of 15", "Root cause: apply_loyalty() recomputes from the original price, ignoring the coupon already applied (src/pricing.py:41)", "Fix boundary: src/pricing.py and tests/test_pricing.py only; add a test for coupon plus card"], "checks": ["ran checkout with and without the card"], "detected_triggers": []}
+    },
+    {
+      "id": "cannot-reproduce",
+      "kind": "escalation",
+      "title": "An unreproducible report is blocked, not guessed at",
+      "input": {
+        "report": "The export sometimes returns an empty file.",
+        "evidence": "Fifty runs against the sample data all produced non-empty files."
+      },
+      "expect": {"verdict": "blocked", "finding_patterns": ["reproduce|tried|runs", "need|missing|provide|which"], "forbidden_patterns": ["root cause:"]},
+      "reference_result": {"stage": "developer", "verdict": "blocked", "findings": ["Blocked: could not reproduce in 50 runs on the sample data; need the input size, account, and time of a failing export"], "detected_triggers": []}
+    },
+    {
+      "id": "behavior-is-specified",
+      "kind": "escalation",
+      "title": "The reported bug is what the requirements actually say",
+      "input": {
+        "report": "Guests cannot see prices.",
+        "evidence": "PRD section 3 says prices are visible to signed-in users only."
+      },
+      "expect": {"verdict": "blocked", "finding_patterns": ["requirement|specified|PRD|by design", "refinement|design|change request|decision"]},
+      "reference_result": {"stage": "developer", "verdict": "blocked", "findings": ["Blocked: hiding prices from guests is specified by the PRD, so this is a requirements decision, not a defect - route to refinement"], "detected_triggers": []}
+    },
+    {
+      "id": "fix-needs-new-contract",
+      "kind": "negative",
+      "title": "A fix that needs a new public API is a replan",
+      "input": {
+        "report": "Clients cannot page through results.",
+        "evidence": "Root cause: the endpoint has no paging parameters; fixing it needs a new query parameter in the public API."
+      },
+      "expect": {"verdict": "blocked", "finding_patterns": ["public|contract|api", "replan|design|approval"]},
+      "reference_result": {"stage": "developer", "verdict": "blocked", "findings": ["Blocked: the fix adds a paging parameter to the public API; that is a contract change requiring design approval and a replan"], "detected_triggers": []}
+    }
+  ]
+}

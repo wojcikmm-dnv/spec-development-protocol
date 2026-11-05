@@ -1,0 +1,50 @@
+{
+  "skill": "sdp-implement",
+  "stage": "developer",
+  "cases": [
+    {
+      "id": "in-boundary-delivery",
+      "kind": "correct",
+      "title": "A change inside the boundary with tests and checks is reported honestly",
+      "input": {
+        "plan": "Allowed paths: src/greeting.py, tests/test_greeting.py. Outcome: blank names greet 'friend'.",
+        "work": "Edited src/greeting.py, added two tests, ran pytest: 2 passed."
+      },
+      "expect": {"verdict": "pass", "finding_patterns": ["src/greeting.py", "pytest|test"], "forbidden_patterns": ["US-\\d+"]},
+      "reference_result": {"stage": "developer", "verdict": "pass", "findings": ["Changed src/greeting.py and tests/test_greeting.py only", "Ran pytest: 2 passed; no deviations"], "checks": ["pytest"], "detected_triggers": []}
+    },
+    {
+      "id": "needs-new-dependency",
+      "kind": "escalation",
+      "title": "A new dependency is a replan, not a quiet addition",
+      "input": {
+        "plan": "Allowed paths: src/report.py. No new dependencies.",
+        "work": "The simplest fix uses the third-party library rapidfuzz."
+      },
+      "expect": {"verdict": "blocked", "finding_patterns": ["dependency", "replan|approval|plan"]},
+      "reference_result": {"stage": "developer", "verdict": "blocked", "findings": ["Blocked: the fix needs the new dependency rapidfuzz, which the plan excludes; replan or approve it before continuing"], "detected_triggers": ["security:dependency"]}
+    },
+    {
+      "id": "plan-changed-after-approval",
+      "kind": "escalation",
+      "title": "An edited plan voids its approval",
+      "input": {
+        "plan": "PLAN.md body differs from the version approved on 2026-11-05.",
+        "work": "Ready to start."
+      },
+      "expect": {"verdict": "blocked", "finding_patterns": ["changed|stale|edited", "approv"]},
+      "reference_result": {"stage": "developer", "verdict": "blocked", "findings": ["Blocked: PLAN.md changed after approval, so the approval is stale; re-approve the current plan before implementing"], "detected_triggers": []}
+    },
+    {
+      "id": "unchanged-candidate-resubmitted",
+      "kind": "negative",
+      "title": "A failed candidate is not resubmitted without a change",
+      "input": {
+        "plan": "Review failed with a High finding on src/paging.py:2.",
+        "work": "No files have changed since the failed review; resubmit for review."
+      },
+      "expect": {"verdict": "blocked", "finding_patterns": ["unchanged|no change|not changed", "repair|address|fix"]},
+      "reference_result": {"stage": "developer", "verdict": "blocked", "findings": ["Blocked: the candidate is unchanged since it failed review; repair the High finding in src/paging.py before resubmitting"], "detected_triggers": []}
+    }
+  ]
+}

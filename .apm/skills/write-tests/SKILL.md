@@ -1,39 +1,50 @@
 ---
 name: write-tests
-description: Guidance for writing meaningful unit and integration tests.
+description: Guidance for writing meaningful unit and integration tests. Use when adding or changing behavior, fixing a bug, or reviewing test quality; covers choosing cases from acceptance criteria, isolating unit tests, testing boundaries, and handling failing tests honestly.
 ---
 
 # Skill: Write Tests
 
 ## Purpose
 
-Produce maintainable tests that validate behavior, not implementation, to give the team confidence to ship and refactor.
+Produce maintainable tests that validate behavior, not implementation, so the team
+can ship and refactor with confidence.
 
 ## Prerequisites
 
-- Acceptance criteria are clear.
-- Testing stack is specified in `TECH.md`.
+- Acceptance criteria are clear, or the bug's expected behavior is stated.
+- The testing stack and commands are in `TECH.md`.
 
-## Checklist
+## Procedure
 
-1.  **Test Cases**: Enumerate test cases from acceptance criteria: happy path, error paths, and edge cases.
-2.  **Structure (AAA)**: Structure each test using Arrange-Act-Assert.
-    - _Arrange_: Set up inputs and mocks.
-    - _Act_: Invoke the code under test.
-    - _Assert_: Verify the outcome.
-3.  **Naming**: Name tests descriptively, like `should <do something> when <condition>`.
-4.  **Focus**: Keep one behavioral focus per test. Multiple assertions are fine
-    when they jointly verify that outcome.
-5.  **Behavior, not Implementation**: Test what the code _does_, not _how_ it does it.
-6.  **Integration Tests**: Test contracts at boundaries (HTTP, DB). Use real or in-memory implementations where practical. Cover auth paths. Reset state between tests.
-7.  **General**: Don't skip failing tests to make a run pass. If a test must be
-    deleted or weakened, record the root cause in the delivery evidence and
-    confirm that required behavior remains verified elsewhere. Never delete or
-    weaken a test solely to get past review, security, or QA. Follow the
-    project's test-location convention.
+1. **Enumerate cases** from the acceptance criteria: happy path, error paths, and
+   edge cases. For a bug, start with a test that reproduces it and fails.
+2. **Structure** each test as Arrange, Act, Assert.
+3. **Name** tests by behavior, such as `rejects_expired_token` or
+   `should reject an expired token`, following the project convention.
+4. **Focus** on one behavior per test. Several assertions are fine when they jointly
+   verify that outcome.
+5. **Test behavior, not implementation:** assert observable results, not private
+   calls, internal state, or incidental ordering.
+6. **Choose the right level.** Unit tests are isolated and deterministic: no real
+   network, clock, randomness, or shared state unless controlled. Integration tests
+   exercise contracts at real boundaries (HTTP, storage) with real or in-memory
+   implementations, cover auth paths, and reset state between tests.
+7. **Never hide a failure.** Do not skip, delete, or weaken a failing test to get a
+   pass. If a test must change, record the root cause and confirm the required
+   behavior is still verified elsewhere.
+8. **Follow the project's test-location and naming convention.**
+
+## Failure Routing
+
+- The test exposes a real defect: fix the code, not the test.
+- The test is flaky: find the nondeterminism (time, order, shared state) and remove
+  it; do not retry until green.
+- The requirement is wrong or ambiguous: stop and ask; do not encode a guess.
 
 ## Quality Bar
 
 - Every acceptance criterion is tested.
-- All scenarios (happy, error, edge) are covered.
-- Tests are isolated and deterministic (no network calls or global state).
+- Happy, error, and edge scenarios are covered where they exist.
+- A test would fail if the behavior it protects broke.
+- Unit tests are deterministic; boundary tests are explicit about their real I/O.

@@ -1,0 +1,51 @@
+{
+  "skill": "sdp-plan-delivery",
+  "stage": "developer",
+  "cases": [
+    {
+      "id": "coherent-package-planned",
+      "kind": "correct",
+      "title": "One demonstrable outcome becomes a bounded, verifiable plan",
+      "input": {
+        "stories": ["US-3 password reset email", "US-4 reset link expiry"],
+        "design": "Reset tokens live in the existing tokens table; mail goes through the existing mailer.",
+        "open_packages": []
+      },
+      "expect": {"verdict": "pass", "finding_patterns": ["boundary|allowed paths", "verification|check", "non-goals?"]},
+      "reference_result": {"stage": "developer", "verdict": "pass", "findings": ["Plan written as draft: size M, risk Moderate, uncertainty Resolved", "Boundary: src/auth/reset and its tests; excludes the mailer internals", "Verification table maps US-3 and US-4 to named tests; non-goals list SMS reset"], "checks": ["every criterion has a failing-capable check"], "detected_triggers": ["security:auth"]}
+    },
+    {
+      "id": "xl-package-is-split",
+      "kind": "escalation",
+      "title": "An XL package is not planned as one",
+      "input": {
+        "stories": ["US-1 registration", "US-2 login", "US-3 reset", "US-4 roles", "US-5 audit log", "US-6 admin UI"],
+        "design": "Touches auth, storage, UI, and reporting."
+      },
+      "expect": {"verdict": "blocked", "finding_patterns": ["XL|too large|split"], "forbidden_patterns": ["Plan written"]},
+      "reference_result": {"stage": "developer", "verdict": "blocked", "findings": ["Blocked: six stories across auth, storage, UI, and reporting make this XL; split into coherent packages before planning"], "detected_triggers": []}
+    },
+    {
+      "id": "open-uncertainty",
+      "kind": "escalation",
+      "title": "Open uncertainty about data loss returns to design",
+      "input": {
+        "stories": ["US-9 merge duplicate customers"],
+        "design": "TBD: whether merged records can be restored."
+      },
+      "expect": {"verdict": "blocked", "finding_patterns": ["uncertain|open|undecided|TBD", "design|refinement"]},
+      "reference_result": {"stage": "developer", "verdict": "blocked", "findings": ["Blocked: whether merged records can be restored is undecided and affects data loss; return to design before planning"], "detected_triggers": []}
+    },
+    {
+      "id": "story-already-in-open-package",
+      "kind": "negative",
+      "title": "A story already owned by an open package is excluded",
+      "input": {
+        "stories": ["US-3 password reset email"],
+        "open_packages": [{"id": "auth-DP-1", "stories": ["US-3"]}]
+      },
+      "expect": {"verdict": "blocked", "finding_patterns": ["US-3", "open package|auth-DP-1|already"]},
+      "reference_result": {"stage": "developer", "verdict": "blocked", "findings": ["Blocked: US-3 already belongs to open package auth-DP-1; plan a different story or wait for that package"], "detected_triggers": []}
+    }
+  ]
+}

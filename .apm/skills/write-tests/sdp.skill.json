@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "capability": "write-tests",
+  "applies_to": ["any language", "new behavior, bug fixes, test review"],
+  "inputs": ["acceptance criteria or bug description", "testing stack from TECH.md"],
+  "outputs": ["tests", "stage-result"],
+  "isolation": "none",
+  "mutates_product": true,
+  "result_contract": "stage-result",
+  "evaluation": "evals/cases.json"
+}

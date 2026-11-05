@@ -1,6 +1,6 @@
 ---
 name: create-ui-component
-description: Guidance for building accessible, testable frontend UI components.
+description: Guidance for building accessible, testable frontend UI components. Use when creating or changing a UI component, page section, or interaction.
 ---
 
 # Skill: Create UI Component

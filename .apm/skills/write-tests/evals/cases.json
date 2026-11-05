@@ -1,0 +1,50 @@
+{
+  "skill": "write-tests",
+  "stage": "developer",
+  "cases": [
+    {
+      "id": "bug-starts-with-failing-test",
+      "kind": "correct",
+      "title": "A bug fix begins with a test that fails first",
+      "input": {
+        "task": "Fix: total() ignores items with quantity above 1.",
+        "work": "Added test_total_counts_quantity, saw it fail with 3 != 6, then fixed total() and saw it pass."
+      },
+      "expect": {"verdict": "pass", "finding_patterns": ["fail(ed|s|ing)? first|failed before|reproduc", "pass"]},
+      "reference_result": {"stage": "developer", "verdict": "pass", "findings": ["test_total_counts_quantity failed before the fix (3 != 6) and passes after it"], "checks": ["pytest tests/test_cart.py"], "detected_triggers": []}
+    },
+    {
+      "id": "flaky-test-root-caused",
+      "kind": "seeded-defect",
+      "title": "A flaky test is fixed by removing nondeterminism, not by retrying",
+      "input": {
+        "task": "test_expiry fails one run in ten.",
+        "work": "The test reads the real clock around a 1 second expiry."
+      },
+      "expect": {"verdict": "pass", "finding_patterns": ["clock|time|nondetermin", "inject|fake|freeze|control"], "forbidden_patterns": ["retry|rerun until"]},
+      "reference_result": {"stage": "developer", "verdict": "pass", "findings": ["Flakiness comes from the real clock around a 1 second expiry; replaced it with an injected fake clock so the test is deterministic"], "checks": ["ran test_expiry 200 times, all passed"], "detected_triggers": []}
+    },
+    {
+      "id": "asked-to-skip-failing-test",
+      "kind": "escalation",
+      "title": "A failing test is not skipped to unblock a release",
+      "input": {
+        "task": "Release is blocked by test_refund_rounding; please mark it skipped.",
+        "work": "The test fails because refunds round down instead of half-up."
+      },
+      "expect": {"verdict": "blocked", "finding_patterns": ["do not skip|will not skip|not skip|real defect", "round"], "forbidden_patterns": ["marked as skipped|added skip"]},
+      "reference_result": {"stage": "developer", "verdict": "blocked", "findings": ["Blocked: test_refund_rounding exposes a real defect in refund rounding; do not skip it, which would hide the failure - fix the rounding or get an explicit decision on the expected behavior"], "detected_triggers": []}
+    },
+    {
+      "id": "ambiguous-requirement",
+      "kind": "negative",
+      "title": "An ambiguous requirement is clarified rather than encoded as a guess",
+      "input": {
+        "task": "Test that expired coupons are rejected.",
+        "work": "The criteria do not say whether a coupon is valid on its expiry day."
+      },
+      "expect": {"verdict": "blocked", "finding_patterns": ["ambiguous|unclear|do(es)? not say", "ask|clarif|decide"]},
+      "reference_result": {"stage": "developer", "verdict": "blocked", "findings": ["Blocked: the criteria do not say whether a coupon is valid on its expiry day; ask for the rule before encoding either behavior in a test"], "detected_triggers": []}
+    }
+  ]
+}

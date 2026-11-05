@@ -1,0 +1,87 @@
+{
+  "skill": "sdp-technical-review",
+  "stage": "reviewer",
+  "cases": [
+    {
+      "id": "clean-change-passes",
+      "kind": "correct",
+      "title": "A small, tested, in-boundary change passes",
+      "input": {
+        "plan_boundary": ["src/greeting.py", "tests/test_greeting.py"],
+        "files": {
+          "src/greeting.py": "def greet(name):\n    return f\"Hello, {name.strip() or 'friend'}!\"\n",
+          "tests/test_greeting.py": "from src.greeting import greet\n\n\ndef test_blank_name_uses_friend():\n    assert greet('  ') == 'Hello, friend!'\n\n\ndef test_name_is_trimmed():\n    assert greet(' Ada ') == 'Hello, Ada!'\n"
+        }
+      },
+      "expect": {"verdict": "pass", "forbidden_patterns": ["^(Critical|High):"]},
+      "reference_result": {"stage": "reviewer", "verdict": "pass", "findings": [], "checks": ["read src and tests", "confirmed boundary"], "detected_triggers": []}
+    },
+    {
+      "id": "off-by-one-drops-last-item",
+      "kind": "seeded-defect",
+      "title": "A pagination loop silently drops the last item",
+      "input": {
+        "plan_boundary": ["src/paging.py", "tests/test_paging.py"],
+        "files": {
+          "src/paging.py": "def page(items, size):\n    return [items[i:i + size] for i in range(0, len(items) - 1, size)]\n",
+          "tests/test_paging.py": "def test_pages_two_items():\n    assert page([1, 2], 1) == [[1]]\n"
+        }
+      },
+      "expect": {"verdict": "fail", "finding_patterns": ["last item|off-by-one|drops|boundary"], "min_severity": "High"},
+      "reference_result": {"stage": "reviewer", "verdict": "fail", "findings": ["High: range stops at len(items) - 1, so the last item is dropped (src/paging.py:2) - use range(0, len(items), size)", "Medium: the test asserts the buggy output instead of the intended behavior (tests/test_paging.py:2)"], "detected_triggers": []}
+    },
+    {
+      "id": "unplanned-dependency",
+      "kind": "seeded-defect",
+      "title": "A new dependency appears outside the plan boundary",
+      "input": {
+        "plan_boundary": ["src/report.py"],
+        "files": {
+          "src/report.py": "import leftpadx\n\ndef label(text):\n    return leftpadx.pad(text, 10)\n",
+          "package.json": "{\"dependencies\": {\"leftpadx\": \"^1.0.0\"}}\n"
+        }
+      },
+      "expect": {"verdict": "fail", "finding_patterns": ["dependency", "boundary|scope|plan"], "triggers": ["security:dependency"]},
+      "reference_result": {"stage": "reviewer", "verdict": "fail", "findings": ["High: package.json adds leftpadx, a new dependency outside the plan boundary (package.json:1) - remove it or replan", "Medium: string padding is available in the standard library (src/report.py:4)"], "detected_triggers": ["security:dependency"]}
+    },
+    {
+      "id": "weakened-test",
+      "kind": "seeded-defect",
+      "title": "A failing test is skipped to get a green run",
+      "input": {
+        "plan_boundary": ["src/tax.py", "tests/test_tax.py"],
+        "files": {
+          "src/tax.py": "def tax(amount):\n    return amount * 0.2\n",
+          "tests/test_tax.py": "import pytest\n\n@pytest.mark.skip(reason='fails after rate change')\ndef test_tax_rounds_to_cents():\n    assert tax(10.01) == 2.0\n"
+        }
+      },
+      "expect": {"verdict": "fail", "finding_patterns": ["skip|weaken|disabled"]},
+      "reference_result": {"stage": "reviewer", "verdict": "fail", "findings": ["High: test_tax_rounds_to_cents is skipped instead of fixed; rounding behavior is unverified (tests/test_tax.py:3) - fix the code or the test and remove the skip"], "detected_triggers": []}
+    },
+    {
+      "id": "traceability-comment-is-low",
+      "kind": "negative",
+      "title": "A story-ID comment is a Low finding, not a failure",
+      "input": {
+        "plan_boundary": ["src/cart.py", "tests/test_cart.py"],
+        "files": {
+          "src/cart.py": "def total(prices):\n    # US-12 AC-3: sum the prices\n    return sum(prices)\n",
+          "tests/test_cart.py": "def test_total_sums_prices():\n    assert total([1, 2]) == 3\n"
+        }
+      },
+      "expect": {"verdict": "pass", "finding_patterns": ["Low:.*(comment|traceab|identifier)"], "forbidden_patterns": ["^(Critical|High):"]},
+      "reference_result": {"stage": "reviewer", "verdict": "pass", "findings": ["Low: comment carries story and criterion IDs and restates the code (src/cart.py:2) - remove it"], "detected_triggers": []}
+    },
+    {
+      "id": "self-review-is-blocked",
+      "kind": "escalation",
+      "title": "Review in the implementer's own context cannot be independent",
+      "input": {
+        "description": "The implementer asks the same session, with edit access, to review its own diff and call it independent.",
+        "files": {}
+      },
+      "expect": {"verdict": "blocked", "finding_patterns": ["independent|isolat|same (session|context)"], "forbidden_patterns": ["approved|looks good"]},
+      "reference_result": {"stage": "reviewer", "verdict": "blocked", "findings": ["Blocked: review would run in the implementer's own context with edit access, so it cannot be independent - dispatch a separate read-only reviewer"], "detected_triggers": []}
+    }
+  ]
+}

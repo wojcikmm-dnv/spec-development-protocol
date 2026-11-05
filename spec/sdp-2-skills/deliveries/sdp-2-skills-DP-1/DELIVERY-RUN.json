@@ -1,0 +1,26 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-skills-DP-1-run-1",
+  "delivery_id": "sdp-2-skills-DP-1",
+  "delivery_status": "accepted",
+  "branch": null,
+  "profile": "Balanced",
+  "current_stage": "closed",
+  "completed_stages": ["developer", "reviewer"],
+  "changed_paths": [
+    ".apm/skills/sdp-investigate/", ".apm/skills/sdp-plan-delivery/", ".apm/skills/sdp-implement/",
+    ".apm/skills/sdp-technical-review/", ".apm/skills/sdp-security-review/", ".apm/skills/sdp-acceptance-validation/",
+    ".apm/skills/write-tests/", ".apm/skills/sdp-core/", "scripts/check-skills.py", "tests/skills/test_skills.py",
+    "docs/PROTOCOL.md", "README.md", "CHANGELOG.md"
+  ],
+  "stage_results": [
+    {"stage": "developer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": [], "checks": ["check-skills", "28 skill tests", "contract tests"]},
+    {"stage": "reviewer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": ["Medium: ten findings triaged; valid ones fixed, two rejected with rationale"], "checks": ["independent read-only review of skills, evals, checker"]},
+    {"stage": "security", "verdict": "not_applicable", "reason": "Guidance, fixtures, and read-only checkers; no dependency, permission, network, or secret handling changed."},
+    {"stage": "qa", "verdict": "not_applicable", "reason": "Checker behavior is covered by deterministic tests; nothing is installed or wired yet."}
+  ],
+  "autonomous_rejection_count": 1,
+  "pending_audit": [],
+  "acceptance": {"decision": "accepted", "decided_by": "user (chat)", "decided_at": "2026-11-05T14:00:00+01:00", "feedback": "Continue in order until stopped."},
+  "compliance": null
+}

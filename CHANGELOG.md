@@ -10,6 +10,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Extracted stage skills: `sdp-investigate`, `sdp-plan-delivery`, `sdp-implement`,
+  `sdp-technical-review`, `sdp-security-review`, and `sdp-acceptance-validation`,
+  each with an `sdp.skill.json` descriptor and `evals/cases.json` (correct,
+  seeded-defect, negative, and escalation cases). `sdp-core` gained the shared
+  stage-result and trigger contract and `grade_eval.py`, a deterministic grader for
+  results a host produced. Grading checks required evidence, not reasoning quality,
+  and no model is run. Existing agents and prompts are unchanged for now.
+- `write-tests` rewritten with discovery triggers, failure routing, and the correct
+  distinction between isolated unit tests and intended boundary I/O. The four older
+  skills gained "Use when" triggers in their descriptions only.
+- `scripts/check-skills.py` checks skill names, descriptions, links, descriptors, and
+  evaluation cases.
 - `sdp-core` skill (not yet wired into agents or workflows): a standard-library
   Python validator for delivery run records (schema 4) that enforces plan
   approval binding, mandatory review, trigger-driven specialist stages,
@@ -30,7 +42,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Regenerated root context from canonical instructions to remove the obsolete
   shared ACTIVE delivery-state model and reflect package-scoped state.
 
-### Added
+### Maintenance
 
 - A Python/PyYAML maintainer baseline check with in-memory regression cases for
   metadata drift, missing skill names, generic review-skip wording, and stale
