@@ -1,0 +1,21 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-init-DP-1-run-1",
+  "delivery_id": "sdp-2-init-DP-1",
+  "delivery_status": "accepted",
+  "branch": null,
+  "profile": "Balanced",
+  "current_stage": "closed",
+  "completed_stages": ["developer", "reviewer", "security", "qa"],
+  "changed_paths": [".apm/skills/sdp-init/", "tests/init/test_init.py", "README.md", "CHANGELOG.md"],
+  "stage_results": [
+    {"stage": "developer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": [], "checks": ["32 init tests on WSL and Windows", "mutation checks", "packed and APM-installed layouts"]},
+    {"stage": "reviewer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": ["Medium: eight findings triaged; four fixed, one rejected, three documented"], "checks": ["independent read-only review"]},
+    {"stage": "security", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": ["Low: small write-access race window documented"], "checks": ["independent security review of path safety, races, rollback, template trust"]},
+    {"stage": "qa", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": [], "checks": ["fresh, customized, legacy, link, junction, race, rollback fixtures; real packed and APM layouts"]}
+  ],
+  "autonomous_rejection_count": 1,
+  "pending_audit": ["step-06-claude-code-qualification"],
+  "acceptance": {"decision": "accepted", "decided_by": "user (chat)", "decided_at": "2026-11-05T20:00:00+01:00", "feedback": "Continue in order until stopped."},
+  "compliance": null
+}

@@ -10,6 +10,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- `sdp-init` skill: a non-destructive project initializer that is separate from
+  installing the package. It previews first, then with `--apply` creates only a
+  missing `.github/TECH.md` (from the installed package's template) and `spec/`,
+  never overwrites or deletes, refuses symbolic links, junctions, and path conflicts,
+  rolls back anything it created if a step fails, is idempotent, and reports copied
+  files from earlier installers without touching them. Templates are never taken from
+  the repository being initialized. This replaces the project-setup part of the
+  installers; the installers themselves are unchanged for now.
 - Host profiles (`sdp-workflows/hosts/*.json`) and `sdp.py next --host <name>`: only
   capabilities a profile verified with cited evidence count, and isolated stages now
   also require an `independent-context` capability, so an unverified host blocks
