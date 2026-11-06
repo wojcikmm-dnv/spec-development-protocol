@@ -103,6 +103,34 @@ the version in `apm.yml`, `plugin.json`, `.github/plugin/plugin.json`, and
 tag. Protecting `v*` tags and requiring approval for a `release` environment are repository
 settings that this repository does not configure.
 
+### Preparing a prerelease rehearsal locally
+
+Local preparation does not authorize publication. `2.0.0-rc.1` is a proposed
+rehearsal version, not the current package version or an approved release.
+
+1. Agree the version and target repository with the owner before changing versions.
+  A rehearsal on `wojcikmm-dnv/spec-development-protocol` exercises the fork's
+  workflow, not publication or catalog configuration on the upstream repository.
+2. Follow the version and marketplace synchronization steps above. Add a nonempty
+  changelog section for exactly the proposed version; retain unfinished work under
+  `Unreleased` and state the remaining host and distribution qualification limits.
+3. Run the focused release tests, then `bash scripts/check-all.sh` in a clean Linux
+  checkout of the prepared commit. Record the revision, tool versions, and results.
+  Keep generated notes and assets outside tracked source; the builder and shared
+  checks must continue refusing changes to the candidate.
+4. Stop for separate owner authorization before committing or pushing preparation
+  changes, creating or pushing the version tag, or publishing. A pushed `v*` tag
+  automatically starts both the build and publish jobs; it is not a dry run.
+5. After authorized publication, verify prerelease status, assets, checksums, and
+  source revision. Test hosted installation in disposable project and host locations,
+  record the revision each channel actually resolves, and run initialization twice.
+  Installation checks do not qualify full delivery execution; paid AI host trials
+  require a separately agreed spending limit.
+
+Installer and superseded-component removal remains gated by replacement-channel,
+initialization, migration, and rollback evidence plus explicit removal approval.
+No rehearsal checklist waives those gates or human acceptance.
+
 ## Catalog decision
 
 The marketplace manifests (`.claude-plugin/marketplace.json`,
@@ -114,21 +142,25 @@ branch or a separate catalog repository remains an option if the project later n
 publish catalog updates independently of the code; that is a publishing decision for the
 owner.
 
+## Verified CI evidence
+
+On 2026-11-06, [CI run 42222480747](https://github.com/wojcikmm-dnv/spec-development-protocol/actions/runs/42222480747)
+passed on fork commit `bf43597f66e1f2a8a108a61c2e90cf5cb94b0a91`:
+
+- Linux, Python 3.12: the shared checks, including packaging with pinned APM.
+- Windows, Python 3.12: every test suite.
+- Python 3.9: the shipped-script contract, initialization, and migration suites
+  without third-party packages.
+
+This confirms that the earlier Python-3.9 migration and Windows writer-lock failures
+no longer fail those CI suites. It does not prove the cause of every earlier failure,
+host qualification, hosted installation, or successful release publication.
+
 ## What is not verified
 
 - The release workflow has never run, and the publisher's GitHub REST usage was tested only
   against a local fake server, so real API behavior (draft listing, redirects, `make_latest`,
   rate limits) is unconfirmed until a separately authorized prerelease rehearsal.
-- CI ran once, on a fork, for commit `3ab0483`: the Linux job (every check, including the
-  packaging tests with a pip-installed `apm-cli` 0.29.0) passed. The Python 3.9 job failed and
-  exposed a real bug in the shipped `migrate.py` (`Path.write_text(newline=)` needs Python 3.10),
-  now fixed and guarded by a static test. The Windows job failed and its log needs a sign-in;
-  the likely cause was reproduced locally by running the suites under an 8.3 short temp path
-  like the runner's `RUNNER~1`: the validator's writer lock was keyed on the literal path
-  string, so differently spelled paths to one record did not exclude each other (fixed, with a
-  regression test). That this was the only Windows failure is unconfirmed: CI now annotates
-  each failing test so the next run names any other. Neither fix has been confirmed by a new
-  GitHub run.
 - GitHub reported that the pinned actions target Node 20 and are forced onto Node 24 (a
   warning only); newer action versions are not yet adopted.
 - `apm-cli` is pinned by version, but its dependencies are not hash-pinned.
@@ -143,4 +175,5 @@ owner.
   against a real tag before relying on it.
 - The release ZIP in any agent host. Only the extracted layout's scripts were run; Copilot
   CLI was tested earlier against the directory bundle from `apm pack`.
-- Python 3.9. The scripts parse as 3.9 but were run on 3.11 to 3.13.
+- Python 3.9 host execution. The shipped-script suites passed on that runtime in CI,
+  but no full agent delivery has been observed on it.

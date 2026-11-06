@@ -210,6 +210,27 @@ class ClaimTests(unittest.TestCase):
         pinned = json.loads((ROOT / "scripts" / "release-tools.json").read_text(encoding="utf-8"))["apm"]
         self.assertIn(f"APM {pinned}", self.installation)
 
+    def test_release_evidence_distinguishes_ci_from_publication_and_host_execution(self):
+        text = (ROOT / "docs" / "RELEASING.md").read_text(encoding="utf-8")
+        verified = text.split("## Verified CI evidence")[1].split("\n## ")[0]
+        for evidence in ("42222480747", "bf43597f66e1f2a8a108a61c2e90cf5cb94b0a91",
+                         "Linux, Python 3.12", "Windows, Python 3.12", "Python 3.9"):
+            self.assertIn(evidence, verified)
+        self.assertIn("It does not prove", verified)
+        pending = text.split("## What is not verified")[1]
+        self.assertIn("release workflow has never run", pending)
+        self.assertIn("Python 3.9 host execution", pending)
+        self.assertNotIn("Neither fix has been confirmed", text)
+        self.assertNotIn("scripts parse as 3.9 but were run", text)
+
+    def test_local_rehearsal_preparation_preserves_authorization_boundaries(self):
+        text = (ROOT / "docs" / "RELEASING.md").read_text(encoding="utf-8")
+        preparation = text.split("### Preparing a prerelease rehearsal locally")[1].split("\n## ")[0]
+        for boundary in ("not the current package version or an approved release",
+                         "Stop for separate owner authorization", "it is not a dry run",
+                         "separately agreed spending limit", "explicit removal approval"):
+            self.assertIn(boundary, preparation)
+
 
 if __name__ == "__main__":
     unittest.main()

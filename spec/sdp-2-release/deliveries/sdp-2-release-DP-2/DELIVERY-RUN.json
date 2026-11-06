@@ -1,0 +1,41 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-release-DP-2-run-1",
+  "delivery_id": "sdp-2-release-DP-2",
+  "delivery_status": "awaiting-acceptance",
+  "branch": null,
+  "profile": "Lean",
+  "current_stage": "awaiting-acceptance",
+  "completed_stages": ["developer", "reviewer"],
+  "changed_paths": ["docs/RELEASING.md", "tests/release/test_docs.py"],
+  "stage_results": [
+    {
+      "stage": "developer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md"],
+      "findings": [],
+      "checks": ["21 documentation tests", "installer shell syntax", "whitespace check", "editor diagnostics", "read-only CI evidence lookup"]
+    },
+    {
+      "stage": "reviewer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md"],
+      "findings": [],
+      "checks": ["independent read-only documentation review against CI and release configuration", "regression test inspection", "authorization and evidence-claim review"]
+    },
+    {
+      "stage": "security",
+      "verdict": "not_applicable",
+      "reason": "Documentation and claim tests only; executable release behavior and trust boundaries are unchanged."
+    },
+    {
+      "stage": "qa",
+      "verdict": "not_applicable",
+      "reason": "No new runtime behavior; independent technical review and focused documentation checks cover this local documentation package. Hosted rehearsal is outside scope."
+    }
+  ],
+  "autonomous_rejection_count": 0,
+  "pending_audit": [],
+  "acceptance": null,
+  "compliance": null
+}
