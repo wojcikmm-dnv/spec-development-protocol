@@ -32,6 +32,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- The validator's writer lock was keyed on the literal path string, so the same record
+  spelled differently (a `..` segment, a symbolic link, different letter case on Windows, an
+  8.3 short name such as `RUNNER~1`) got a different lock and two writers did not exclude
+  each other. The lock now uses the canonical path. Found by reproducing the first Windows CI
+  failure locally under a short temp path; a regression test covers the spellings.
 - `sdp-migrate` failed on Python 3.9 (`Path.write_text(newline=)` needs 3.10). Found by the
   first GitHub CI run; the migration tool now uses a 3.9-compatible write, the contract tests
   no longer use the 3.10 call, and `tests/contracts/test_python39.py` rejects such calls in

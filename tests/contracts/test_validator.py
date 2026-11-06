@@ -472,6 +472,21 @@ class StorageTests(Base):
         self.assertEqual(3, code)
         self.assertEqual("lock_held", payload["error"])
 
+    def test_the_same_record_spelled_differently_shares_one_lock(self):
+        self.start()
+        self.repo.edit()
+        record = self.repo.root / self.pkg / "DELIVERY-RUN.json"
+        spellings = [self.repo.root / self.pkg / ".." / Path(self.pkg).name / "DELIVERY-RUN.json",
+                     self.repo.root / "." / self.pkg / "DELIVERY-RUN.json"]
+        if os.name == "nt":
+            spellings.append(Path(str(record).upper()))
+        for spelling in spellings:
+            with self.subTest(spelling=str(spelling)):
+                self.assertEqual(sdp.lock_path(record), sdp.lock_path(spelling))
+        with sdp.exclusive_lock(spellings[0]):
+            code, payload = self.result("developer")
+        self.assertEqual((3, "lock_held"), (code, payload["error"]))
+
     def test_released_lock_after_holder_exit(self):
         self.start()
         record = self.repo.root / self.pkg / "DELIVERY-RUN.json"

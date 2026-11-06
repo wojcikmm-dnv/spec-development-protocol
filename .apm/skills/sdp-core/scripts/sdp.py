@@ -753,9 +753,11 @@ def resolve_package(repo, package):
 
 
 def lock_path(record_path):
-    folder = Path(tempfile.gettempdir()) / "sdp-locks"
+    # One file must map to one lock however its path is spelled (relative, "..", symlink, 8.3 name).
+    folder = Path(os.path.realpath(tempfile.gettempdir())) / "sdp-locks"
     folder.mkdir(parents=True, exist_ok=True)
-    return folder / (sha256_hex(str(record_path).encode()) + ".lock")
+    canonical = os.path.normcase(os.path.realpath(record_path))
+    return folder / (sha256_hex(canonical.encode("utf-8")) + ".lock")
 
 
 exclusive_lock_held = False

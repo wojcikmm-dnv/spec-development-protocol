@@ -122,9 +122,13 @@ owner.
 - CI ran once, on a fork, for commit `3ab0483`: the Linux job (every check, including the
   packaging tests with a pip-installed `apm-cli` 0.29.0) passed. The Python 3.9 job failed and
   exposed a real bug in the shipped `migrate.py` (`Path.write_text(newline=)` needs Python 3.10),
-  now fixed and guarded by a static test. The Windows job failed for a reason that is not yet
-  known (job logs need a sign-in); CI now turns each failing test into an annotation so the
-  next run names it. Neither fix has been confirmed by a new GitHub run.
+  now fixed and guarded by a static test. The Windows job failed and its log needs a sign-in;
+  the likely cause was reproduced locally by running the suites under an 8.3 short temp path
+  like the runner's `RUNNER~1`: the validator's writer lock was keyed on the literal path
+  string, so differently spelled paths to one record did not exclude each other (fixed, with a
+  regression test). That this was the only Windows failure is unconfirmed: CI now annotates
+  each failing test so the next run names any other. Neither fix has been confirmed by a new
+  GitHub run.
 - GitHub reported that the pinned actions target Node 20 and are forced onto Node 24 (a
   warning only); newer action versions are not yet adopted.
 - `apm-cli` is pinned by version, but its dependencies are not hash-pinned.
