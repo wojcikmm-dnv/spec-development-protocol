@@ -12,6 +12,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import subprocess
 import sys
 import tempfile
@@ -752,12 +753,28 @@ def resolve_package(repo, package):
     return repo, target
 
 
+def lock_directory():
+    """A per-user, owner-only folder: a shared temp folder lets another user hold or swap our lock files."""
+    base = Path(os.path.realpath(tempfile.gettempdir()))
+    if not hasattr(os, "getuid"):
+        folder = base / "sdp-locks"
+        folder.mkdir(parents=True, exist_ok=True)
+        return folder
+    folder = base / f"sdp-locks-{os.getuid()}"
+    try:
+        os.mkdir(folder, 0o700)
+    except FileExistsError:
+        pass
+    info = os.lstat(folder)
+    if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077:
+        raise ProtocolError(EXIT_USAGE, "lock_dir_unsafe", f"{folder} must be a directory owned by you and closed to others")
+    return folder
+
+
 def lock_path(record_path):
     # One file must map to one lock however its path is spelled (relative, "..", symlink, 8.3 name).
-    folder = Path(os.path.realpath(tempfile.gettempdir())) / "sdp-locks"
-    folder.mkdir(parents=True, exist_ok=True)
     canonical = os.path.normcase(os.path.realpath(record_path))
-    return folder / (sha256_hex(canonical.encode("utf-8")) + ".lock")
+    return lock_directory() / (sha256_hex(canonical.encode("utf-8")) + ".lock")
 
 
 exclusive_lock_held = False
@@ -766,7 +783,10 @@ exclusive_lock_held = False
 @contextlib.contextmanager
 def exclusive_lock(record_path):
     global exclusive_lock_held
-    descriptor = os.open(lock_path(record_path), os.O_RDWR | os.O_CREAT, 0o600)
+    try:
+        descriptor = os.open(lock_path(record_path), os.O_RDWR | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0), 0o600)
+    except OSError as error:
+        raise ProtocolError(EXIT_USAGE, "lock_unusable", f"Cannot open the writer lock: {error.strerror or type(error).__name__}")
     try:
         try:
             if os.name == "nt":

@@ -32,6 +32,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- The validator's writer lock lived in a shared temp folder (`sdp-locks`) that another local
+  user could create first or fill with symbolic links to hold or divert our lock files. On
+  POSIX the folder is now per user, owner-only, checked on every use, and lock files are
+  opened without following links; problems are reported as `lock_dir_unsafe` or
+  `lock_unusable`. The ownership check itself is untested (it needs a second user).
 - The validator's writer lock was keyed on the literal path string, so the same record
   spelled differently (a `..` segment, a symbolic link, different letter case on Windows, an
   8.3 short name such as `RUNNER~1`) got a different lock and two writers did not exclude

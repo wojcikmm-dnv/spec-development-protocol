@@ -487,6 +487,38 @@ class StorageTests(Base):
             code, payload = self.result("developer")
         self.assertEqual((3, "lock_held"), (code, payload["error"]))
 
+    @unittest.skipUnless(hasattr(os, "getuid"), "POSIX ownership and modes")
+    def test_the_lock_folder_is_private_and_unsafe_ones_are_refused(self):
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as shared, mock.patch.object(tempfile, "tempdir", shared):
+            folder = sdp.lock_directory()
+            self.assertEqual(0o700, os.stat(folder).st_mode & 0o777)
+            self.assertEqual(os.getuid(), os.stat(folder).st_uid)
+            os.chmod(folder, 0o777)
+            with self.assertRaises(sdp.ProtocolError) as raised:
+                sdp.lock_directory()
+            self.assertEqual("lock_dir_unsafe", raised.exception.error)
+            os.chmod(folder, 0o700)
+            folder.rmdir()
+            os.symlink(shared, folder)
+            with self.assertRaises(sdp.ProtocolError):
+                sdp.lock_directory()
+
+    @unittest.skipUnless(hasattr(os, "O_NOFOLLOW"), "POSIX open flag")
+    def test_a_lock_file_that_is_a_symbolic_link_is_not_followed(self):
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as shared, mock.patch.object(tempfile, "tempdir", shared):
+            record = Path(shared) / "DELIVERY-RUN.json"
+            lock = sdp.lock_path(record)
+            decoy = Path(shared) / "decoy"
+            decoy.write_text("keep")
+            os.symlink(decoy, lock)
+            with self.assertRaises(sdp.ProtocolError) as raised:
+                with sdp.exclusive_lock(record):
+                    pass
+            self.assertEqual("lock_unusable", raised.exception.error)
+            self.assertEqual("keep", decoy.read_text())
+
     def test_released_lock_after_holder_exit(self):
         self.start()
         record = self.repo.root / self.pkg / "DELIVERY-RUN.json"
