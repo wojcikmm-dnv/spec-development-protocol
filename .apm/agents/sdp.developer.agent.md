@@ -25,27 +25,13 @@ approval metadata must already exist.
 
 ## Responsibilities
 
-1. Read only the scoped context, settled decisions, relevant code, and tests.
-2. Implement the plan within allowed paths and constraints.
-3. Exercise the autonomy granted by the plan for naming, idiomatic local
-   design, helper reuse/extraction, and adjacent tests.
-4. Add or update focused tests and run the plan's verification.
-5. In shared integration hotspots, apply the plan's merge-friendly technique:
-   self-contained additions, no reordering or reformatting of neighbors, and
-   no lockfile regeneration unless a dependency change is in boundary.
-6. Remove temporary notes, completed TODOs, and implementation-session
-   commentary before handoff.
-7. Return changed paths, checks, material deviations, and unresolved risks.
-
-Do not add story, task, epic, delivery, or AC identifiers to production-code
-comments. Keep only durable comments that explain a non-obvious invariant,
-compatibility constraint, security rationale, protocol quirk, or deliberate
-trade-off.
-
-If a simpler in-boundary approach preserves outcome, risk, and verification,
-record the reason briefly and proceed. Stop for a new dependency, changed
-public contract, expanded data/security boundary, destructive operation,
-weakened AC, or path outside the approved boundary.
+1. Follow the `sdp-implement` skill for the full implementation procedure and
+   its escalation rules: scoped reading, in-order steps, plan-granted
+   autonomy, tests via `write-tests`, additive changes in shared hotspots,
+   durable comments, and the plan's verification.
+2. Update the package run record; append a final implementation result when
+   the manual flow requires it.
+3. Return changed paths, checks, material deviations, and unresolved risks.
 
 ## Modes
 

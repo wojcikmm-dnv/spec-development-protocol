@@ -83,12 +83,15 @@ user files, credentials, repository settings, or installed global plugins.
 
 ## Ordered Steps
 
-Progress: Steps 01-07, 08a, 09, 10 (local part), 11 (authored, not yet run on GitHub), and 12 are accepted (packages `sdp-2-baseline-DP-1`,
+Progress: Steps 01-07, 08a, 09, 10 (local part), 11 (CI green on the fork; release not yet
+exercised), and 12 are accepted (packages `sdp-2-baseline-DP-1`,
 `sdp-2-protocol-DP-1`, `sdp-2-core-DP-1`, `sdp-2-skills-DP-1`, `sdp-2-workflow-DP-1`,
 `sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`, `sdp-2-feature-DP-1`, `sdp-2-migrate-DP-1`, `sdp-2-bundles-DP-1`, `sdp-2-release-DP-1`, `sdp-2-docs-DP-1`).
-The 08b instructions half is accepted as `sdp-2-feature-DP-2` (2026-11-06; the
-agent-procedure half stays with Step 13). CI passes on all three matrices on the owner's
-fork (commit f8ba5ee, 2026-11-06). Step 06's exit criterion is only partly met: GitHub Copilot CLI is
+The 08b instructions half is accepted as `sdp-2-feature-DP-2` (2026-11-06); the worker
+agents were consolidated as `sdp-2-feature-DP-3` (2026-11-06) and the remaining handoff
+chains and user-facing commands stay with Step 13. CI passed on all three matrices
+(run 42222480747, commit `bf43597f`, 2026-11-06; later pushes are unverified). Step
+06's exit criterion is only partly met: GitHub Copilot CLI is
 smoke-tested, but Claude Code was unavailable and is blocked, tracked as the open
 obligation `step-06-claude-code-qualification`; no host has executed a full delivery.
 Protocol design in
@@ -256,8 +259,11 @@ because the legacy agents and `/deliver` read the always-on process instructions
 owner's direction the instructions part is now done: the always-on process file is 133 lines,
 and the detail moved verbatim into the on-demand `sdp-delivery-process` skill, which the
 orchestrator and planner point to. The instructions half is accepted as package
-`sdp-2-feature-DP-2` (2026-11-06). Replacing duplicated agent procedures and handoff
-chains still waits for Step 13. The new path does not depend on that file; it is
+`sdp-2-feature-DP-2` (2026-11-06). The worker agents were consolidated as package
+`sdp-2-feature-DP-3` (2026-11-06): they point at the `sdp-implement`, `sdp-technical-review`,
+`sdp-security-review`, and `sdp-acceptance-validation` skills for their stage procedures.
+Handoff chains and user-facing command mapping still wait for Step 13. The new path does
+not depend on that file; it is
 self-contained in the `sdp-core` and `sdp-workflows` skills. Whether hosts load the skill when
 needed is not yet observed.
 
@@ -269,8 +275,9 @@ needed is not yet observed.
   accepted 2026-11-06).
 - [ ] 08b-agent-procedures: replace duplicated agent procedures and handoff chains with
   workflow references; preserve or explicitly migrate user-facing commands (mapping in
-  `docs/PROTOCOL.md`). Deferred to Step 13 because the legacy agents and `/deliver` read
-  those files.
+  `docs/PROTOCOL.md`). Started: the worker agents point at the stage skills
+  (package `sdp-2-feature-DP-3`, 2026-11-06); the handoff chains and `/deliver` reference
+  updates stay with Step 13.
 
 - [ ] Express the existing six gates as the feature workflow using approved
   contracts, skills, and adapters; retain useful PRD/backlog/design templates.

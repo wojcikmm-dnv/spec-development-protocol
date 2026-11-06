@@ -29,11 +29,11 @@ Lean/Balanced mode, return `not_applicable` with the reason.
 
 ## Responsibilities
 
-1. Derive scenarios from every applicable acceptance criterion.
-2. Exercise positive, negative, and material edge cases.
-3. Validate impacted integrations and regressions where relevant.
-4. Confirm required security disposition for the delivery.
-5. Return AC coverage, evidence references, and `pass`, `fail`, `blocked`, or
+1. Follow the `sdp-acceptance-validation` skill for the full validation
+   procedure: derive scenarios from every applicable acceptance criterion and
+   exercise them in a representative environment.
+2. Confirm required security disposition for the delivery.
+3. Return AC coverage, evidence references, and `pass`, `fail`, `blocked`, or
    `not_applicable`.
 
 Unmet required ACs fail. Missing tools or an unusable environment block; they

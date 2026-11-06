@@ -1,0 +1,41 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-docs-DP-2-run-1",
+  "delivery_id": "sdp-2-docs-DP-2",
+  "delivery_status": "awaiting-acceptance",
+  "branch": null,
+  "profile": "Lean",
+  "current_stage": "awaiting-acceptance",
+  "completed_stages": ["developer", "reviewer"],
+  "changed_paths": ["CHANGELOG.md"],
+  "stage_results": [
+    {
+      "stage": "developer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md"],
+      "findings": [],
+      "checks": ["114 release tests including 32 changelog tests", "installer shell syntax", "whitespace check"]
+    },
+    {
+      "stage": "reviewer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md"],
+      "findings": [],
+      "checks": ["independent read-only review of the corrected CI claim against the recorded release-DP-2 evidence", "stale-reference sweep across docs, prompts, instructions, and scripts"]
+    },
+    {
+      "stage": "security",
+      "verdict": "not_applicable",
+      "reason": "Changelog text only; no executable or trust-boundary change."
+    },
+    {
+      "stage": "qa",
+      "verdict": "not_applicable",
+      "reason": "No new runtime behavior; independent review and the changelog tests cover this text-only package."
+    }
+  ],
+  "autonomous_rejection_count": 0,
+  "pending_audit": [],
+  "acceptance": null,
+  "compliance": null
+}

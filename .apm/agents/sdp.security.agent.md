@@ -34,12 +34,10 @@ Respect an explicit `waived` policy and reason.
 
 ## Responsibilities
 
-1. Inspect the changed attack surface and relevant trust boundaries.
-2. Threat-model realistic abuse paths.
-3. Check authorization, input handling, output encoding, secrets, sensitive
-   data, dependency/configuration risk, and secure defaults as applicable.
-4. Validate security-specific tests or checks.
-5. Return `pass`, `fail`, `blocked`, or `not_applicable` with evidence and
+1. Follow the `sdp-security-review` skill for the full audit procedure and the
+   epic-level baseline rules: map the attack surface, model realistic abuse,
+   check the applicable security areas, and confirm with evidence.
+2. Return `pass`, `fail`, `blocked`, or `not_applicable` with evidence and
    Critical/High/Medium/Low findings.
 
 Critical/High findings fail. Medium/Low findings remain documented debt unless

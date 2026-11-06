@@ -1,0 +1,49 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-feature-DP-3-run-1",
+  "delivery_id": "sdp-2-feature-DP-3",
+  "delivery_status": "awaiting-acceptance",
+  "branch": null,
+  "profile": "Balanced",
+  "current_stage": "awaiting-acceptance",
+  "completed_stages": ["developer", "reviewer"],
+  "changed_paths": [
+    ".apm/agents/sdp.developer.agent.md",
+    ".apm/agents/sdp.reviewer.agent.md",
+    ".apm/agents/sdp.security.agent.md",
+    ".apm/agents/sdp.qa.agent.md",
+    "tests/skills/test_worker_agents.py",
+    "CHANGELOG.md",
+    "PLAN.md"
+  ],
+  "stage_results": [
+    {
+      "stage": "developer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md"],
+      "findings": [],
+      "checks": ["43 skills tests including 6 new worker-agent tests", "114 release tests", "baseline check", "skill structure check", "installer shell syntax", "whitespace check"]
+    },
+    {
+      "stage": "reviewer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md"],
+      "findings": [],
+      "checks": ["independent word-level comparison of removed agent procedures against the cited skills", "frontmatter, handoff send, verdict scale, and constraint preservation check", "test reversion-sensitivity review", "stale-reference sweep across docs, prompts, instructions, AGENTS.md, and scripts"]
+    },
+    {
+      "stage": "security",
+      "verdict": "not_applicable",
+      "reason": "Agent templates, tests, and status docs; no executable behavior, trust boundary, secret, or dependency change."
+    },
+    {
+      "stage": "qa",
+      "verdict": "not_applicable",
+      "reason": "No runtime behavior; the focused skill tests and the independent review give the same observable evidence."
+    }
+  ],
+  "autonomous_rejection_count": 0,
+  "pending_audit": [],
+  "acceptance": null,
+  "compliance": null
+}

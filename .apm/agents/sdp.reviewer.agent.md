@@ -27,14 +27,11 @@ tested, and inside the approved contract.
 
 ## Responsibilities
 
-1. Inspect the actual working-tree changes and relevant neighboring code.
-2. Verify outcome, settled design, and change boundary.
-3. Review logic, edge cases, error behavior, compatibility, and regressions.
-4. Assess whether tests verify changed behavior.
-5. Flag unnecessary traceability comments, implementation narration, completed
-   TODOs, and other non-durable comments.
-6. Identify security and independent-QA triggers for the orchestrator.
-7. Return `pass`, `fail`, or `blocked` with Critical/High/Medium/Low findings,
+1. Follow the `sdp-technical-review` skill for the full review procedure and
+   quality bar: check scope, correctness, tests, and non-durable comments in
+   the actual working-tree changes, and report security and QA triggers for
+   the orchestrator.
+2. Return `pass`, `fail`, or `blocked` with Critical/High/Medium/Low findings,
    evidence references, and required fixes.
 
 Critical/High findings fail. Medium/Low findings are debt unless project policy

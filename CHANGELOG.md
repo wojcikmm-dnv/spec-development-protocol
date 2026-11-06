@@ -41,6 +41,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `tests/skills/test_process_instructions.py` keeps the file small and checks that every moved
   section and every always-on rule is still present. Whether a host reliably loads the skill
   when needed has not been observed.
+- The worker agents (`sdp.developer`, `sdp.reviewer`, `sdp.security`, `sdp.qa`) point at the
+  on-demand `sdp-implement`, `sdp-technical-review`, `sdp-security-review`, and
+  `sdp-acceptance-validation` skills for their full stage procedures and keep only routing,
+  record duties, verdict scales, and hard constraints inline. Frontmatter, tools, handoffs,
+  entry and run conditions, and modes are unchanged; `tests/skills/test_worker_agents.py`
+  asserts the pointers, the preserved constraints, and that the referenced skills ship.
 
 ### Fixed
 
@@ -62,11 +68,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- CI and tag-release workflows (`.github/workflows/`). CI has run once on a fork: the Linux
-  job passed, the Python 3.9 job found a real bug (fixed, see Fixed), and the Windows job
-  failed for a reason not yet known; the release workflow has never run.
-  CI runs the shared `scripts/check-all.sh` on Linux, the suites on Windows, and the shipped
-  scripts on Python 3.9 with no third-party packages. A `v*` tag builds in a read-only job
+- CI and tag-release workflows (`.github/workflows/`). CI passes on the fork as of
+  2026-11-06: every job is green (Linux `check-all.sh`, Windows suites, Python 3.9 shipped
+  scripts with no third-party packages); the release workflow has never run.
+  A `v*` tag builds in a read-only job
   (changelog section for exactly that version, all checks, a build that refuses a dirty or
   different tree) and publishes in a separate job: `scripts/publish-release.py` creates or
   resumes a draft, uploads only missing or differing assets, verifies every asset and the
