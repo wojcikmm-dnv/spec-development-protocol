@@ -1,0 +1,24 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-feature-DP-2-run-1",
+  "delivery_id": "sdp-2-feature-DP-2",
+  "delivery_status": "awaiting-acceptance",
+  "branch": null,
+  "profile": "Balanced",
+  "current_stage": "awaiting-acceptance",
+  "completed_stages": ["developer", "reviewer"],
+  "changed_paths": [
+    ".apm/instructions/sdlc-process.instructions.md", ".apm/instructions/coding-standards.instructions.md",
+    ".apm/agents/sdp.orchestrator.agent.md", ".apm/agents/sdp.planner.agent.md",
+    ".apm/skills/sdp-delivery-process/SKILL.md", ".apm/skills/sdp-delivery-process/references/process-detail.md",
+    "AGENTS.md", "CHANGELOG.md", "PLAN.md", "docs/REFERENCE.md", "tests/skills/test_process_instructions.py"
+  ],
+  "stage_results": [
+    {"stage": "developer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": [], "checks": ["37 skill tests", "151 contract tests", "check-baseline, check-skills, sync-templates, build-release --check all pass", "457 to 133-line verbatim transfer confirmed by git diff"]},
+    {"stage": "reviewer", "verdict": "pass", "evidence": ["HISTORY.md"], "findings": ["Medium: the moved-section test asserted headings only; strengthened with per-section content assertions (applied)", "Low: the verbatim caveat was closed by diffing b7cb90c^ (applied)"], "checks": ["independent read-only subagent review of commit b7cb90c against the 0.5.4 mirror and on-disk files"]}
+  ],
+  "autonomous_rejection_count": 0,
+  "pending_audit": [],
+  "acceptance": null,
+  "compliance": null
+}

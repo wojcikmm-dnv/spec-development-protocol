@@ -52,3 +52,14 @@ pinning of `apm-cli`'s dependencies are unverified. Obligation `step-11-github-r
 stays open: a separately authorized prerelease rehearsal and a native catalog install.
 
 The user's instruction "11" is recorded as approval and acceptance of the authored files.
+
+## 2026-11-06 - CI verified on the owner's fork
+
+The validation CI ran on github.com/wojcikmm-dnv/spec-development-protocol:
+run 42212949027 on commit f8ba5ee passed all three matrices. The earlier failing
+run (42061860730 on 3ab0483) was the `migrate.py` Python-3.9 newline bug and a
+writer-lock failure under the runner's short temp path; fixes `c4ad2a7`,
+`7ec1e65`, and `f8ba5ee` are now verified on GitHub. Public check-run failure
+annotations from `scripts/run-suites.py` work. Still open: the release workflow
+(changelog extraction, build, publish REST) and the prerelease rehearsal, tracked
+as `step-11-github-rehearsal`.

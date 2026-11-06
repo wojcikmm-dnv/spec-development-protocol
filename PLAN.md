@@ -85,7 +85,10 @@ user files, credentials, repository settings, or installed global plugins.
 
 Progress: Steps 01-07, 08a, 09, 10 (local part), 11 (authored, not yet run on GitHub), and 12 are accepted (packages `sdp-2-baseline-DP-1`,
 `sdp-2-protocol-DP-1`, `sdp-2-core-DP-1`, `sdp-2-skills-DP-1`, `sdp-2-workflow-DP-1`,
-`sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`, `sdp-2-feature-DP-1`, `sdp-2-migrate-DP-1`, `sdp-2-bundles-DP-1`, `sdp-2-release-DP-1`, `sdp-2-docs-DP-1`). Step 06's exit criterion is only partly met: GitHub Copilot CLI is
+`sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`, `sdp-2-feature-DP-1`, `sdp-2-migrate-DP-1`, `sdp-2-bundles-DP-1`, `sdp-2-release-DP-1`, `sdp-2-docs-DP-1`).
+The 08b instructions half is delivered as `sdp-2-feature-DP-2` (awaiting acceptance; the
+agent-procedure half stays with Step 13). CI passes on all three matrices on the owner's
+fork (commit f8ba5ee, 2026-11-06). Step 06's exit criterion is only partly met: GitHub Copilot CLI is
 smoke-tested, but Claude Code was unavailable and is blocked, tracked as the open
 obligation `step-06-claude-code-qualification`; no host has executed a full delivery.
 Protocol design in
@@ -252,18 +255,22 @@ conflicts without partial overwrite. Security and independent QA both review.
 because the legacy agents and `/deliver` read the always-on process instructions. At the
 owner's direction the instructions part is now done: the always-on process file is 133 lines,
 and the detail moved verbatim into the on-demand `sdp-delivery-process` skill, which the
-orchestrator and planner point to. Replacing duplicated agent procedures and handoff chains
-still waits for Step 13. The new path does not depend on that file; it is self-contained in
-the `sdp-core` and `sdp-workflows` skills. Whether hosts load the skill when needed is not yet
-observed.
+orchestrator and planner point to. The instructions half is delivered as package
+`sdp-2-feature-DP-2` (awaiting acceptance). Replacing duplicated agent procedures and handoff
+chains still waits for Step 13. The new path does not depend on that file; it is
+self-contained in the `sdp-core` and `sdp-workflows` skills. Whether hosts load the skill when
+needed is not yet observed.
 
 - [x] 08a: express the six gates as the `feature` workflow with approved contracts,
   derived gate and story status, a lightweight path, and a frozen-spec rule.
-- [ ] 08b: reduce always-on process instructions to startup routing, ownership, safety
-  invariants, and links; replace duplicated agent procedures and handoff chains with
+- [x] 08b-instructions: reduce always-on process instructions to startup routing,
+  ownership, safety invariants, and links; move the full delivery-process text verbatim
+  into the on-demand `sdp-delivery-process` skill (package `sdp-2-feature-DP-2`,
+  awaiting acceptance).
+- [ ] 08b-agent-procedures: replace duplicated agent procedures and handoff chains with
   workflow references; preserve or explicitly migrate user-facing commands (mapping in
-  `docs/PROTOCOL.md`). Instructions part done; agent procedures and handoff chains are
-  deferred to Step 13.
+  `docs/PROTOCOL.md`). Deferred to Step 13 because the legacy agents and `/deliver` read
+  those files.
 
 - [ ] Express the existing six gates as the feature workflow using approved
   contracts, skills, and adapters; retain useful PRD/backlog/design templates.
@@ -338,11 +345,12 @@ are not presented as ready-to-install plugin bundles.
 
 **Status:** authored and tested locally (package `sdp-2-release-DP-1`), authorized by the
 owner. Not done: a separately authorized prerelease rehearsal on GitHub and a native catalog
-install (tracked as `step-11-github-rehearsal`). CI ran once on the owner's fork: Linux passed;
-Python 3.9 failed on a real `migrate.py` bug and Windows on a writer-lock bug reproduced under
-the runner's short temp path (both fixed locally, unconfirmed on GitHub; CI now annotates
-failures). The release workflow and the publisher's REST usage have
-never run against GitHub. See [docs/RELEASING.md](docs/RELEASING.md).
+install (tracked as `step-11-github-rehearsal`). CI passes on all three matrices on the
+owner's fork (commit f8ba5ee, 2026-11-06; failures annotated). Earlier failures were a real
+`migrate.py` Python-3.9 bug and a writer-lock bug under the runner's short temp path; both
+were fixed and are now verified on GitHub (evidence in the `sdp-2-release-DP-1` records). The
+release workflow and the publisher's REST usage have never run against GitHub. See
+[docs/RELEASING.md](docs/RELEASING.md).
 
 - [ ] Add pull-request CI for metadata, template/generated-content drift,
   contracts, fixtures, packaging, and version consistency.

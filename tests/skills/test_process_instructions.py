@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SLIM = ROOT / ".apm" / "instructions" / "sdlc-process.instructions.md"
 SKILL = ROOT / ".apm" / "skills" / "sdp-delivery-process"
 DETAIL = SKILL / "references" / "process-detail.md"
-MAX_ALWAYS_ON_LINES = 150
+MAX_ALWAYS_ON_LINES = 140
 
 # Headings of the former single instructions file that moved, in full, into the reference.
 MOVED = [
@@ -15,6 +15,26 @@ MOVED = [
     "Parallel Delivery", "Run State and Evidence", "Worker Verdicts", "Human Acceptance", "Source-Code Traceability",
     "Feedback Routing",
 ]
+
+# One distinctive sentence per moved section: if one disappears, that section was silently changed.
+MOVED_CONTENT = {
+    "Right-Sizing Earlier Gates": "instead of creating redundant",
+    "Artifact Approval": "Bare `/deliver` is the one convenience action",
+    "Capability Sizing": "Size does not determine risk.",
+    "Delivery Profiles": "Profiles control assurance and evidence, not implementation quality.",
+    "Assurance Triggers": "epic-level` - audit aggregate epic changes before its final acceptance;",
+    "Delivery Contract": "orchestration bookkeeping do",
+    "Implementation Autonomy": "briefly recording why outcome, risk, and verification remain unchanged",
+    "Supervised Delivery": "`/deliver --profile compliance` raises assurance for the active plan.",
+    "Candidate Identity": "changed paths, and whether relevant files changed after assurance",
+    "Delivery State": "`ACTIVE.md` holds exactly these front-matter fields and no body.",
+    "Parallel Delivery": "Parallel delivery is opt-in and adds no step to single-package work.",
+    "Run State and Evidence": "Use the package `DELIVERY-RUN.json` as a small resume checkpoint:",
+    "Worker Verdicts": "are recorded debt unless project policy says otherwise.",
+    "Human Acceptance": "sets `delivery_status: awaiting-acceptance`",
+    "Source-Code Traceability": "commits/PRs, and delivery history.",
+    "Feedback Routing": "Non-additive overlap with another open package | Gate 4 (sequence or re-split)",
+}
 
 # Rules that must stay loaded in every conversation.
 ALWAYS_ON = [
@@ -62,9 +82,18 @@ class AlwaysOnSizeTests(unittest.TestCase):
 class ReferenceTests(unittest.TestCase):
     def test_every_moved_section_exists_in_the_reference(self):
         present = headings(DETAIL)
+        text = DETAIL.read_text(encoding="utf-8")
         for heading in MOVED:
             with self.subTest(heading=heading):
                 self.assertIn(heading, present)
+        for heading, sentence in MOVED_CONTENT.items():
+            with self.subTest(heading=heading):
+                self.assertIn(sentence, text, f"the '{heading}' section was silently altered")
+
+    def test_the_skill_has_discovery_frontmatter(self):
+        text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("name: sdp-delivery-process", text)
+        self.assertIn("Use when planning, delivering, reviewing, resuming, or auditing", text)
 
     def test_the_skill_names_every_section_it_points_to(self):
         text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
