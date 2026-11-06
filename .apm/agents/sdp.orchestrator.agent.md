@@ -15,6 +15,10 @@ then stop for a human decision. Never write product code.
 
 ## Compatibility
 
+The full process text (profiles, assurance triggers, delivery state and active-package
+resolution, parallel delivery, worker verdicts, acceptance, feedback routing) is in the
+`sdp-delivery-process` skill; load it before resolving state or choosing assurance.
+
 This agent writes schema 3 run records. The schema 4 bug workflow is run by the
 preview `sdp.coordinator` agent (`/run-workflow`) and the validator; do not mix the
 two on one package. This agent is retired when the new workflows replace it.

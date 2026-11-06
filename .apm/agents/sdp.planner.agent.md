@@ -54,7 +54,7 @@ That command approves and executes the active plan. Manual `/implement` still
 requires the user to record approval metadata.
 
 When the user plans packages for parallel delivery, end with the worktree flow
-from the process instructions: commit the plans, then one
+from the Parallel Delivery section of the `sdp-delivery-process` skill: commit the plans, then one
 `git worktree add ../<repo>-<delivery-id> -b sdp/<delivery-id>` per package.
 Run these commands only on explicit request.
 

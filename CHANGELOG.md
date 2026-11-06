@@ -30,6 +30,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   validator, the agent, prompt, skill, and template inventories, pinned tags, and that host
   claims do not exceed the compatibility matrix. It does not prove that prose is correct.
 
+### Changed
+
+- The always-loaded `sdlc-process.instructions.md` shrank from 457 to 133 lines, and the
+  generated root `AGENTS.md` from about 640 to 255 lines. The detail it held (profiles,
+  assurance triggers, plan contract, supervised delivery, candidate identity, state
+  resolution, parallel delivery, run state, worker verdicts, acceptance, feedback routing)
+  moved verbatim into the new on-demand `sdp-delivery-process` skill. The rules that must never
+  be forgotten stay always-on, the orchestrator and planner now point at the skill, and
+  `tests/skills/test_process_instructions.py` keeps the file small and checks that every moved
+  section and every always-on rule is still present. Whether a host reliably loads the skill
+  when needed has not been observed.
+
 ### Fixed
 
 - The validator's writer lock lived in a shared temp folder (`sdp-locks`) that another local

@@ -55,6 +55,7 @@ repository and is checked against it by `tests/release/test_docs.py`.
 | `sdp-security-review` | Independent security review |
 | `sdp-acceptance-validation` | Independent acceptance validation |
 | `sdp-templates` | Generated copies of the templates (APM cannot package `.apm/templates/` directly) |
+| `sdp-delivery-process` | The full text of the stable delivery process (profiles, assurance triggers, state, parallel delivery, acceptance, feedback routing), loaded on demand instead of with every conversation |
 
 ## Templates
 

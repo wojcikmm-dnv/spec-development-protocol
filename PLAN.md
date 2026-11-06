@@ -248,18 +248,22 @@ conflicts without partial overwrite. Security and independent QA both review.
 
 ### Step 08 - Add the Feature Workflow and Reduce Global Instructions
 
-**Status:** split. 08a (feature workflow) is accepted. 08b (reducing global instructions
-and replacing agent handoff chains) is deferred to Step 13: the legacy agents, prompts,
-and `/deliver` still read the always-on process instructions, so slimming them now would
-break the supported path before its replacement is the default. The new path does not
-depend on that file; it is self-contained in the `sdp-core` and `sdp-workflows` skills.
+**Status:** split. 08a (feature workflow) is accepted. 08b was first deferred to Step 13
+because the legacy agents and `/deliver` read the always-on process instructions. At the
+owner's direction the instructions part is now done: the always-on process file is 133 lines,
+and the detail moved verbatim into the on-demand `sdp-delivery-process` skill, which the
+orchestrator and planner point to. Replacing duplicated agent procedures and handoff chains
+still waits for Step 13. The new path does not depend on that file; it is self-contained in
+the `sdp-core` and `sdp-workflows` skills. Whether hosts load the skill when needed is not yet
+observed.
 
 - [x] 08a: express the six gates as the `feature` workflow with approved contracts,
   derived gate and story status, a lightweight path, and a frozen-spec rule.
 - [ ] 08b: reduce always-on process instructions to startup routing, ownership, safety
   invariants, and links; replace duplicated agent procedures and handoff chains with
   workflow references; preserve or explicitly migrate user-facing commands (mapping in
-  `docs/PROTOCOL.md`). Deferred to Step 13.
+  `docs/PROTOCOL.md`). Instructions part done; agent procedures and handoff chains are
+  deferred to Step 13.
 
 - [ ] Express the existing six gates as the feature workflow using approved
   contracts, skills, and adapters; retain useful PRD/backlog/design templates.

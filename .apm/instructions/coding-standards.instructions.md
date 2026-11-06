@@ -7,7 +7,8 @@ applyTo: "**/*"
 
 Apply these standards proportionally to the project type and the stack defined
 in `TECH.md`. Process and orchestration rules live in
-`sdlc-process.instructions.md`.
+`sdlc-process.instructions.md` (the short always-on rules) and the
+`sdp-delivery-process` skill (the full text).
 
 ## Code Quality
 
