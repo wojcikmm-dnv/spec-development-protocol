@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 SCRIPT = Path(__file__).resolve().parents[2] / ".apm/skills/sdp-core/scripts/sdp.py"
@@ -658,6 +659,24 @@ class EndToEndTests(Base):
         self.reach_awaiting()
         self.assertEqual(0, self.repo.cli(self.pkg, "validate")[0])
         self.assertEqual(0, self.move("accepted", decided_by=HUMAN)[0])
+
+    def test_atomic_write_retries_windows_rename_denial(self):
+        real_replace = os.replace
+        counts = {"attempts": 0, "denials": 0}
+
+        def flaky(source, destination):
+            if Path(destination).name == "PLAN.md":
+                counts["attempts"] += 1
+                if counts["attempts"] == 1:
+                    counts["denials"] += 1
+                    raise PermissionError(5, "simulated scanner holds the new file")
+            return real_replace(source, destination)
+
+        with unittest.mock.patch.object(os, "replace", flaky):
+            code, payload = self.repo.cli(self.pkg, "approve", "--by", HUMAN)
+        self.assertEqual(0, code, payload)
+        self.assertEqual(2, counts["attempts"])
+        self.assertEqual(1, counts["denials"])
 
 
 if __name__ == "__main__":

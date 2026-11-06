@@ -16,6 +16,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 SCHEMA_VERSION = 4
@@ -826,6 +827,18 @@ def read_record(path):
         raise invalid("record_unreadable", f"Cannot read run record: {error}")
 
 
+def replace_with_retry(source, destination):
+    # Windows can briefly deny a rename while an indexer or scanner holds the new file.
+    for attempt in range(8):
+        try:
+            os.replace(source, destination)
+            return
+        except PermissionError:
+            if attempt == 7:
+                raise
+            time.sleep(0.05 * (attempt + 1))
+
+
 def write_atomic(path, record):
     path = Path(path)
     if path.is_symlink():
@@ -837,7 +850,7 @@ def write_atomic(path, record):
             stream.write("\n")
             stream.flush()
             os.fsync(stream.fileno())
-        os.replace(temporary, path)
+        replace_with_retry(temporary, path)
     except BaseException:
         with contextlib.suppress(OSError):
             os.unlink(temporary)
@@ -1551,7 +1564,7 @@ def write_atomic_text(path, text):
             stream.write(text)
             stream.flush()
             os.fsync(stream.fileno())
-        os.replace(temporary, path)
+        replace_with_retry(temporary, path)
     except BaseException:
         with contextlib.suppress(OSError):
             os.unlink(temporary)

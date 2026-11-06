@@ -174,8 +174,10 @@ Retrying an identical result is idempotent. Inspection is read-only and takes
 no lock.
 
 An interrupted write leaves the previous record intact because replacement is
-atomic. Network file systems may not honor advisory locks; the revision check
-still detects the resulting stale write on the next attempt.
+atomic. On Windows, a scanner or indexer can briefly deny the outgoing rename;
+the replace retries a few times before the write fails with a distinct code.
+Network file systems may not honor advisory locks; the revision check still
+detects the resulting stale write on the next attempt.
 
 This guards accidental concurrency. It cannot stop a person or tool that edits
 the files directly; the validator detects the resulting invalid states on the
