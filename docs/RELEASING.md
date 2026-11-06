@@ -116,12 +116,17 @@ owner.
 
 ## What is not verified
 
-- The workflows have never run on GitHub. They were checked statically (pinned actions,
-  permissions, triggers, no interpolation into shell) and by tests of the scripts they call.
-  The publisher's GitHub REST usage was tested only against a local fake server, so real
-  API behavior (draft listing, redirects, `make_latest`, rate limits) is unconfirmed until a
-  separately authorized prerelease rehearsal.
-- Whether pinned third-party actions still run on the runners' Node version in future.
+- The release workflow has never run, and the publisher's GitHub REST usage was tested only
+  against a local fake server, so real API behavior (draft listing, redirects, `make_latest`,
+  rate limits) is unconfirmed until a separately authorized prerelease rehearsal.
+- CI ran once, on a fork, for commit `3ab0483`: the Linux job (every check, including the
+  packaging tests with a pip-installed `apm-cli` 0.29.0) passed. The Python 3.9 job failed and
+  exposed a real bug in the shipped `migrate.py` (`Path.write_text(newline=)` needs Python 3.10),
+  now fixed and guarded by a static test. The Windows job failed for a reason that is not yet
+  known (job logs need a sign-in); CI now turns each failing test into an annotation so the
+  next run names it. Neither fix has been confirmed by a new GitHub run.
+- GitHub reported that the pinned actions target Node 20 and are forced onto Node 24 (a
+  warning only); newer action versions are not yet adopted.
 - `apm-cli` is pinned by version, but its dependencies are not hash-pinned.
 - A byte-identical build across operating systems was observed on Windows only; the release
   builds on Linux, so the published bytes may differ from a local Windows build.

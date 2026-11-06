@@ -111,7 +111,8 @@ def main(argv=None):
         print(f"FAIL: {error}", file=sys.stderr)
         return 1
     if arguments.output:
-        Path(arguments.output).write_text(notes, encoding="utf-8", newline="\n")
+        with open(arguments.output, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(notes)
     else:
         sys.stdout.write(notes)
     return 0

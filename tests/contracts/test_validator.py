@@ -29,6 +29,11 @@ def run_git(repo, *args):
     subprocess.run(["git", "-C", str(repo), *args], check=True, capture_output=True)
 
 
+def write_lf(path, text):
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(text)
+
+
 _TEMPLATE = {}
 
 
@@ -64,7 +69,7 @@ class Repo:
         folder = self.root / "spec/f/deliveries" / name
         folder.mkdir(parents=True, exist_ok=True)
         head = "---\nstatus: draft\napproved_by: pending\napproved_at: pending\n" + frontmatter + "---\n"
-        (folder / "PLAN.md").write_text(head + body, newline="\n")
+        write_lf(folder / "PLAN.md", head + body)
         return f"spec/f/deliveries/{name}"
 
     def cli(self, package, *args):
@@ -150,7 +155,7 @@ class ApprovalTests(Base):
     def test_edited_plan_body_invalidates_approval(self):
         self.approve()
         plan = self.repo.root / self.pkg / "PLAN.md"
-        plan.write_text(plan.read_text() + "Extra scope.\n", newline="\n")
+        write_lf(plan, plan.read_text() + "Extra scope.\n")
         code, payload = self.move("delivering", caps=CAPS)
         self.assertEqual(1, code)
         self.assertEqual("plan_stale", payload["error"])
@@ -158,7 +163,7 @@ class ApprovalTests(Base):
     def test_edited_approval_metadata_detected(self):
         self.approve()
         plan = self.repo.root / self.pkg / "PLAN.md"
-        plan.write_text(plan.read_text().replace(HUMAN, "Someone Else"), newline="\n")
+        write_lf(plan, plan.read_text().replace(HUMAN, "Someone Else"))
         code, payload = self.move("delivering", caps=CAPS)
         self.assertEqual(1, code)
         self.assertIn("approval", payload["message"])
@@ -172,7 +177,7 @@ class ApprovalTests(Base):
         self.start()
         self.assertEqual(0, self.move("blocked", reason="tool missing")[0])
         plan = self.repo.root / self.pkg / "PLAN.md"
-        plan.write_text(plan.read_text() + "More.\n", newline="\n")
+        write_lf(plan, plan.read_text() + "More.\n")
         code, payload = self.move("delivering")
         self.assertEqual("plan_stale", payload["error"])
 

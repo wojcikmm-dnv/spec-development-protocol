@@ -123,7 +123,7 @@ Clone or download the repository, create `.github/` in your project, and copy th
 | Requirement | Notes |
 | --- | --- |
 | Visual Studio Code with the GitHub Copilot extension and Agent Mode | Needed for the stable `/deliver` prompts. A Copilot subscription is required. VS Code was not tested; only GitHub Copilot CLI has any recorded observation. |
-| Python 3.9 or newer and Git | For the shipped scripts (validator, init, migration), which use only the standard library. Observed on Python 3.11 through 3.13; CI is configured to run them on 3.9 but has not yet run on GitHub. |
+| Python 3.9 or newer and Git | For the shipped scripts (validator, init, migration), which use only the standard library. Observed on Python 3.9 (locally), 3.11, 3.12, and 3.13; a GitHub run of the 3.9 job has not yet confirmed it. |
 | Bash or PowerShell, and `curl` | Only for the install scripts. |
 | APM | To install through APM: APM's own requirements (its standalone installer, or `pip` with Python 3.10 or newer). To build or pack this package: APM 0.29.0, the version pinned in `scripts/release-tools.json`. |
 

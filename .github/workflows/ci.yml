@@ -56,11 +56,7 @@ jobs:
         shell: bash
         env:
           PYTHONDONTWRITEBYTECODE: "1"
-        run: |
-          for suite in contracts skills init migrate packaging release; do
-            echo "== tests/${suite}"
-            python -m unittest discover -s "tests/${suite}"
-          done
+        run: python scripts/run-suites.py contracts skills init migrate packaging release
 
   python39:
     name: Shipped scripts on Python 3.9 (standard library only)
@@ -78,8 +74,4 @@ jobs:
       - name: Run suites for the shipped scripts
         env:
           PYTHONDONTWRITEBYTECODE: "1"
-        run: |
-          for suite in contracts skills init migrate; do
-            echo "== tests/${suite}"
-            python -m unittest discover -s "tests/${suite}"
-          done
+        run: python scripts/run-suites.py contracts init migrate

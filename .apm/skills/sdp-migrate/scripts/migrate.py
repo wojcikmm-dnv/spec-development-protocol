@@ -474,8 +474,9 @@ def replace_with_retry(source, destination):
 
 def write_json_atomic(path, data):
     temporary = path.with_name(path.name + ".tmp")
-    temporary.write_text(json.dumps(data, indent=1), encoding="utf-8", newline="\n")
-    with open(temporary, "r+b") as handle:
+    with open(temporary, "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(json.dumps(data, indent=1))
+        handle.flush()
         os.fsync(handle.fileno())
     replace_with_retry(temporary, path)
 

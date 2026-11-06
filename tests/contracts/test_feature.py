@@ -47,7 +47,7 @@ class FeatureBase(tv.Base):
         head = (f"---\nstatus: {status}\napproved_by: {HUMAN if approved else 'pending'}\n"
                 f"approved_at: {'2026-11-05' if approved else 'pending'}\n---\n")
         path = self.repo.root / "spec" / SLUG / name
-        path.write_text(head + body, newline="\n")
+        tv.write_lf(path, head + body)
         return f"spec/{SLUG}/{name}"
 
     def approve_artifact(self, relative, **extra):
@@ -398,7 +398,7 @@ class PlanGateEnforcementTests(FeatureBase):
         package = self.repo.package("f-DP-2", "gates: lightweight\nbasis: existing-contract\n")
         self.assertEqual(0, self.approve_feature(package)[0])
         plan = self.repo.root / package / "PLAN.md"
-        plan.write_text(plan.read_text().replace("basis: existing-contract", "basis: something-else"), newline="\n")
+        tv.write_lf(plan, plan.read_text().replace("basis: existing-contract", "basis: something-else"))
         code, payload = self.move("delivering", package, caps=CAPS)
         self.assertEqual("plan_stale", payload["error"])
 
@@ -406,8 +406,8 @@ class PlanGateEnforcementTests(FeatureBase):
         self.all_gates_approved()
         self.assertEqual(0, self.approve_feature()[0])
         plan = self.repo.root / self.pkg / "PLAN.md"
-        plan.write_text(plan.read_text().replace("---\n", "---\ngates: lightweight\nbasis: x\n", 1) if False else
-                        plan.read_text().replace("approved_at:", "gates: lightweight\nbasis: x\napproved_at:", 1), newline="\n")
+        tv.write_lf(plan, plan.read_text().replace("---\n", "---\ngates: lightweight\nbasis: x\n", 1) if False else
+                        plan.read_text().replace("approved_at:", "gates: lightweight\nbasis: x\napproved_at:", 1))
         code, payload = self.move("delivering", caps=CAPS)
         self.assertEqual("plan_stale", payload["error"])
 
@@ -416,7 +416,7 @@ class PlanGateEnforcementTests(FeatureBase):
         self.all_gates_approved()
         self.assertEqual(0, self.approve_feature(package)[0])
         plan = self.repo.root / package / "PLAN.md"
-        plan.write_text(plan.read_text().replace("stories: [STORY-1]", "stories: [STORY-1, STORY-2]"), newline="\n")
+        tv.write_lf(plan, plan.read_text().replace("stories: [STORY-1]", "stories: [STORY-1, STORY-2]"))
         code, payload = self.move("delivering", package, caps=CAPS)
         self.assertEqual("plan_stale", payload["error"])
 

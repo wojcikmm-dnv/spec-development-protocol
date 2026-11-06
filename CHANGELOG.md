@@ -30,9 +30,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   validator, the agent, prompt, skill, and template inventories, pinned tags, and that host
   claims do not exceed the compatibility matrix. It does not prove that prose is correct.
 
+### Fixed
+
+- `sdp-migrate` failed on Python 3.9 (`Path.write_text(newline=)` needs 3.10). Found by the
+  first GitHub CI run; the migration tool now uses a 3.9-compatible write, the contract tests
+  no longer use the 3.10 call, and `tests/contracts/test_python39.py` rejects such calls in
+  shipped scripts. CI annotates each failing test (`scripts/run-suites.py`) because job logs
+  need a sign-in to read.
+
 ### Added
 
-- CI and tag-release workflows (`.github/workflows/`), authored but not yet run on GitHub.
+- CI and tag-release workflows (`.github/workflows/`). CI has run once on a fork: the Linux
+  job passed, the Python 3.9 job found a real bug (fixed, see Fixed), and the Windows job
+  failed for a reason not yet known; the release workflow has never run.
   CI runs the shared `scripts/check-all.sh` on Linux, the suites on Windows, and the shipped
   scripts on Python 3.9 with no third-party packages. A `v*` tag builds in a read-only job
   (changelog section for exactly that version, all checks, a build that refuses a dirty or

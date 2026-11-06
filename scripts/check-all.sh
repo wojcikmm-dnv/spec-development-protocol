@@ -11,10 +11,7 @@ python scripts/check-baseline.py --self-test
 python scripts/check-baseline.py
 python scripts/check-skills.py
 python scripts/build-release.py --check
-for suite in contracts skills init migrate packaging release; do
-  echo "== tests/${suite}"
-  python -m unittest discover -s "tests/${suite}"
-done
+python scripts/run-suites.py contracts skills init migrate packaging release
 # The checks must leave the checkout exactly as they found it, or a release could pack files that are not in the tag.
 if [ -n "$(git status --porcelain --untracked-files=all)" ]; then
   echo "The checks changed the working tree:" >&2

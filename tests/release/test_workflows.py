@@ -131,13 +131,13 @@ class CheckCoverageTests(unittest.TestCase):
 
     def test_the_shared_check_script_runs_every_test_suite(self):
         text = (ROOT / "scripts" / "check-all.sh").read_text(encoding="utf-8")
-        loop = re.search(r"for suite in ([\w ]+); do", text).group(1).split()
+        loop = re.search(r"run-suites\.py ([\w ]+)", text).group(1).split()
         self.assertEqual(self.suites(), sorted(loop))
 
     @unittest.skipIf(yaml is None, "PyYAML is not installed")
     def test_the_windows_job_runs_every_test_suite(self):
         runs = "\n".join(step.get("run", "") for job, step in steps(load("ci.yml")) if job == "windows")
-        loop = re.search(r"for suite in ([\w ]+); do", runs).group(1).split()
+        loop = re.search(r"run-suites\.py ([\w ]+)", runs).group(1).split()
         self.assertEqual(self.suites(), sorted(loop))
 
     def test_the_python39_job_runs_the_suites_for_shipped_scripts_without_third_party_packages(self):
@@ -145,8 +145,7 @@ class CheckCoverageTests(unittest.TestCase):
         job = text[text.index("python39:"):]
         self.assertIn('python-version: "3.9"', job)
         self.assertNotIn("pip install", job)
-        for suite in ("contracts", "skills", "init", "migrate"):
-            self.assertIn(suite, job)
+        self.assertIn("run-suites.py contracts init migrate\n", job + "\n")
 
     def test_shell_scripts_keep_unix_line_endings_on_every_checkout(self):
         self.assertIn("*.sh text eol=lf", (ROOT / ".gitattributes").read_text(encoding="utf-8"))

@@ -334,8 +334,10 @@ are not presented as ready-to-install plugin bundles.
 
 **Status:** authored and tested locally (package `sdp-2-release-DP-1`), authorized by the
 owner. Not done: a separately authorized prerelease rehearsal on GitHub and a native catalog
-install (tracked as `step-11-github-rehearsal`); the workflows and the publisher's REST usage
-have never run against GitHub. See [docs/RELEASING.md](docs/RELEASING.md).
+install (tracked as `step-11-github-rehearsal`). CI ran once on the owner's fork: Linux passed;
+Python 3.9 failed on a real `migrate.py` bug (fixed locally); Windows failed for an unknown
+reason (CI now annotates failures). The release workflow and the publisher's REST usage have
+never run against GitHub. See [docs/RELEASING.md](docs/RELEASING.md).
 
 - [ ] Add pull-request CI for metadata, template/generated-content drift,
   contracts, fixtures, packaging, and version consistency.

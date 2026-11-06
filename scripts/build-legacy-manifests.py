@@ -43,7 +43,8 @@ def build():
 def main():
     manifest = build()
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT.write_text(json.dumps(manifest, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
+    with open(OUTPUT, "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(json.dumps(manifest, indent=1, sort_keys=True) + "\n")
     counts = ", ".join(f"{v}: {len(r['files'])} files" for v, r in manifest["releases"].items())
     print(f"Wrote {OUTPUT.relative_to(ROOT)} ({counts})")
 

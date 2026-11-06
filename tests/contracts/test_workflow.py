@@ -219,9 +219,9 @@ class NextActionTests(Driver):
 
     def test_approved_plan_without_record_is_recorded(self):
         plan = self.repo.root / self.pkg / "PLAN.md"
-        plan.write_text(plan.read_text().replace("status: draft", "status: approved")
+        tv.write_lf(plan, plan.read_text().replace("status: draft", "status: approved")
                         .replace("approved_by: pending", f"approved_by: {HUMAN}")
-                        .replace("approved_at: pending", "approved_at: 2026-11-05"), newline="\n")
+                        .replace("approved_at: pending", "approved_at: 2026-11-05"))
         self.assertNext("approve-plan", actor="coordinator")
 
     def test_next_is_read_only(self):
@@ -345,7 +345,7 @@ class NextActionTests(Driver):
         self.approve()
         self.move("delivering", caps=CAPS)
         plan = self.repo.root / self.pkg / "PLAN.md"
-        plan.write_text(plan.read_text() + "More scope.\n", newline="\n")
+        tv.write_lf(plan, plan.read_text() + "More scope.\n")
         payload = self.assertNext("replan", actor="human")
         self.assertIn("approval is stale", payload["reason"])
         self.repo.edit("work\n")
@@ -366,7 +366,7 @@ class NextActionTests(Driver):
     def test_approval_binds_to_the_plan_the_human_saw(self):
         shown = self.nxt()["plan_fingerprint"]
         plan = self.repo.root / self.pkg / "PLAN.md"
-        plan.write_text(plan.read_text() + "Quietly added scope.\n", newline="\n")
+        tv.write_lf(plan, plan.read_text() + "Quietly added scope.\n")
         code, payload = self.repo.cli(
             self.pkg, "approve", "--by", HUMAN, "--expect-plan-fingerprint", shown)
         self.assertEqual("plan_changed", payload["error"])
@@ -378,9 +378,9 @@ class NextActionTests(Driver):
 
     def test_next_names_the_approver_for_an_already_approved_plan(self):
         plan = self.repo.root / self.pkg / "PLAN.md"
-        plan.write_text(plan.read_text().replace("status: draft", "status: approved")
+        tv.write_lf(plan, plan.read_text().replace("status: draft", "status: approved")
                         .replace("approved_by: pending", f"approved_by: {HUMAN}")
-                        .replace("approved_at: pending", "approved_at: 2026-11-05"), newline="\n")
+                        .replace("approved_at: pending", "approved_at: 2026-11-05"))
         payload = self.assertNext("approve-plan", approved_by=HUMAN)
         code, _ = self.repo.cli(self.pkg, "approve", "--by", payload["approved_by"],
                                 "--expect-plan-fingerprint", payload["plan_fingerprint"])
@@ -411,7 +411,7 @@ class NextActionTests(Driver):
         self.result("developer")
         self.result("reviewer", "fail", findings=["High: wrong"])
         plan = self.repo.root / self.pkg / "PLAN.md"
-        plan.write_text(plan.read_text() + "Extra.\n", newline="\n")
+        tv.write_lf(plan, plan.read_text() + "Extra.\n")
         self.assertNext("replan")
 
     def test_plan_edit_while_blocked_is_a_replan(self):
@@ -419,7 +419,7 @@ class NextActionTests(Driver):
         self.move("delivering", caps=CAPS)
         self.move("blocked", reason="waiting")
         plan = self.repo.root / self.pkg / "PLAN.md"
-        plan.write_text(plan.read_text() + "Extra.\n", newline="\n")
+        tv.write_lf(plan, plan.read_text() + "Extra.\n")
         self.assertNext("replan")
 
 
