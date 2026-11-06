@@ -156,6 +156,19 @@ This confirms that the earlier Python-3.9 migration and Windows writer-lock fail
 no longer fail those CI suites. It does not prove the cause of every earlier failure,
 host qualification, hosted installation, or successful release publication.
 
+## Verified archive reproducibility
+
+On 2026-11-06, disposable Windows and WSL Linux checkouts of commit
+`e7908dee783ea8a18275c826d6c413f6e25f6e29` built the same `0.5.4` release ZIP using
+APM `0.29.0`. Both builds passed the builder's clean-revision and bundle checks and
+produced SHA-256 `88757e6cfbc291fb6179e8764939ec4878f505721ffe804fc435181b305eb215`.
+The Linux packager was installed in an isolated temporary virtual environment;
+neither build changed the author checkout or published a release.
+
+This is an observed cross-OS comparison for one commit and tool version, not a
+guarantee for later candidates or other environments. The actual GitHub release
+runner's archive still needs comparison during the authorized rehearsal.
+
 ## What is not verified
 
 - The release workflow has never run, and the publisher's GitHub REST usage was tested only
@@ -164,8 +177,8 @@ host qualification, hosted installation, or successful release publication.
 - GitHub reported that the pinned actions target Node 20 and are forced onto Node 24 (a
   warning only); newer action versions are not yet adopted.
 - `apm-cli` is pinned by version, but its dependencies are not hash-pinned.
-- A byte-identical build across operating systems was observed on Windows only; the release
-  builds on Linux, so the published bytes may differ from a local Windows build.
+- The actual GitHub release runner's archive bytes. The local Windows/WSL comparison
+  above does not establish what a future release job produces.
 
 - Installing from a hosted marketplace. GitHub Copilot CLI registers a local directory as a
   marketplace and then loads the plugin live from that directory without copying it, so a

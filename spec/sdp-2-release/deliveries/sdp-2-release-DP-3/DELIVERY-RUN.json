@@ -1,0 +1,41 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-release-DP-3-run-1",
+  "delivery_id": "sdp-2-release-DP-3",
+  "delivery_status": "awaiting-acceptance",
+  "branch": null,
+  "profile": "Lean",
+  "current_stage": "awaiting-acceptance",
+  "completed_stages": ["developer", "reviewer"],
+  "changed_paths": ["docs/RELEASING.md", "tests/release/test_docs.py"],
+  "stage_results": [
+    {
+      "stage": "developer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md"],
+      "findings": [],
+      "checks": ["Windows and WSL Linux builds of the same verified commit with APM 0.29.0", "matching archive SHA-256 digests", "22 documentation tests", "installer shell syntax", "whitespace check"]
+    },
+    {
+      "stage": "reviewer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md"],
+      "findings": [],
+      "checks": ["independent read-only review of bounded reproducibility claims against builder behavior", "documentation regression test inspection"]
+    },
+    {
+      "stage": "security",
+      "verdict": "not_applicable",
+      "reason": "Existing approved pinned build tooling was exercised in disposable locations; no project dependency, executable behavior, or trust-boundary change."
+    },
+    {
+      "stage": "qa",
+      "verdict": "not_applicable",
+      "reason": "This package records local build evidence and documentation only. Independent review covers claim accuracy; actual release-runner and host qualification are separate obligations."
+    }
+  ],
+  "autonomous_rejection_count": 0,
+  "pending_audit": [],
+  "acceptance": null,
+  "compliance": null
+}

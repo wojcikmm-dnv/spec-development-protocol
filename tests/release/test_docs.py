@@ -231,6 +231,16 @@ class ClaimTests(unittest.TestCase):
                          "separately agreed spending limit", "explicit removal approval"):
             self.assertIn(boundary, preparation)
 
+    def test_archive_reproducibility_evidence_is_bound_to_a_candidate_and_environment(self):
+        text = (ROOT / "docs" / "RELEASING.md").read_text(encoding="utf-8")
+        evidence = text.split("## Verified archive reproducibility")[1].split("\n## ")[0]
+        for detail in ("Windows and WSL Linux", "e7908dee783ea8a18275c826d6c413f6e25f6e29",
+                       "0.29.0", "88757e6cfbc291fb6179e8764939ec4878f505721ffe804fc435181b305eb215",
+                       "not a", "guarantee for later candidates"):
+            self.assertIn(detail, evidence)
+        self.assertIn("actual GitHub release runner's archive bytes", text)
+        self.assertNotIn("across operating systems was observed on Windows only", text)
+
 
 if __name__ == "__main__":
     unittest.main()
