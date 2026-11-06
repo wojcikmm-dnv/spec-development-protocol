@@ -1,7 +1,7 @@
 ---
-status: draft
-approved_by: pending
-approved_at: pending
+status: approved
+approved_by: user (chat)
+approved_at: 2026-11-06T14:02:53+01:00
 ---
 
 # SDP 2.0 - Portable Delivery Protocol
@@ -12,7 +12,7 @@ approved_at: pending
 
 This proposal consolidates the November 2026 review and distribution discussion
 into a direction for 2027. It describes the target, not capabilities already
-implemented. Approval metadata remains pending until human review.
+implemented. The owner reviewed and approved this document on 2026-11-06.
 
 [PLAN.md](PLAN.md) is the ordered implementation roadmap. Neither document
 authorizes an unrestricted rewrite, release, or deletion of client files.

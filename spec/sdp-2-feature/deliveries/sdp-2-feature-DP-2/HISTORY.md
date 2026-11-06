@@ -1,6 +1,6 @@
 # Step 08b (instructions half) Delivery History
 
-## 2026-11-06 - Delivered at owner direction; awaiting acceptance
+## 2026-11-06 - Accepted
 
 Commit `b7cb90c` moved the schema-3 delivery process detail out of
 `.apm/instructions/sdlc-process.instructions.md` (457 to 133 lines) into the new
@@ -56,4 +56,7 @@ This delivery completes the instructions half of the
 `step-08b-instruction-reduction` obligation. The agent-procedure half is tracked
 with Step 13; this package records no pending audit of its own.
 
-Acceptance is pending: only an explicit human decision accepts this package.
+The user's chat instruction "I accept and approve" (2026-11-06T14:02:53+01:00) is
+recorded as acceptance of this package in `DELIVERY-RUN.json`. The same
+instruction recorded the owner's approval of the direction in
+`REFACTOR_PORPOSAL.md`.

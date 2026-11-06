@@ -86,7 +86,7 @@ user files, credentials, repository settings, or installed global plugins.
 Progress: Steps 01-07, 08a, 09, 10 (local part), 11 (authored, not yet run on GitHub), and 12 are accepted (packages `sdp-2-baseline-DP-1`,
 `sdp-2-protocol-DP-1`, `sdp-2-core-DP-1`, `sdp-2-skills-DP-1`, `sdp-2-workflow-DP-1`,
 `sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`, `sdp-2-feature-DP-1`, `sdp-2-migrate-DP-1`, `sdp-2-bundles-DP-1`, `sdp-2-release-DP-1`, `sdp-2-docs-DP-1`).
-The 08b instructions half is delivered as `sdp-2-feature-DP-2` (awaiting acceptance; the
+The 08b instructions half is accepted as `sdp-2-feature-DP-2` (2026-11-06; the
 agent-procedure half stays with Step 13). CI passes on all three matrices on the owner's
 fork (commit f8ba5ee, 2026-11-06). Step 06's exit criterion is only partly met: GitHub Copilot CLI is
 smoke-tested, but Claude Code was unavailable and is blocked, tracked as the open
@@ -255,8 +255,8 @@ conflicts without partial overwrite. Security and independent QA both review.
 because the legacy agents and `/deliver` read the always-on process instructions. At the
 owner's direction the instructions part is now done: the always-on process file is 133 lines,
 and the detail moved verbatim into the on-demand `sdp-delivery-process` skill, which the
-orchestrator and planner point to. The instructions half is delivered as package
-`sdp-2-feature-DP-2` (awaiting acceptance). Replacing duplicated agent procedures and handoff
+orchestrator and planner point to. The instructions half is accepted as package
+`sdp-2-feature-DP-2` (2026-11-06). Replacing duplicated agent procedures and handoff
 chains still waits for Step 13. The new path does not depend on that file; it is
 self-contained in the `sdp-core` and `sdp-workflows` skills. Whether hosts load the skill when
 needed is not yet observed.
@@ -266,7 +266,7 @@ needed is not yet observed.
 - [x] 08b-instructions: reduce always-on process instructions to startup routing,
   ownership, safety invariants, and links; move the full delivery-process text verbatim
   into the on-demand `sdp-delivery-process` skill (package `sdp-2-feature-DP-2`,
-  awaiting acceptance).
+  accepted 2026-11-06).
 - [ ] 08b-agent-procedures: replace duplicated agent procedures and handoff chains with
   workflow references; preserve or explicitly migrate user-facing commands (mapping in
   `docs/PROTOCOL.md`). Deferred to Step 13 because the legacy agents and `/deliver` read
