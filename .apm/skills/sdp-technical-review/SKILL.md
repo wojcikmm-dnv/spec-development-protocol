@@ -23,9 +23,17 @@ call it independent.
 2. **Check scope:** every changed path is inside the plan's boundary and serves the
    outcome. Flag unplanned dependencies, contract changes, and drive-by edits.
 3. **Check correctness:** logic, edge cases, error handling, concurrency, resource
-   handling, compatibility, and regressions in callers.
-4. **Check tests:** each changed behavior has a test that would fail without it;
-   tests assert behavior, not implementation; none were skipped or weakened.
+   handling, compatibility, and regressions in callers. Probe the usual defect
+   sources on each changed path: off-by-one and boundary values, empty/null/missing
+   input, wrong or inverted conditions, unhandled error and timeout paths, missing
+   cleanup, shared-state races, repeated or concurrent calls, per-item queries in
+   loops, unbounded results, and authorization checked on the role but not the record.
+   Trace at least one caller and one consumer of every changed signature or contract.
+4. **Check tests:** map every acceptance criterion to a test that would fail without
+   the change; tests assert behavior, not implementation; none were skipped or
+   weakened. Name any criterion with no covering test. You cannot run code, so judge
+   the checks the implementer reported: treat missing or unread output as unverified
+   and say so, and ask for a rerun instead of assuming a pass.
 5. **Check comments and traceability:** flag story or criterion IDs, step narration,
    completed TODOs, and comments that restate code.
 6. **Report triggers** for any security or QA area touched, even if you cannot judge

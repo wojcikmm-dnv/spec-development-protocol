@@ -32,6 +32,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- Implementation, planning, and review skills now aim at better code. `sdp-implement` adds
+  convention discovery, a test-first loop, a root-cause rule for failing checks, a self-review
+  of the diff, and routing to the domain skills. `sdp-plan-delivery` requires plans grounded
+  in real files, commands, and named tests. `sdp-technical-review` adds a defect-probe list,
+  acceptance-criterion-to-test tracing, and honest handling of unverifiable checks. The four
+  domain skills (API, UI, migration, error handling) are tightened and made less
+  framework-specific.
+
 - The always-loaded `sdlc-process.instructions.md` shrank from 457 to 133 lines, and the
   generated root `AGENTS.md` from about 640 to 255 lines. The detail it held (profiles,
   assurance triggers, plan contract, supervised delivery, candidate identity, state
