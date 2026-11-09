@@ -2,10 +2,10 @@
   "schema_version": 3,
   "run_id": "sdp-2-docs-DP-2-run-1",
   "delivery_id": "sdp-2-docs-DP-2",
-  "delivery_status": "awaiting-acceptance",
+  "delivery_status": "accepted",
   "branch": null,
   "profile": "Lean",
-  "current_stage": "awaiting-acceptance",
+  "current_stage": "closed",
   "completed_stages": ["developer", "reviewer"],
   "changed_paths": ["CHANGELOG.md"],
   "stage_results": [
@@ -36,6 +36,6 @@
   ],
   "autonomous_rejection_count": 0,
   "pending_audit": [],
-  "acceptance": null,
+  "acceptance": {"decision": "accepted", "decided_by": "user (chat)", "decided_at": "2026-11-09T16:10:47+01:00", "feedback": "go, not wait for my acceptance - I want to have results NOW. Exception to the standard flow"},
   "compliance": null
 }

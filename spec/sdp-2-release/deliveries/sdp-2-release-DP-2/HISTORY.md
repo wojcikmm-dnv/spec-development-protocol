@@ -33,4 +33,13 @@ would fail the clean-tree check was disproved by the existing `/notes.md` ignore
 rule; no workflow change was made for that hypothesis.
 
 This documentation package does not close the external rehearsal or host
-qualification obligations. Acceptance is pending an explicit human decision.
+qualification obligations.
+
+## 2026-11-09 - Accepted
+
+The owner accepted this package in chat, explicitly excepting the standard wait:
+"go, not wait for my acceptance - I want to have results NOW. Exception to the
+standard flow". The latest CI run 42639411557 on `7ea3dbfdc09f3ac793659e93c8f7155f01d0eb97`
+(2026-11-09) passed on all three matrices, including the current release guide and its
+tests. Acceptance is recorded in `DELIVERY-RUN.json`; the actual prerelease rehearsal
+and publication are separate obligations and are not closed by this acceptance.

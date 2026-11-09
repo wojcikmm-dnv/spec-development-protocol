@@ -85,6 +85,16 @@ The Windows-vs-WSL `git diff --check` CRLF artifact (`core.autocrlf=true`,
 index-normalized LF) was observed and disregarded; the Windows git check is
 authoritative for this checkout.
 
-No commits, pushes, tags, releases, publications, or paid host trials were made.
-Acceptance is pending an explicit human decision. Superseded agents/prompts stay
-with later packages.
+No commits, pushes, tags, releases, publications, or paid host trials were made
+in the delivery itself. Superseded agents/prompts stay with later packages.
+
+## 2026-11-09 - Accepted
+
+The owner accepted this package in chat immediately after delivery, explicitly
+excepting the standard wait: "go, not wait for my acceptance - I want to have
+results NOW. Exception to the standard flow". CI passed on all three matrices on
+this package's own commit (run 42639411557,
+`7ea3dbfdc09f3ac793659e93c8f7155f01d0eb97`, 2026-11-09). Acceptance is recorded in
+`DELIVERY-RUN.json`. The gate deviation stays recorded: the removal happened on
+explicit approval while the hosted rehearsal and the 2.0 release are pending;
+those obligations remain open.

@@ -84,22 +84,25 @@ user files, credentials, repository settings, or installed global plugins.
 ## Ordered Steps
 
 Progress: Steps 01-07, 08a, 09, 10 (local part), 11 (CI green on the fork; release not yet
-exercised), and 12 are accepted (packages `sdp-2-baseline-DP-1`,
+exercised), 12, and 13 (installers retired) are accepted: packages `sdp-2-baseline-DP-1`,
 `sdp-2-protocol-DP-1`, `sdp-2-core-DP-1`, `sdp-2-skills-DP-1`, `sdp-2-workflow-DP-1`,
-`sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`, `sdp-2-feature-DP-1`, `sdp-2-migrate-DP-1`, `sdp-2-bundles-DP-1`, `sdp-2-release-DP-1`, `sdp-2-docs-DP-1`).
-The 08b instructions half is accepted as `sdp-2-feature-DP-2` (2026-11-06); the worker
-agents were consolidated as `sdp-2-feature-DP-3` (2026-11-06) and the remaining handoff
-chains and user-facing commands stay with Step 13. CI passed on all three matrices (run 42222480747, commit `bf43597f`, 2026-11-06, and
-again as run 42610731073 on `deee456`, 2026-11-09; pushes after the latest verification are
-unverified). Step 06's exit criterion is only partly met: GitHub Copilot CLI is
+`sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`, `sdp-2-feature-DP-1`, `sdp-2-migrate-DP-1`,
+`sdp-2-bundles-DP-1`, `sdp-2-release-DP-1`, `sdp-2-docs-DP-1`, `sdp-2-feature-DP-2`
+(08b instructions), `sdp-2-feature-DP-3` (worker agents on the stage skills),
+`sdp-2-docs-DP-2` (changelog CI status), `sdp-2-release-DP-2` (local rehearsal
+preparation), `sdp-2-release-DP-3` (cross-OS archive verification), and
+`sdp-2-release-DP-4` (legacy installer retirement).
+The 08b instructions half is accepted as `sdp-2-feature-DP-2` (2026-11-06); the remaining
+handoff chains and user-facing command mapping stay with the superseded-component scope of
+Step 13. CI passed on all three matrices on runs 42222480747 (`bf43597f`, 2026-11-06),
+42610731073 (`deee456`, 2026-11-09), and 42639411557 (`7ea3dbf`, 2026-11-09). The last
+five packages were accepted on the owner's explicit chat exception (2026-11-09), which
+waived the wait after delivery; external rehearsals, publication, and host qualification
+stay open. Step 06's exit criterion is only partly met: GitHub Copilot CLI is
 smoke-tested, but Claude Code was unavailable and is blocked, tracked as the open
 obligation `step-06-claude-code-qualification`; no host has executed a full delivery.
-Protocol design is in
-[docs/PROTOCOL.md](docs/PROTOCOL.md), the validator is in `.apm/skills/sdp-core`, and the
-stage skills are under `.apm/skills`. Five packages await acceptance: `sdp-2-docs-DP-2`
-(changelog CI status), `sdp-2-feature-DP-3` (worker agents on the stage skills),
-`sdp-2-release-DP-2` (local rehearsal preparation), `sdp-2-release-DP-3` (cross-OS
-archive verification), and `sdp-2-release-DP-4` (legacy installer retirement).
+Protocol design is in [docs/PROTOCOL.md](docs/PROTOCOL.md), the validator is in
+`.apm/skills/sdp-core`, and the stage skills are under `.apm/skills`.
 All later steps are pending. A step completes only when its checks and independent
 assurance pass and a human accepts the package. Record actual evidence in that
 package rather than duplicating reports here.
@@ -392,7 +395,8 @@ checksums are not described as publisher authentication.
 **Status:** accepted for the current state (package `sdp-2-docs-DP-1`). Installation examples
 were followed from a scratch repository by an independent reviewer; hosted-channel installs
 and the 2.0 changelog entry (kept under `Unreleased`, labeled as planned) stay open until a
-release exists. Docs must be updated again after Step 13 and Step 14.
+release exists. Docs were refreshed with Step 13's installer retirement (package
+`sdp-2-release-DP-4`, accepted 2026-11-09); a final refresh remains after Step 14.
 
 - [ ] Rewrite README around choosing a workflow, installation channel,
   initialization, scope approval, evidence, and acceptance.
@@ -413,8 +417,8 @@ environment; validate links, package names, commands, and compatibility claims.
 
 ### Step 13 - Retire Legacy Installers and Superseded Components
 
-**Status:** installers retired (package `sdp-2-release-DP-4`, delivered on the owner's chat
-approval 2026-11-09; awaits acceptance). The gate deviation is recorded honestly: no 2.0
+**Status:** accepted (package `sdp-2-release-DP-4`, delivered and accepted on the owner's
+chat approval, 2026-11-09). The gate deviation is recorded honestly: no 2.0
 release is published and the hosted-channel rehearsal is pending, and the owner approved the
 removal with that gap known. Superseded agents/prompts and the remaining Step 08 handoff
 chains stay with the later packages.

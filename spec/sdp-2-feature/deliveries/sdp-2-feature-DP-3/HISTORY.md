@@ -33,5 +33,13 @@ names, frontmatter, handoffs, and send flags, so manifests and `docs/PROTOCOL.md
 mappings are unchanged. Handoff chains, `/deliver` reference updates, and user-facing
 command mapping stay with Step 13.
 
-No commit, push, tag, publication, or host trial was executed. Acceptance is pending an
-explicit human decision.
+No commit, push, tag, publication, or host trial was executed.
+
+## 2026-11-09 - Accepted
+
+The owner accepted this package in chat, explicitly excepting the standard wait:
+"go, not wait for my acceptance - I want to have results NOW. Exception to the
+standard flow". CI has since passed on all three matrices for later commits, most
+recently run 42639411557 on `7ea3dbfdc09f3ac793659e93c8f7155f01d0eb97` (2026-11-09),
+which re-verified the agent pointers and the worker-agent tests. Acceptance is
+recorded in `DELIVERY-RUN.json`; the handoff-chain work stays with Step 13.

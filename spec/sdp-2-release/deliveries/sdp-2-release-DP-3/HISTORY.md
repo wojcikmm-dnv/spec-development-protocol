@@ -52,5 +52,14 @@ No `.apm/`, README, or installer changes were needed: installation behavior is
 unchanged. No commits, pushes, tags, releases, removals, or paid AI trials were made.
 Temporary build artifacts are retained at the scratch locations above.
 
-Acceptance is pending an explicit human decision. External rehearsal obligations
+External rehearsal obligations
 remain with their owning packages; this package does not close them.
+
+## 2026-11-09 - Accepted
+
+The owner accepted this package in chat, explicitly excepting the standard wait:
+"go, not wait for my acceptance - I want to have results NOW. Exception to the
+standard flow". CI run 42639411557 on `7ea3dbfdc09f3ac793659e93c8f7155f01d0eb97`
+(2026-11-09) passed on all three matrices, re-verifying the recorded reproducibility
+evidence and the guide's tests. Acceptance is recorded in `DELIVERY-RUN.json`; the
+github release-runner comparison and host qualification stay external.
