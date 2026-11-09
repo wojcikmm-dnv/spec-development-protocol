@@ -105,8 +105,10 @@ settings that this repository does not configure.
 
 ### Preparing a prerelease rehearsal locally
 
-Local preparation does not authorize publication. `2.0.0-rc.1` is a proposed
-rehearsal version, not the current package version or an approved release.
+Local preparation does not authorize publication. Until the owner authorized the
+rehearsal on 2026-11-09, `2.0.0-rc.1` was a proposed rehearsal version,
+not the current package version or an approved release; the authorized tag cut it
+(see Verified release rehearsal).
 
 1. Agree the version and target repository with the owner before changing versions.
   A rehearsal on `wojcikmm-dnv/spec-development-protocol` exercises the fork's
@@ -128,8 +130,9 @@ rehearsal version, not the current package version or an approved release.
   require a separately agreed spending limit.
 
 The legacy install scripts were retired on the owner's explicit approval (2026-11-09)
-while hosted-channel rehearsal and the 2.0 release are still pending; that gap is recorded
-in the roadmap, and released 0.5.x tags keep the scripts. Superseded-agent and prompt
+while the stable 2.0 release and Claude Code qualification are still pending; the hosted
+APM channel and the release path were exercised by the 2.0.0-rc.1 rehearsal (see Verified
+release rehearsal), and released 0.5.x tags keep the scripts. Superseded-agent and prompt
 removal remains gated by compatibility mappings, coverage checks, and
 explicit removal approval. No rehearsal checklist waives those gates or human acceptance.
 
@@ -168,27 +171,61 @@ The Linux packager was installed in an isolated temporary virtual environment;
 neither build changed the author checkout or published a release.
 
 This is an observed cross-OS comparison for one commit and tool version, not a
-guarantee for later candidates or other environments. The actual GitHub release
-runner's archive still needs comparison during the authorized rehearsal.
+guarantee for later candidates or other environments. The authorized rehearsal later
+compared the release runner's archive: its digest matched a local build byte for byte
+(see Verified release rehearsal).
+
+## Verified release rehearsal
+
+On 2026-11-09 the owner authorized prerelease publication on the fork (the "go ahead"
+chat approval of the tag push the roadmap listed as needing separate owner
+authorization). Commit `d5f28ba436c6b28e7df7862decde5b1d7c615701` carries version
+`2.0.0-rc.1`, marketplace range `^2.0.0-rc.1`, and the `2.0.0-rc.1` changelog section.
+Tag `v2.0.0-rc.1` was pushed together with `main`, which started
+[release run 42648216366](https://github.com/wojcikmm-dnv/spec-development-protocol/actions/runs/42648216366);
+its build and publish jobs succeeded on the first run.
+
+- The release is published with `prerelease: true` and `draft: false`, target commit
+  `d5f28ba436c6b28e7df7862decde5b1d7c615701`, authored by the workflow bot, and not
+  marked as the latest release.
+- The assets are the ZIP, `SHA256SUMS`, and `release-metadata.json`. The runner's ZIP
+  digest `sha256:5f9f52042c8c7179da58b0807aad95c74779e3173f99c6f41a42659b2e4a0a9e`
+  matches a clean WSL-checkout build of the same commit with APM `0.29.0` byte for
+  byte, and the downloaded ZIP passed `sha256sum -c` against `SHA256SUMS`.
+- The release notes are the extracted changelog section followed by the publisher's
+  checksum disclaimer.
+
+The hosted APM channel was exercised in a disposable location: `apm install --target
+claude wojcikmm-dnv/spec-development-protocol#v2.0.0-rc.1` installed `2.0.0-rc.1`, and
+the lockfile records `resolved_ref: v2.0.0-rc.1` with
+`resolved_commit: d5f28ba436c6b28e7df7862decde5b1d7c615701`. `sdp-init` from the
+installed location previewed, applied (creating `.github/TECH.md` and `spec/`), and
+applied a second time with `ok: true` and the project holding one `TECH.md` and `spec/`.
+Two APM loading quirks were observed and recorded: in a bare directory without a
+detected host, an untargeted `apm install` stops with host-detection guidance (`--target`
+or a declared `targets:` selects it), and APM dropped the `agent:` frontmatter key from
+Claude command files with a warning while deploying.
+
+This rehearsal proves the tag path end to end. It does not prove host qualification
+(Step 14), full delivery execution on any host, or the Copilot CLI marketplace and
+Claude-hosted channels.
 
 ## What is not verified
 
-- The release workflow has never run, and the publisher's GitHub REST usage was tested only
-  against a local fake server, so real API behavior (draft listing, redirects, `make_latest`,
-  rate limits) is unconfirmed until a separately authorized prerelease rehearsal.
 - GitHub reported that the pinned actions target Node 20 and are forced onto Node 24 (a
   warning only); newer action versions are not yet adopted.
 - `apm-cli` is pinned by version, but its dependencies are not hash-pinned.
-- The actual GitHub release runner's archive bytes. The local Windows/WSL comparison
-  above does not establish what a future release job produces.
 
-- Installing from a hosted marketplace. GitHub Copilot CLI registers a local directory as a
-  marketplace and then loads the plugin live from that directory without copying it, so a
-  local install does not exercise a clean copy. The check needs a published repository and
-  a tagged release.
-- How each native channel pins a revision. Nothing here claims an exact behavior; verify it
-  against a real tag before relying on it.
+- Installing through the Copilot CLI plugin-marketplace channel. GitHub Copilot CLI
+  registers a local directory as a marketplace and then loads the plugin live from that
+  directory without copying it, so a local install does not exercise a clean copy. The
+  hosted APM channel was exercised by the prerelease rehearsal (above); the Copilot CLI
+  marketplace install was not.
+- How the native marketplace channels pin a revision. The APM channel's lockfile was
+  observed to record the tag and commit; verify the marketplace channels against a real
+  tag before relying on them.
 - The release ZIP in any agent host. Only the extracted layout's scripts were run; Copilot
-  CLI was tested earlier against the directory bundle from `apm pack`.
+  CLI was tested earlier against the directory bundle from `apm pack`, and the rehearsal
+  ran the init script from the hosted APM deployment.
 - Python 3.9 host execution. The shipped-script suites passed on that runtime in CI,
   but no full agent delivery has been observed on it.

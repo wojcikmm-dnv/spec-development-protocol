@@ -7,10 +7,10 @@ version, what was and was not verified, and how to set up the project afterwards
 
 | Channel | Command | Verification in this repository |
 | --- | --- | --- |
-| APM | `apm install WojcikMM/spec-development-protocol` | `apm pack` output is built and tested on every change. Installing from the hosted repository was not re-run for the current candidate. |
+| APM | `apm install WojcikMM/spec-development-protocol` | `apm pack` output is built and tested on every change. The hosted install of the `2.0.0-rc.1` prerelease from the fork was exercised (2026-11-09); in a bare project an untargeted install stops with host-detection guidance, so pass `--target` (for example `--target claude`) or install into a project with detected hosts. |
 | GitHub Copilot CLI plugin marketplace | `copilot plugin marketplace add WojcikMM/spec-development-protocol`, then `copilot plugin install spec-development-protocol@spec-development-protocol` | Verified only with a local directory registered as the marketplace, which Copilot CLI loads live without copying. A hosted install is not verified. |
 | Claude Code marketplace | uses the generated `.claude-plugin/` files | Files are generated and version-checked. Claude Code was not available, so nothing was run. |
-| Release ZIP | download from a GitHub release, verify `SHA256SUMS`, extract | The build and its contents are tested; no 2.0 release has been published, so there is nothing to download yet. |
+| Release ZIP | download from a GitHub release, verify `SHA256SUMS`, extract | The build and its contents are tested. The `2.0.0-rc.1` prerelease was published by the release workflow (2026-11-09) and its ZIP matched a locally built archive byte for byte; the first stable 2.0 release is still pending. |
 
 Nothing here claims that a given host follows the skills during a full delivery; see
 [COMPATIBILITY.md](COMPATIBILITY.md) for what was observed.
@@ -37,9 +37,9 @@ Releases use tags of the form `v<major>.<minor>.<patch>`; a suffix such as `-rc.
 prerelease. A published prerelease is flagged as such on GitHub and never becomes the latest
 release. Pin the version you tested. The released 0.5.x tags contain the stable agents,
 prompts, instructions, and six skills only (API, UI, migration, errors, tests, and the template
-assets); `sdp-init`, `sdp-migrate`, the validator, and the
-workflow skills are on the current `main` branch and will ship in the first 2.0 release, which
-has not been published.
+assets); the `2.0.0-rc.1` prerelease (published 2026-11-09) already ships `sdp-init`,
+`sdp-migrate`, the validator, and the workflow skills, and the first stable 2.0 release is
+still pending after host qualification.
 
 ```bash
 apm install WojcikMM/spec-development-protocol#v0.5.4
@@ -90,7 +90,7 @@ Clone or download the repository, create `.github/` in your project, and copy th
 | Requirement | Notes |
 | --- | --- |
 | Visual Studio Code with the GitHub Copilot extension and Agent Mode | Needed for the stable `/deliver` prompts. A Copilot subscription is required. VS Code was not tested; only GitHub Copilot CLI has any recorded observation. |
-| Python 3.9 or newer and Git | For the shipped scripts (validator, init, migration), which use only the standard library. Observed on Python 3.9 (locally), 3.11, 3.12, and 3.13; a GitHub run of the 3.9 job has not yet confirmed it. |
+| Python 3.9 or newer and Git | For the shipped scripts (validator, init, migration), which use only the standard library. Observed on Python 3.9 (locally), 3.11, 3.12, and 3.13; the GitHub 3.9 CI job passed on run 42222480747. |
 | APM | To install through APM: APM's own requirements (its standalone installer, or `pip` with Python 3.10 or newer). To build or pack this package: APM 0.29.0, the version pinned in `scripts/release-tools.json`. |
 
 Without Python the validator-backed schema 4 workflow is blocked with an explicit message;

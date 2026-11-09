@@ -47,15 +47,15 @@ routing, and parallel delivery.
 
 | Channel | Command | Status |
 | --- | --- | --- |
-| APM | `apm install WojcikMM/spec-development-protocol` | Bundle built and tested here; hosted install not re-run for the current candidate |
-| GitHub Copilot CLI marketplace | `copilot plugin marketplace add WojcikMM/spec-development-protocol` | Verified with a local directory only |
+| APM | `apm install WojcikMM/spec-development-protocol` | Bundle built and tested here; the `2.0.0-rc.1` prerelease install from the fork was exercised 2026-11-09 *(pass `--target` in a project without detected hosts)* |
+| GitHub Copilot CLI marketplace | `copilot plugin marketplace add WojcikMM/spec-development-protocol` | Verified with a local directory only; the hosted marketplace install is not exercised |
 | Claude Code marketplace | generated `.claude-plugin/` files | Not tested (Claude Code was unavailable) |
-| Release ZIP | from a GitHub release | None published for 2.0 yet |
+| Release ZIP | from a GitHub release | `2.0.0-rc.1` prerelease published by the release workflow (2026-11-09); its ZIP matched a locally built archive byte for byte |
 
 Which version has what: the released 0.5.x tags contain the stable agents, prompts,
 instructions, and six skills (API, UI, migration, errors, tests, and the template assets). The `sdp-init`, `sdp-migrate`,
-validator, and workflow skills described below exist on the current `main` branch and will ship
-in the first 2.0 release, which has not been published. Pin a released tag rather than a moving
+validator, and workflow skills described below exist on the current `main` branch and already ship in the published
+`2.0.0-rc.1` prerelease; the first stable 2.0 release is still pending after host qualification. Pin a released tag rather than a moving
 branch, for example `apm install WojcikMM/spec-development-protocol#v0.5.4`; that gives you the
 stable workflow only. Details, the APM versus native plugin difference, stable versus
 prerelease tags, updating, and the manual fallback are in

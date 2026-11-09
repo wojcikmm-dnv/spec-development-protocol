@@ -1,0 +1,43 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-release-DP-5-run-1",
+  "delivery_id": "sdp-2-release-DP-5",
+  "delivery_status": "accepted",
+  "branch": null,
+  "profile": "Lean",
+  "current_stage": "closed",
+  "completed_stages": ["developer", "reviewer"],
+  "changed_paths": ["README.md", "CHANGELOG.md", "PLAN.md", "docs/INSTALLATION.md", "docs/RELEASING.md", "spec/sdp-2-release/deliveries/sdp-2-release-DP-5/PLAN.md", "spec/sdp-2-release/deliveries/sdp-2-release-DP-5/HISTORY.md", "tests/release/test_docs.py", "tests/release/test_changelog.py"],
+  "stage_results": [
+    {
+      "stage": "developer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md Delivered and accepted"],
+      "findings": [],
+      "checks": ["all six suites green (contracts, skills, init with 1 environment skip, migrate, packaging with 14 APM-skips locally, release)", "check-baseline.py, check-skills.py, sync-templates.sh --check green", "bash scripts/check-all.sh green in a clean WSL checkout of d5f28ba", "scripts/changelog.py --tag v2.0.0-rc.1 extracted the section; build-release.py --check and apm pack --check-versions --check-clean --dry-run green", "tag v2.0.0-rc.1 pushed with main (d5f28ba) in one push; release run 42648216366 succeeded on its first run", "release 439327949 published (prerelease: true, draft: false, not latest); runner ZIP digest sha256:5f9f52042c8c7179da58b0807aad95c74779e3173f99c6f41a42659b2e4a0a9e matched the local build byte for byte", "downloaded ZIP passed sha256sum -c against SHA256SUMS", "hosted APM install --target claude of #v2.0.0-rc.1 installed the prerelease; lockfile resolved_ref v2.0.0-rc.1, resolved_commit d5f28ba436c6b28e7df7862decde5b1d7c615701", "sdp-init from the installed location previewed ok and applied twice, the second apply with ok:true and one TECH.md/spec/"]
+    },
+    {
+      "stage": "reviewer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md Independent review"],
+      "findings": ["after publication, review found 2 must-fix findings (stale README.md install/release claims that violated the sync rule; a pre-registered reviewer pass with an empty findings section) plus 5 should-fix findings (INSTALLATION Python-row contradiction, PLAN Step 12/Step 10 stale phrasing, a conflicted marketplace-version mechanism statement, record shape divergence from the DP-2..DP-4 family, an over-stated sdp-init evidence line); all fixed and the battery re-ran green"],
+      "checks": ["independent read-only review verifying the recorded IDs, flags, and digests directly against the GitHub API release and run objects", "review of the full delivery diff against docs cross-references, test correctness, record quality, and README sync"]
+    },
+    {
+      "stage": "security",
+      "verdict": "not_applicable",
+      "reason": "No changed trust boundary: the release scripts, publisher permissions, and workflow triggers are unchanged since sdp-2-release-DP-1. This rehearsal changed manifest versions, docs, records, and the marketplace-range pin only, and published no credentials or new inputs."
+    },
+    {
+      "stage": "qa",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md Delivered and accepted", "release 439327949 fields and assets"],
+      "findings": [],
+      "checks": ["prerelease status fields verified on the published release (prerelease: true, draft: false, not latest, target d5f28ba)", "runner ZIP digest matched a locally built archive byte for byte", "downloaded ZIP passed sha256sum -c against SHA256SUMS", "hosted APM install with lockfile resolution and double sdp-init in a disposable location"]
+    }
+  ],
+  "autonomous_rejection_count": 1,
+  "pending_audit": [],
+  "acceptance": {"decision": "accepted", "decided_by": "user (chat)", "decided_at": "2026-11-09T17:02:59+01:00", "feedback": "\"go ahead\" (2026-11-09 chat) authorized the tag push the roadmap listed as needing separate owner authorization; acceptance reported immediately under the standing exception (results now)."},
+  "compliance": null
+}

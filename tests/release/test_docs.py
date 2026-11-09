@@ -188,7 +188,8 @@ class ClaimTests(unittest.TestCase):
         if not tags:
             self.skipTest("no tags in this checkout")
         for document in DOCS:
-            for tag in set(re.findall(r"(?:SDP_BRANCH=|#)(v\d+\.\d+\.\d+)\b", document.read_text(encoding="utf-8"))):
+            # Tag names may carry prerelease suffixes such as v2.0.0-rc.1.
+            for tag in set(re.findall(r"(?:SDP_BRANCH=|#)(v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)\b", document.read_text(encoding="utf-8"))):
                 self.assertIn(tag, tags, f"{document.name} pins {tag}")
 
     def test_the_documented_python_floor_matches_the_ci_job(self):
@@ -208,9 +209,17 @@ class ClaimTests(unittest.TestCase):
                          "Linux, Python 3.12", "Windows, Python 3.12", "Python 3.9"):
             self.assertIn(evidence, verified)
         self.assertIn("It does not prove", verified)
+        rehearsal = text.split("## Verified release rehearsal")[1].split("\n## ")[0]
+        for evidence in ("42648216366", "d5f28ba436c6b28e7df7862decde5b1d7c615701",
+                         "5f9f52042c8c7179da58b0807aad95c74779e3173f99c6f41a42659b2e4a0a9e",
+                         "prerelease: true", "draft: false", "v2.0.0-rc.1",
+                         "resolved_ref: v2.0.0-rc.1", "sha256sum -c"):
+            self.assertIn(evidence, rehearsal)
+        self.assertIn("does not prove", rehearsal)
         pending = text.split("## What is not verified")[1]
-        self.assertIn("release workflow has never run", pending)
         self.assertIn("Python 3.9 host execution", pending)
+        self.assertIn("Copilot CLI", pending)
+        self.assertNotIn("release workflow has never run", text)
         self.assertNotIn("Neither fix has been confirmed", text)
         self.assertNotIn("scripts parse as 3.9 but were run", text)
 
@@ -229,7 +238,8 @@ class ClaimTests(unittest.TestCase):
                        "0.29.0", "88757e6cfbc291fb6179e8764939ec4878f505721ffe804fc435181b305eb215",
                        "not a", "guarantee for later candidates"):
             self.assertIn(detail, evidence)
-        self.assertIn("actual GitHub release runner's archive bytes", text)
+        self.assertIn("its digest matched a local build byte for byte", evidence)
+        self.assertNotIn("still needs comparison during the authorized rehearsal", text)
         self.assertNotIn("across operating systems was observed on Windows only", text)
 
 

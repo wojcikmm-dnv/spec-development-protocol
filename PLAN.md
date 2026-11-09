@@ -83,24 +83,30 @@ user files, credentials, repository settings, or installed global plugins.
 
 ## Ordered Steps
 
-Progress: Steps 01-07, 08a, 09, 10 (local part), 11 (CI green on the fork; release not yet
-exercised), 12, and 13 (installers retired) are accepted: packages `sdp-2-baseline-DP-1`,
+Progress: Steps 01-07, 08a, 09, 10 (local part and the hosted APM channel), 11 (including
+the authorized 2.0.0-rc.1 prerelease rehearsal), 12, and 13 (installers retired) are
+accepted: packages `sdp-2-baseline-DP-1`,
 `sdp-2-protocol-DP-1`, `sdp-2-core-DP-1`, `sdp-2-skills-DP-1`, `sdp-2-workflow-DP-1`,
 `sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`, `sdp-2-feature-DP-1`, `sdp-2-migrate-DP-1`,
 `sdp-2-bundles-DP-1`, `sdp-2-release-DP-1`, `sdp-2-docs-DP-1`, `sdp-2-feature-DP-2`
 (08b instructions), `sdp-2-feature-DP-3` (worker agents on the stage skills),
 `sdp-2-docs-DP-2` (changelog CI status), `sdp-2-release-DP-2` (local rehearsal
 preparation), `sdp-2-release-DP-3` (cross-OS archive verification),
-`sdp-2-release-DP-4` (legacy installer retirement), and `sdp-2-feature-DP-4`
-(handoff chains and command mapping).
+`sdp-2-release-DP-4` (legacy installer retirement), `sdp-2-feature-DP-4`
+(handoff chains and command mapping), and `sdp-2-release-DP-5` (GitHub prerelease
+rehearsal).
 The 08b instructions half is accepted as `sdp-2-feature-DP-2` (2026-11-06); the handoff-chain
 and `/deliver` reference work is completed as `sdp-2-feature-DP-4` (`sdp-2-feature-DP-3`
 covers the worker-agent consolidation), and nothing was removed from the stable commands. CI passed on all three matrices on runs 42222480747 (`bf43597f`, 2026-11-06),
 42610731073 (`deee456`, 2026-11-09), and 42639411557 (`7ea3dbf`, 2026-11-09). The last
 five packages were accepted on the owner's explicit chat exception (2026-11-09), which
 waived the wait after delivery, and `sdp-2-feature-DP-4` was accepted under the same
-standing exception; external rehearsals, publication, and host qualification
-stay open. Step 06's exit criterion is only partly met: GitHub Copilot CLI is
+standing exception. The `step-11-github-rehearsal` obligation closed on 2026-11-09 under
+the same exception: tag `v2.0.0-rc.1` on `d5f28ba` started the first-ever release run
+42648216366, whose build and publish jobs succeeded, the prerelease published with assets
+matching a local build byte for byte, and the hosted APM channel installed the prerelease
+(`sdp-2-release-DP-5`); host qualification, the Copilot CLI and Claude marketplace
+channels, and the stable 2.0 release stay open. Step 06's exit criterion is only partly met: GitHub Copilot CLI is
 smoke-tested, but Claude Code was unavailable and is blocked, tracked as the open
 obligation `step-06-claude-code-qualification`; no host has executed a full delivery.
 Protocol design is in [docs/PROTOCOL.md](docs/PROTOCOL.md), the validator is in
@@ -334,11 +340,13 @@ unknown versions, unresolved audits, and backup restoration.
 
 **Status:** local part accepted (package `sdp-2-bundles-DP-1`): version authority and
 tag convention, pinned APM, deterministic verified ZIP, `tests/packaging/`, and the
-catalog decision in [docs/RELEASING.md](docs/RELEASING.md). Not done: installing exact
-bundles through hosted native channels and resolving immutable catalog revisions; Copilot
-CLI loads a local marketplace live, so that needs a published repository and a tag
-(tracked as `step-10-hosted-catalog-rehearsal`, to be done with Step 11/14 and the owner's
-authorization).
+catalog decision in [docs/RELEASING.md](docs/RELEASING.md). The hosted APM channel was
+exercised by the 2.0.0-rc.1 rehearsal (2026-11-09, `sdp-2-release-DP-5`): the channel
+installed the prerelease and the lockfile recorded `resolved_ref: v2.0.0-rc.1` with the
+tagged commit. Not done: installs through the Copilot CLI and Claude marketplace hosted
+channels, which load a local directory live and need a published repository and a tag
+(the APM part of `step-10-hosted-catalog-rehearsal` is closed; the marketplace-channel
+part remains, to be done with Step 14 and the owner's authorization).
 
 - [ ] Standardize release tags on `v<semver>` and remove conflicting package
   tag overrides. Derive generated manifest versions from one authority.
@@ -361,29 +369,29 @@ are not presented as ready-to-install plugin bundles.
 
 ### Step 11 - Automate Validation and Tag Releases
 
-**Status:** authored and tested locally (package `sdp-2-release-DP-1`), authorized by the
-owner. Not done: a separately authorized prerelease rehearsal on GitHub and a native catalog
-install (tracked as `step-11-github-rehearsal`). CI passes on all three matrices on the
-owner's fork (latest verified: run 42610731073 on `deee456`, 2026-11-09). The earlier
-failures were a real `migrate.py` Python-3.9 bug and a writer-lock bug under the runner's
-short temp path; both are fixed and verified on GitHub. Earlier failures were a real
-`migrate.py` Python-3.9 bug and a writer-lock bug under the runner's short temp path; both
-were fixed and are now verified on GitHub (evidence in the `sdp-2-release-DP-1` records). The
-release workflow and the publisher's REST usage have never run against GitHub. See
-[docs/RELEASING.md](docs/RELEASING.md).
+**Status:** accepted (packages `sdp-2-release-DP-1`, authored and tested locally with the
+owner's authorization, and `sdp-2-release-DP-5`): the separately authorized prerelease
+rehearsal ran on 2026-11-09. Tag `v2.0.0-rc.1` on `d5f28ba` started
+[release run 42648216366](https://github.com/wojcikmm-dnv/spec-development-protocol/actions/runs/42648216366);
+both jobs succeeded on the first run, the prerelease was published with `SHA256SUMS` and
+metadata, its ZIP matched a local build byte for byte, and the hosted APM channel and a
+double initialization were exercised. Evidence in [docs/RELEASING.md](docs/RELEASING.md)
+and the `sdp-2-release-DP-5` records. CI passes on all three matrices on the owner's fork.
+Not done: the Copilot CLI marketplace catalog install remains with Step 10.
 
-- [ ] Add pull-request CI for metadata, template/generated-content drift,
+- [x] Add pull-request CI for metadata, template/generated-content drift,
   contracts, fixtures, packaging, and version consistency.
-- [ ] Add a release workflow triggered by `v*` tags with strict semantic-version
+- [x] Add a release workflow triggered by `v*` tags with strict semantic-version
   validation; build only from the tagged commit using pinned tooling/actions.
-- [ ] Extract only the matching nonempty changelog section with a structured
+- [x] Extract only the matching nonempty changelog section with a structured
   Markdown parser. Test optional dates, prereleases, duplicate/missing sections,
   and unrelated newer entries; never fall back to `Unreleased`.
-- [ ] Use separate validation/build and publishing jobs with minimal
+- [x] Use separate validation/build and publishing jobs with minimal
   permissions. Gate publication on all required evidence.
-- [ ] Assemble a draft release, upload ZIPs, SHA-256 checksums, and revision/tool
-  metadata, verify assets, then publish. Keep prereleases off stable.
-- [ ] Add concurrency/idempotency handling: resume incomplete drafts; do not
+- [x] Assemble a draft release, upload ZIPs, SHA-256 checksums, and revision/tool
+  metadata, verify assets, then publish. Keep prereleases off stable. Exercised by
+  release run 42648216366 (`sdp-2-release-DP-5`).
+- [x] Add concurrency/idempotency handling: resume incomplete drafts; do not
   overwrite differing published bytes. Propose protected catalog updates only
   after publication, with exact revision references.
 
@@ -397,11 +405,13 @@ checksums are not described as publisher authentication.
 
 ### Step 12 - Rewrite User Documentation and Migration Guidance
 
-**Status:** accepted for the current state (package `sdp-2-docs-DP-1`). Installation examples
-were followed from a scratch repository by an independent reviewer; hosted-channel installs
-and the 2.0 changelog entry (kept under `Unreleased`, labeled as planned) stay open until a
-release exists. Docs were refreshed with Step 13's installer retirement (package
-`sdp-2-release-DP-4`, accepted 2026-11-09); a final refresh remains after Step 14.
+**Status:** accepted for the current state (packages `sdp-2-docs-DP-1` and
+`sdp-2-release-DP-5`). Installation examples
+were followed from a scratch repository by an independent reviewer; hosted installs of the
+native marketplace channels stay open until they are checked. Docs were refreshed with
+Step 13's installer retirement (package `sdp-2-release-DP-4`, accepted 2026-11-09) and with
+the rehearsal evidence (package `sdp-2-release-DP-5`, 2026-11-09); a final refresh remains
+after Step 14.
 
 - [ ] Rewrite README around choosing a workflow, installation channel,
   initialization, scope approval, evidence, and acceptance.
@@ -411,8 +421,9 @@ release exists. Docs were refreshed with Step 13's installer retirement (package
   catalog submissions, ZIP usage, stable/prerelease selection, and updates.
 - [ ] Document manual fallback, runtime requirements, validation limits,
   ownership, migration range, rollback, and mixed-install detection.
-- [ ] Add the 2.0 changelog entry with breaking changes and migration steps.
-  Avoid claims of untested host support or measured productivity gains.
+- [x] Add the 2.0 changelog entry with breaking changes and migration steps.
+  Avoid claims of untested host support or measured productivity gains. Published in
+  the `2.0.0-rc.1` section (`sdp-2-release-DP-5`).
 
 **Why:** Users need a reliable setup and delivery path, not an architecture pitch.
 **Depends on:** Steps 09-11; draft docs alongside implementation and finalize here.

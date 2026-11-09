@@ -10,8 +10,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Host qualification (Step 14): no host has executed a full delivery, and Claude Code is
   untested; paid AI host trials require a separately agreed spending limit.
-- Distribution qualification: hosted native-channel installs and catalog updates after the
-  prerelease rehearsal, and the stable 2.0 release after human acceptance.
+- Distribution qualification: the hosted APM channel and the release ZIP were exercised by
+  the `2.0.0-rc.1` rehearsal on 2026-11-09; the Copilot CLI marketplace and Claude-hosted
+  channels and catalog updates remain open, and the stable 2.0 release follows host
+  qualification and human acceptance.
 
 ## [2.0.0-rc.1] - 2026-11-09
 

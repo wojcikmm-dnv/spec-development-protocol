@@ -197,7 +197,7 @@ class ExtractTests(unittest.TestCase):
 
     def test_the_real_changelog_has_extractable_history(self):
         text = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-        for tag in ("v0.5.4", "v0.5.3", "v0.1.0"):
+        for tag in ("v2.0.0-rc.1", "v0.5.4", "v0.5.3", "v0.1.0"):
             with self.subTest(tag=tag):
                 self.assertTrue(changelog.extract(text, tag).strip())
         with self.assertRaises(changelog.ChangelogError):
