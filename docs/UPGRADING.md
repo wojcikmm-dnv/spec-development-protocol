@@ -68,20 +68,19 @@ Customized copies stay and are listed.
 Existing commands keep working in this release line. The schema 4 path adds preview entry
 points (`/run-workflow`, the `sdp.coordinator` agent) and a validator; the mapping from each
 existing command to its schema 4 equivalent is in [PROTOCOL.md](PROTOCOL.md#command-mapping).
-Removing the install scripts and superseded agents is a later, separately approved step.
+The legacy install scripts are removed in this line (see
+[Installation](INSTALLATION.md)); superseded agents and prompts stay, and their replacement
+remains tracked in the roadmap. Projects upgraded from 0.5.x keep working with `sdp-init`
+and `sdp-migrate`.
 
 ## Manual steps for earlier layouts
 
 ### From the strict identity workflow (0.5.2 and older)
 
 1. Back up project customizations.
-2. Upgrade SDP-managed files together with the install script, pinned to the version you are
-   moving to (this step is for 0.5.2 and older, so use `SDP_BRANCH=v0.5.3`):
-
-   ```bash
-   curl -fsSL https://raw.githubusercontent.com/WojcikMM/spec-development-protocol/main/install.sh \
-     | SDP_BRANCH=v0.5.3 SDP_FORCE=true SDP_TECH_MODE=skip bash
-   ```
+2. Upgrade the SDP-managed files by hand from a pinned tag without overwriting your
+   customizations (the legacy install scripts are retired; download the `v0.5.3` tag
+   archive and copy its `.apm/` contents into `.github/`).
 3. Update `TECH.md` with the SDP Delivery Policy.
 4. Migrate active state: `current_story` becomes `current_delivery`, `status` becomes
    `feature_status`, `final_status` becomes the closest `delivery_status`.

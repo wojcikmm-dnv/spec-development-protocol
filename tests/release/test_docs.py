@@ -152,20 +152,11 @@ class ClaimTests(unittest.TestCase):
                 with self.subTest(document=document.name, flag=flag):
                     self.assertIn(flag, known)
 
-    def test_install_script_variables_and_defaults_match_the_scripts(self):
-        script = (ROOT / "install.sh").read_text(encoding="utf-8")
-        table = self.installation.split("## Install script options")[1].split("\n## ")[0]
-        rows = re.findall(r"^\| `(SDP_[A-Z_]+)` \| ([^|]+) \|", table, re.MULTILINE)
-        self.assertEqual({"SDP_BRANCH", "SDP_FORCE", "SDP_TECH_MODE", "SDP_TARGET"}, {name for name, _ in rows})
-        for name, default in rows:
-            default = default.strip().strip("`")
-            if default != "current directory":
-                self.assertIn(f"${{{name}:-{default}}}", script, name)
-        for document in DOCS:
-            if document.name in ("RELEASING.md", "PROTOCOL.md"):
-                continue
-            for variable in set(re.findall(r"\bSDP_[A-Z_]+\b", document.read_text(encoding="utf-8"))):
-                self.assertIn(variable, script, f"{document.name} mentions {variable}")
+    def test_the_docs_do_not_present_the_retired_install_scripts(self):
+        for text in (self.readme, self.installation):
+            self.assertNotIn("install.sh", text)
+            self.assertNotIn("install.ps1", text)
+            self.assertNotIn("SDP_BRANCH", text)
 
     def test_the_documented_states_are_the_validators_states(self):
         core = load_module("sdp_core_for_docs", ROOT / ".apm" / "skills" / "sdp-core" / "scripts" / "sdp.py")
@@ -197,7 +188,7 @@ class ClaimTests(unittest.TestCase):
         if not tags:
             self.skipTest("no tags in this checkout")
         for document in DOCS:
-            for tag in set(re.findall(r"(?:SDP_BRANCH=|SDP_BRANCH='|#)(v\d+\.\d+\.\d+)\b", document.read_text(encoding="utf-8"))):
+            for tag in set(re.findall(r"(?:SDP_BRANCH=|#)(v\d+\.\d+\.\d+)\b", document.read_text(encoding="utf-8"))):
                 self.assertIn(tag, tags, f"{document.name} pins {tag}")
 
     def test_the_documented_python_floor_matches_the_ci_job(self):

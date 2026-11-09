@@ -13,11 +13,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Delivery records move to schema 4. Existing 0.5.3 and 0.5.4 projects migrate with the
   `sdp-migrate` skill (preview, backup, restore); open packages restart as `planned` and
   their plan approval must be given again. See `docs/UPGRADING.md`.
-- The install scripts and superseded agents and prompts are candidates for removal in 2.0.
-  They are still present and still work; their removal needs a separate, explicit approval and
-  a verified replacement channel, and the existing commands map to schema 4 equivalents in
+- Superseded agents and prompts are candidates for replacement in 2.0; their procedures
+  already point at the stage skills. The legacy install scripts were removed in this line
+  (see Removed below), and the existing commands map to schema 4 equivalents in
   `docs/PROTOCOL.md`.
 - No 2.0 release exists. No host has executed a full delivery, and Claude Code is untested.
+
+### Removed
+
+- The legacy installers `install.sh` and `install.ps1` (the 0.5.x install channel) and their
+  options documentation, on the owner's explicit approval (2026-11-09). The released 0.5.x
+  tags still contain the scripts; the moving-`main` install URLs are retired and no
+  download-and-execute wrapper replaces them. New projects initialize with `sdp-init`,
+  0.5.3/0.5.4 projects migrate with `sdp-migrate`, and leftover script copies are detected
+  from the `.github/sdp-version` marker.
 
 ### Documentation
 
@@ -25,13 +34,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   evidence, and acceptance. Long material moved to `docs/INSTALLATION.md`, `docs/WORKFLOW.md`,
   `docs/REFERENCE.md`, and `docs/UPGRADING.md`. Statuses are stated as observed: which
   channels were verified, what each host was seen to do, and what is untested.
-- The README no longer lists the legacy install scripts (`install.sh`, `install.ps1`) as an
-  install channel and no longer presents them in the initialization steps; they remain present
-  and documented in `docs/INSTALLATION.md` until their removal is approved.
+- The README and installation guide no longer present the legacy install scripts as a
+  channel; the scripts themselves are removed (see Removed above) and the channel tables keep
+  only APM, native plugin, and release-ZIP guidance.
 - `tests/release/test_docs.py` checks links and anchors, named paths, slash commands,
-  documented flags and install-script variables and defaults, the state list against the
-  validator, the agent, prompt, skill, and template inventories, pinned tags, and that host
-  claims do not exceed the compatibility matrix. It does not prove that prose is correct.
+  documented flags, that the retired installers are absent from the channel documentation,
+  the state list against the validator, the agent, prompt, skill, and template inventories,
+  pinned tags, and that host claims do not exceed the compatibility matrix. It does not
+  prove that prose is correct.
 
 ### Changed
 
@@ -123,7 +133,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   rolls back anything it created if a step fails, is idempotent, and reports copied
   files from earlier installers without touching them. Templates are never taken from
   the repository being initialized. This replaces the project-setup part of the
-  installers; the installers themselves are unchanged for now.
+  installers, which are removed in this line (see Removed above).
 - Host profiles (`sdp-workflows/hosts/*.json`) and `sdp.py next --host <name>`: only
   capabilities a profile verified with cited evidence count, and isolated stages now
   also require an `independent-context` capability, so an unverified host blocks

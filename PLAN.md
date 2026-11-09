@@ -74,7 +74,7 @@ with independent review and focused consistency checks.
 | `.github/workflows/` | Validation and tag-release automation, not template source |
 | `AGENTS.md` | Regenerate through the qualified APM compiler |
 | `README.md`, `CHANGELOG.md`, new focused `docs/` | User guide, compatibility, migration, and release policy |
-| `install.sh`, `install.ps1` | Keep through transition; retire only in Step 13 |
+| `install.sh`, `install.ps1` | Retired in Step 13 on the owner's approval (2026-11-09) |
 
 Existing `.agents/` and `.claude-plugin/` outputs must be classified before
 touching them. Do not hand-edit generated files or historical `build/` outputs.
@@ -89,14 +89,17 @@ exercised), and 12 are accepted (packages `sdp-2-baseline-DP-1`,
 `sdp-2-hosts-DP-1`, `sdp-2-init-DP-1`, `sdp-2-feature-DP-1`, `sdp-2-migrate-DP-1`, `sdp-2-bundles-DP-1`, `sdp-2-release-DP-1`, `sdp-2-docs-DP-1`).
 The 08b instructions half is accepted as `sdp-2-feature-DP-2` (2026-11-06); the worker
 agents were consolidated as `sdp-2-feature-DP-3` (2026-11-06) and the remaining handoff
-chains and user-facing commands stay with Step 13. CI passed on all three matrices
-(run 42222480747, commit `bf43597f`, 2026-11-06; later pushes are unverified). Step
-06's exit criterion is only partly met: GitHub Copilot CLI is
+chains and user-facing commands stay with Step 13. CI passed on all three matrices (run 42222480747, commit `bf43597f`, 2026-11-06, and
+again as run 42610731073 on `deee456`, 2026-11-09; pushes after the latest verification are
+unverified). Step 06's exit criterion is only partly met: GitHub Copilot CLI is
 smoke-tested, but Claude Code was unavailable and is blocked, tracked as the open
 obligation `step-06-claude-code-qualification`; no host has executed a full delivery.
-Protocol design in
-[docs/PROTOCOL.md](docs/PROTOCOL.md), validator in `.apm/skills/sdp-core`, stage
-skills under `.apm/skills`).
+Protocol design is in
+[docs/PROTOCOL.md](docs/PROTOCOL.md), the validator is in `.apm/skills/sdp-core`, and the
+stage skills are under `.apm/skills`. Five packages await acceptance: `sdp-2-docs-DP-2`
+(changelog CI status), `sdp-2-feature-DP-3` (worker agents on the stage skills),
+`sdp-2-release-DP-2` (local rehearsal preparation), `sdp-2-release-DP-3` (cross-OS
+archive verification), and `sdp-2-release-DP-4` (legacy installer retirement).
 All later steps are pending. A step completes only when its checks and independent
 assurance pass and a human accepts the package. Record actual evidence in that
 package rather than duplicating reports here.
@@ -353,7 +356,9 @@ are not presented as ready-to-install plugin bundles.
 **Status:** authored and tested locally (package `sdp-2-release-DP-1`), authorized by the
 owner. Not done: a separately authorized prerelease rehearsal on GitHub and a native catalog
 install (tracked as `step-11-github-rehearsal`). CI passes on all three matrices on the
-owner's fork (commit f8ba5ee, 2026-11-06; failures annotated). Earlier failures were a real
+owner's fork (latest verified: run 42610731073 on `deee456`, 2026-11-09). The earlier
+failures were a real `migrate.py` Python-3.9 bug and a writer-lock bug under the runner's
+short temp path; both are fixed and verified on GitHub. Earlier failures were a real
 `migrate.py` Python-3.9 bug and a writer-lock bug under the runner's short temp path; both
 were fixed and are now verified on GitHub (evidence in the `sdp-2-release-DP-1` records). The
 release workflow and the publisher's REST usage have never run against GitHub. See
@@ -408,16 +413,24 @@ environment; validate links, package names, commands, and compatibility claims.
 
 ### Step 13 - Retire Legacy Installers and Superseded Components
 
-- [ ] Confirm all replacement-channel, initialization, migration, and rollback
-  gates pass before deleting `install.sh` and `install.ps1` for 2.0.
-- [ ] Remove current install-script commands from README/automation and update
-  maintainer validation instructions; preserve historical changelog statements.
-- [ ] Explain historical tag availability and retirement of moving-`main`
-  installer URLs. Do not add replacement download-and-execute wrappers.
+**Status:** installers retired (package `sdp-2-release-DP-4`, delivered on the owner's chat
+approval 2026-11-09; awaits acceptance). The gate deviation is recorded honestly: no 2.0
+release is published and the hosted-channel rehearsal is pending, and the owner approved the
+removal with that gap known. Superseded agents/prompts and the remaining Step 08 handoff
+chains stay with the later packages.
+
+- [x] The owner explicitly approved deleting `install.sh` and `install.ps1` for 2.0 with the
+  replacement-channel gates not fully met (no published release; hosted catalog and Claude
+  Code qualification outstanding). Deviation recorded in `sdp-2-release-DP-4`.
+- [x] Removed install-script commands from README, `docs/INSTALLATION.md`, `docs/UPGRADING.md`,
+  `docs/RELEASING.md`, `scripts/check-all.sh`, and the maintainer validation instructions;
+  historical changelog statements preserved.
+- [x] Explained historical tag availability (released 0.5.x tags keep the scripts) and
+  retired the moving-`main` installer URLs without adding wrappers.
 - [ ] Remove superseded agents/prompts only after compatibility mappings and
   coverage checks pass; document any breaking command names.
-- [ ] Keep the template mirror until a tested packager replacement exists.
-  Do not delete historical build archives or client customizations as cleanup.
+- [x] Kept the template mirror, historical build archives, and client customization
+  reports (`.github/sdp-version` marker detection) untouched.
 
 **Why:** Remove maintenance burden only after the replacement is usable.
 **Depends on:** Accepted Steps 09-12 and explicit approval of removals.
@@ -492,5 +505,5 @@ If qualification disproves an assumption, return to the relevant design step.
 For this documentation-only change, check draft approval metadata, reciprocal
 links, ordered steps, dependency references, consistent scope, and removal of
 the original assurance/profile contradictions. Run `git diff --check`, the
-existing template mirror check, and `bash -n install.sh` while it still exists.
+existing template mirror check.
 These checks do not prove that any proposed 2.0 capability is implemented.

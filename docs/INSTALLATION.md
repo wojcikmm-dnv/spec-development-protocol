@@ -11,7 +11,6 @@ version, what was and was not verified, and how to set up the project afterwards
 | GitHub Copilot CLI plugin marketplace | `copilot plugin marketplace add WojcikMM/spec-development-protocol`, then `copilot plugin install spec-development-protocol@spec-development-protocol` | Verified only with a local directory registered as the marketplace, which Copilot CLI loads live without copying. A hosted install is not verified. |
 | Claude Code marketplace | uses the generated `.claude-plugin/` files | Files are generated and version-checked. Claude Code was not available, so nothing was run. |
 | Release ZIP | download from a GitHub release, verify `SHA256SUMS`, extract | The build and its contents are tested; no 2.0 release has been published, so there is nothing to download yet. |
-| Install scripts | `install.sh` or `install.ps1` from the repository | The original channel for 0.5.x. Still present; planned for retirement (see [Upgrading](UPGRADING.md)). |
 
 Nothing here claims that a given host follows the skills during a full delivery; see
 [COMPATIBILITY.md](COMPATIBILITY.md) for what was observed.
@@ -44,17 +43,17 @@ has not been published.
 
 ```bash
 apm install WojcikMM/spec-development-protocol#v0.5.4
-curl -fsSL https://raw.githubusercontent.com/WojcikMM/spec-development-protocol/main/install.sh | SDP_BRANCH=v0.5.4 bash
 ```
 
-Without a pin you get whatever the channel resolves at that moment. The installer's default
-branch is `main`, which moves.
+Without a pin you get whatever the channel resolves at that moment, which may be a moving
+branch.
 
 ## Initialize the project
 
-The 0.5.x install scripts create `.github/TECH.md` while installing. With a version that
-includes `sdp-init`, use it: installing a package gives you skills and agents, and
-initializing creates the files that belong to your project. `<installed skills>` is the
+Installing a package gives you skills and agents; initializing creates the files that belong
+to your project. With a version that includes `sdp-init`, use it. (A legacy 0.5.x
+script-based copy creates `.github/TECH.md` during installation; the install scripts are
+retired and remain only inside the released 0.5.x tags.) `<installed skills>` is the
 `skills` folder of the installed package, wherever your channel placed it (in this repository
 it is `.apm/skills`, in the ZIP it is `skills/`); find it by looking for the folder that
 contains `sdp-init`. Use `python3` where `python` is not available. The skill previews first
@@ -76,42 +75,10 @@ starting from the `AGENTS.md` template.
 - APM: use APM's own update command (see its documentation) and review the lockfile change.
 - Native plugin: update through the host.
 - ZIP: replace the extracted folder with the newer one.
-- Install scripts: re-run the script with `SDP_FORCE=true SDP_TECH_MODE=skip` to overwrite
-  SDP-managed files and keep your `TECH.md`, pinning the tag:
-
-  ```bash
-  curl -fsSL https://raw.githubusercontent.com/WojcikMM/spec-development-protocol/main/install.sh \
-    | SDP_BRANCH=v0.5.4 SDP_FORCE=true SDP_TECH_MODE=skip bash
-  ```
 
 Update the package version and the project state together. If a release changes the record
 format, run [`sdp-migrate`](UPGRADING.md) and keep its backup until you have accepted the
 result; do not resume newer records with an older package.
-
-## Install script options
-
-| Variable | Default | Description |
-| --- | --- | --- |
-| `SDP_BRANCH` | `main` | Branch or release tag |
-| `SDP_FORCE` | `false` | Overwrite existing SDP-managed files |
-| `SDP_TECH_MODE` | `init` | `init`, `overwrite`, or `skip` TECH handling |
-| `SDP_TARGET` | current directory | Target repository root |
-
-The scripts copy `.apm/*` into `.github/` without overwriting existing files by default and
-record the source version in `.github/sdp-version`. Run from the target repository root:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/WojcikMM/spec-development-protocol/main/install.sh | SDP_BRANCH=v0.5.4 bash
-```
-
-```powershell
-$env:SDP_BRANCH='v0.5.4'
-iwr -useb https://raw.githubusercontent.com/WojcikMM/spec-development-protocol/main/install.ps1 | iex
-```
-
-They need bash 3.2 or newer and `curl`, or PowerShell 5.1 or newer. If PowerShell blocks
-scripts, use `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`. The script file
-itself is fetched from `main`; the `SDP_BRANCH` value selects the content installed.
 
 ## Manual fallback
 
@@ -124,7 +91,6 @@ Clone or download the repository, create `.github/` in your project, and copy th
 | --- | --- |
 | Visual Studio Code with the GitHub Copilot extension and Agent Mode | Needed for the stable `/deliver` prompts. A Copilot subscription is required. VS Code was not tested; only GitHub Copilot CLI has any recorded observation. |
 | Python 3.9 or newer and Git | For the shipped scripts (validator, init, migration), which use only the standard library. Observed on Python 3.9 (locally), 3.11, 3.12, and 3.13; a GitHub run of the 3.9 job has not yet confirmed it. |
-| Bash or PowerShell, and `curl` | Only for the install scripts. |
 | APM | To install through APM: APM's own requirements (its standalone installer, or `pip` with Python 3.10 or newer). To build or pack this package: APM 0.29.0, the version pinned in `scripts/release-tools.json`. |
 
 Without Python the validator-backed schema 4 workflow is blocked with an explicit message;
@@ -136,9 +102,10 @@ not a sandbox, approver names are asserted strings, and it cannot prove who revi
 
 Package files (agents, prompts, instructions, skills) belong to the channel that installed
 them. Project files (`TECH.md`, `AGENTS.md`, `spec/`) belong to you and are never overwritten
-by SDP tooling. Do not run the install scripts and APM or a plugin in the same project: the
-host then sees two copies. `sdp-init` reports leftover copies: a `.github/sdp-version` marker
-means the install scripts ran, and SDP agent files under `.github` with no APM lockfile are
-reported as possible plain copies. It deletes nothing. To remove verified legacy copies, use
+by SDP tooling. Do not install APM and a native plugin into the same project, and do not mix
+a package with leftover 0.5.x script copies: the host then sees two copies. `sdp-init`
+reports leftover copies: a `.github/sdp-version` marker means the retired 0.5.x install
+scripts ran, and SDP agent files under `.github` with no APM lockfile are reported as
+possible plain copies. It deletes nothing. To remove verified legacy copies, use
 `sdp-migrate --remove-legacy-files --confirm-replacement-installed` after the new package is
 installed and loads; it moves only files that exactly match a released file into a backup.

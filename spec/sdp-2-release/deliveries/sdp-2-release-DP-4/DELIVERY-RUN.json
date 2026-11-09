@@ -1,0 +1,41 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-release-DP-4-run-1",
+  "delivery_id": "sdp-2-release-DP-4",
+  "delivery_status": "awaiting-acceptance",
+  "branch": null,
+  "profile": "Lean",
+  "current_stage": "awaiting-acceptance",
+  "completed_stages": ["developer", "reviewer"],
+  "changed_paths": ["README.md", "CHANGELOG.md", "PLAN.md", "docs/INSTALLATION.md", "docs/UPGRADING.md", "docs/RELEASING.md", "scripts/check-all.sh", ".github/copilot-instructions.md", "tests/release/test_docs.py", "install.sh", "install.ps1"],
+  "stage_results": [
+    {
+      "stage": "developer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md"],
+      "findings": [],
+      "checks": ["install.sh and install.ps1 deleted with git rm", "references removed from README, INSTALLATION, UPGRADING, RELEASING, check-all.sh, copilot-instructions, CHANGELOG, PLAN.md", "114 release tests including the new retired-installer regression guard", "433 tests across all six suites with 0 failures", "bash scripts/sync-templates.sh --check", "Windows git diff --check clean"]
+    },
+    {
+      "stage": "reviewer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md"],
+      "findings": ["first-pass review rejected the candidate with 2 must-fix findings (uncreated PLAN-cited package record; CHANGELOG claiming the installers were unchanged after Removed) plus 2 should-fix and 3 nit findings; all fixed in the same pass and the full battery re-ran green"],
+      "checks": ["independent read-only review of the removal diff against installer references, docs cross-references, test correctness, check-all.sh validity, and PLAN.md claim accuracy"]
+    },
+    {
+      "stage": "security",
+      "verdict": "not_applicable",
+      "reason": "The change removes a download-and-execute install surface and adds no dependency, executable skill, or trust boundary. The marker-based ownership behavior in sdp-init/sdp-migrate is unchanged and its tests pass."
+    },
+    {
+      "stage": "qa",
+      "verdict": "not_applicable",
+      "reason": "The change is documentation and file removal with no workflow behavior change; the new regression guard and the full check battery plus CI cover it. Host qualification and publication remain separate obligations."
+    }
+  ],
+  "autonomous_rejection_count": 1,
+  "pending_audit": [],
+  "acceptance": null,
+  "compliance": null
+}

@@ -127,9 +127,11 @@ rehearsal version, not the current package version or an approved release.
   Installation checks do not qualify full delivery execution; paid AI host trials
   require a separately agreed spending limit.
 
-Installer and superseded-component removal remains gated by replacement-channel,
-initialization, migration, and rollback evidence plus explicit removal approval.
-No rehearsal checklist waives those gates or human acceptance.
+The legacy install scripts were retired on the owner's explicit approval (2026-11-09)
+while hosted-channel rehearsal and the 2.0 release are still pending; that gap is recorded
+in the roadmap, and released 0.5.x tags keep the scripts. Superseded-agent and prompt
+removal remains gated by compatibility mappings, coverage checks, and
+explicit removal approval. No rehearsal checklist waives those gates or human acceptance.
 
 ## Catalog decision
 

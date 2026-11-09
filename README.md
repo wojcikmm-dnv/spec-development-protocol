@@ -1,7 +1,6 @@
 # Spec Development Protocol (SDP)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![GitHub release](https://img.shields.io/github/v/release/WojcikMM/spec-development-protocol)](https://github.com/WojcikMM/spec-development-protocol/releases)
 
 SDP is an open-source, spec-driven delivery framework for AI coding agents, built for GitHub
 Copilot Agent Mode. It keeps product intent, implementation, independent assurance, and human
@@ -159,7 +158,7 @@ until a host is qualified.
 1. Edit distributable content in `.apm/`, never the repository's own `.github/` (maintainer
    automation only). `.apm/templates/` is canonical; run `bash scripts/sync-templates.sh`
    after changing it.
-2. Keep instructions, agents, prompts, templates, documentation, and installer output aligned.
+2. Keep instructions, agents, prompts, templates, documentation, and tool output aligned.
 3. Run the Linux checks CI runs: `bash scripts/check-all.sh`, in a Linux checkout (CI also runs
    the suites on Windows and the shipped scripts on Python 3.9). It needs Python 3.10 or newer
    (APM requires it), Git, PyYAML 6.0.3, `jsonschema`, and the APM version pinned

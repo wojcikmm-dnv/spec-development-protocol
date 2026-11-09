@@ -5,7 +5,6 @@ set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 export PYTHONDONTWRITEBYTECODE=1
 
-bash -n install.sh
 bash scripts/sync-templates.sh --check
 python scripts/check-baseline.py --self-test
 python scripts/check-baseline.py
