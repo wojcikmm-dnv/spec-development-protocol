@@ -52,7 +52,6 @@ routing, and parallel delivery.
 | GitHub Copilot CLI marketplace | `copilot plugin marketplace add WojcikMM/spec-development-protocol` | Verified with a local directory only |
 | Claude Code marketplace | generated `.claude-plugin/` files | Not tested (Claude Code was unavailable) |
 | Release ZIP | from a GitHub release | None published for 2.0 yet |
-| Install scripts | `install.sh`, `install.ps1` | Original 0.5.x channel, still present |
 
 Which version has what: the released 0.5.x tags contain the stable agents, prompts,
 instructions, and six skills (API, UI, migration, errors, tests, and the template assets). The `sdp-init`, `sdp-migrate`,
@@ -65,11 +64,9 @@ prerelease tags, updating, and the manual fallback are in
 
 ## Initialize a project
 
-Installing gives you skills and agents; initializing creates your project's own files. With
-the 0.5.x install scripts this happens during installation (they create `.github/TECH.md`).
-With a version that includes the `sdp-init` skill, run it from the installed package's `skills`
-folder (`<installed skills>` below; use `python3` where `python` is not available). It
-previews first and never overwrites:
+Installing gives you skills and agents; initializing creates your project's own files. Run the
+init script from the installed package's `skills` folder (`<installed skills>` below; use
+`python3` where `python` is not available). It previews first and never overwrites:
 
 ```bash
 python <installed skills>/sdp-init/scripts/init.py --repo .          # preview
@@ -81,9 +78,9 @@ so commit your first spec file before relying on `spec/` being in the repository
 `TECH.md`: stack and commands, conventions, the default delivery profile (Balanced is
 recommended; missing model telemetry never blocks Lean or Balanced), security and
 independent-QA triggers, and optional model routing. Add scoped `AGENTS.md` files where they
-reduce scanning, starting from the `AGENTS.md` template (`.github/templates/AGENTS.md` with the
-install scripts, otherwise the `sdp-templates` skill's `assets/AGENTS.md`). Then enable Agent
-Mode in VS Code and confirm the custom agents and prompts appear.
+reduce scanning, starting from the `AGENTS.md` template in the `sdp-templates` skill's
+`assets/` folder. Then enable Agent Mode in VS Code and confirm the custom agents and prompts
+appear.
 
 ## Quick start
 

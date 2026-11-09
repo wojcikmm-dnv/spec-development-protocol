@@ -25,6 +25,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   evidence, and acceptance. Long material moved to `docs/INSTALLATION.md`, `docs/WORKFLOW.md`,
   `docs/REFERENCE.md`, and `docs/UPGRADING.md`. Statuses are stated as observed: which
   channels were verified, what each host was seen to do, and what is untested.
+- The README no longer lists the legacy install scripts (`install.sh`, `install.ps1`) as an
+  install channel and no longer presents them in the initialization steps; they remain present
+  and documented in `docs/INSTALLATION.md` until their removal is approved.
 - `tests/release/test_docs.py` checks links and anchors, named paths, slash commands,
   documented flags and install-script variables and defaults, the state list against the
   validator, the agent, prompt, skill, and template inventories, pinned tags, and that host
