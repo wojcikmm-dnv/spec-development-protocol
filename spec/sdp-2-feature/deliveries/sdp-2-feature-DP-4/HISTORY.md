@@ -1,5 +1,12 @@
 # Handoff Chain and Command Mapping History
 
+## 2026-11-09 - Accepted
+
+The owner accepted this package under the standing exception recorded on
+2026-11-09 (results now, no wait for acceptance after delivery),
+continuing the session's exception mode. Acceptance is recorded in
+`DELIVERY-RUN.json`.
+
 ## 2026-11-09 - Awaiting Acceptance
 
 Completed the remaining Step 08b-agent-procedures and Step 13 superseded-component

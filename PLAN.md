@@ -90,14 +90,16 @@ exercised), 12, and 13 (installers retired) are accepted: packages `sdp-2-baseli
 `sdp-2-bundles-DP-1`, `sdp-2-release-DP-1`, `sdp-2-docs-DP-1`, `sdp-2-feature-DP-2`
 (08b instructions), `sdp-2-feature-DP-3` (worker agents on the stage skills),
 `sdp-2-docs-DP-2` (changelog CI status), `sdp-2-release-DP-2` (local rehearsal
-preparation), `sdp-2-release-DP-3` (cross-OS archive verification), and
-`sdp-2-release-DP-4` (legacy installer retirement).
+preparation), `sdp-2-release-DP-3` (cross-OS archive verification),
+`sdp-2-release-DP-4` (legacy installer retirement), and `sdp-2-feature-DP-4`
+(handoff chains and command mapping).
 The 08b instructions half is accepted as `sdp-2-feature-DP-2` (2026-11-06); the handoff-chain
 and `/deliver` reference work is completed as `sdp-2-feature-DP-4` (`sdp-2-feature-DP-3`
 covers the worker-agent consolidation), and nothing was removed from the stable commands. CI passed on all three matrices on runs 42222480747 (`bf43597f`, 2026-11-06),
 42610731073 (`deee456`, 2026-11-09), and 42639411557 (`7ea3dbf`, 2026-11-09). The last
 five packages were accepted on the owner's explicit chat exception (2026-11-09), which
-waived the wait after delivery; external rehearsals, publication, and host qualification
+waived the wait after delivery, and `sdp-2-feature-DP-4` was accepted under the same
+standing exception; external rehearsals, publication, and host qualification
 stay open. Step 06's exit criterion is only partly met: GitHub Copilot CLI is
 smoke-tested, but Claude Code was unavailable and is blocked, tracked as the open
 obligation `step-06-claude-code-qualification`; no host has executed a full delivery.
