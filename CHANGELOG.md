@@ -8,7 +8,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Planned for 2.0 (nothing here is in effect yet)
+- Host qualification (Step 14): no host has executed a full delivery, and Claude Code is
+  untested; paid AI host trials require a separately agreed spending limit.
+- Distribution qualification: hosted native-channel installs and catalog updates after the
+  prerelease rehearsal, and the stable 2.0 release after human acceptance.
+
+## [2.0.0-rc.1] - 2026-11-09
+
+First prerelease of the 2.0 line.
 
 - Delivery records move to schema 4. Existing 0.5.3 and 0.5.4 projects migrate with the
   `sdp-migrate` skill (preview, backup, restore); open packages restart as `planned` and
@@ -17,7 +24,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   already point at the stage skills. The legacy install scripts were removed in this line
   (see Removed below), and the existing commands map to schema 4 equivalents in
   `docs/PROTOCOL.md`.
-- No 2.0 release exists. No host has executed a full delivery, and Claude Code is untested.
+- No host has executed a full delivery, and Claude Code is untested. This prerelease
+  exists to rehearse the tagged release path; the stable 2.0 release follows host
+  qualification.
 
 ### Removed
 
@@ -89,9 +98,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- CI and tag-release workflows (`.github/workflows/`). CI passes on the fork as of
-  2026-11-06: every job is green (Linux `check-all.sh`, Windows suites, Python 3.9 shipped
-  scripts with no third-party packages); the release workflow has never run.
+- CI and tag-release workflows (`.github/workflows/`). CI passes on the fork: every job
+  is green (Linux `check-all.sh`, Windows suites, Python 3.9 shipped scripts with no
+  third-party packages); this prerelease is the first exercise of the release workflow
+  on GitHub.
   A `v*` tag builds in a read-only job
   (changelog section for exactly that version, all checks, a build that refuses a dirty or
   different tree) and publishes in a separate job: `scripts/publish-release.py` creates or
@@ -100,8 +110,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   is never modified. `scripts/changelog.py` extracts the section (no `Unreleased` fallback;
   missing, duplicate, empty, or unterminated sections are errors). All actions are pinned by
   commit. `tests/release/` covers the changelog parser, the publisher (against an in-memory
-  store and a local fake GitHub server), and static workflow safety rules. Nothing is
-  published by this change.
+  store and a local fake GitHub server), and static workflow safety rules. This prerelease
+  is the publisher's first GitHub run.
 - `scripts/build-release.py` builds the release ZIP from `apm pack --archive`: bytecode
   caches dropped, text normalized to LF, `LICENSE` and `SETUP.md` added, deterministic
   entry order and timestamps, `SHA256SUMS` and `release-metadata.json`, strict version and
@@ -110,7 +120,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   unexpected, or colliding entries before anything is written. `tests/packaging/` covers
   each rule, reproducibility across line endings, and a clean-extraction smoke run.
   `docs/RELEASING.md` documents the build, the tag convention (`v<semver>`), the catalog
-  decision, and what is not yet verified. Nothing is published by this change.
+  decision, and what remains unverified. The reproducibility evidence covers one commit
+  and tool version on two operating systems, not the release runner.
 - `sdp-migrate` skill: previews, then migrates SDP 0.5.3 and 0.5.4 projects to schema 4
   with a backup and write-ahead journal, validates the result, and restores everything on
   failure (`restore`, `status` for interrupted runs). Open packages restart as `planned`
