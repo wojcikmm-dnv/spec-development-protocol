@@ -24,3 +24,7 @@ planning.
 
 Advanced actions are available for compliance, resume, inspection, and explicit
 rejection.
+
+The schema 4 preview path for the same stages is `/run-workflow` (the
+`sdp.coordinator` agent); this command and the preview must not run on the same
+package. The full command mapping is in `docs/PROTOCOL.md`.

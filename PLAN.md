@@ -92,9 +92,9 @@ exercised), 12, and 13 (installers retired) are accepted: packages `sdp-2-baseli
 `sdp-2-docs-DP-2` (changelog CI status), `sdp-2-release-DP-2` (local rehearsal
 preparation), `sdp-2-release-DP-3` (cross-OS archive verification), and
 `sdp-2-release-DP-4` (legacy installer retirement).
-The 08b instructions half is accepted as `sdp-2-feature-DP-2` (2026-11-06); the remaining
-handoff chains and user-facing command mapping stay with the superseded-component scope of
-Step 13. CI passed on all three matrices on runs 42222480747 (`bf43597f`, 2026-11-06),
+The 08b instructions half is accepted as `sdp-2-feature-DP-2` (2026-11-06); the handoff-chain
+and `/deliver` reference work is completed as `sdp-2-feature-DP-4` (`sdp-2-feature-DP-3`
+covers the worker-agent consolidation), and nothing was removed from the stable commands. CI passed on all three matrices on runs 42222480747 (`bf43597f`, 2026-11-06),
 42610731073 (`deee456`, 2026-11-09), and 42639411557 (`7ea3dbf`, 2026-11-09). The last
 five packages were accepted on the owner's explicit chat exception (2026-11-09), which
 waived the wait after delivery; external rehearsals, publication, and host qualification
@@ -268,7 +268,9 @@ orchestrator and planner point to. The instructions half is accepted as package
 `sdp-2-feature-DP-2` (2026-11-06). The worker agents were consolidated as package
 `sdp-2-feature-DP-3` (2026-11-06): they point at the `sdp-implement`, `sdp-technical-review`,
 `sdp-security-review`, and `sdp-acceptance-validation` skills for their stage procedures.
-Handoff chains and user-facing command mapping still wait for Step 13. The new path does
+The remaining handoff-chain and `/deliver` reference work was completed as
+`sdp-2-feature-DP-4` (2026-11-09): the chains are preserved as the manual flow, documented
+with schema 4 workflow references, and `/deliver` points at the preview path. The new path does
 not depend on that file; it is
 self-contained in the `sdp-core` and `sdp-workflows` skills. Whether hosts load the skill when
 needed is not yet observed.
@@ -279,11 +281,12 @@ needed is not yet observed.
   ownership, safety invariants, and links; move the full delivery-process text verbatim
   into the on-demand `sdp-delivery-process` skill (package `sdp-2-feature-DP-2`,
   accepted 2026-11-06).
-- [ ] 08b-agent-procedures: replace duplicated agent procedures and handoff chains with
+- [x] 08b-agent-procedures: replace duplicated agent procedures and handoff chains with
   workflow references; preserve or explicitly migrate user-facing commands (mapping in
-  `docs/PROTOCOL.md`). Started: the worker agents point at the stage skills
-  (package `sdp-2-feature-DP-3`, 2026-11-06); the handoff chains and `/deliver` reference
-  updates stay with Step 13.
+  `docs/PROTOCOL.md`). Done in two packages: the worker agents point at the stage skills
+  (`sdp-2-feature-DP-3`, 2026-11-06); the handoff chains are preserved as the manual flow
+  and documented with schema 4 workflow references, and `/deliver` points at the preview
+  path (`sdp-2-feature-DP-4`, 2026-11-09).
 
 - [ ] Express the existing six gates as the feature workflow using approved
   contracts, skills, and adapters; retain useful PRD/backlog/design templates.
@@ -420,8 +423,9 @@ environment; validate links, package names, commands, and compatibility claims.
 **Status:** accepted (package `sdp-2-release-DP-4`, delivered and accepted on the owner's
 chat approval, 2026-11-09). The gate deviation is recorded honestly: no 2.0
 release is published and the hosted-channel rehearsal is pending, and the owner approved the
-removal with that gap known. Superseded agents/prompts and the remaining Step 08 handoff
-chains stay with the later packages.
+removal with that gap known. The superseded-component coverage check is recorded in
+`sdp-2-feature-DP-4`: no current agent or prompt is superseded while the schema 4 path is
+preview, so nothing was removed.
 
 - [x] The owner explicitly approved deleting `install.sh` and `install.ps1` for 2.0 with the
   replacement-channel gates not fully met (no published release; hosted catalog and Claude
@@ -431,8 +435,13 @@ chains stay with the later packages.
   historical changelog statements preserved.
 - [x] Explained historical tag availability (released 0.5.x tags keep the scripts) and
   retired the moving-`main` installer URLs without adding wrappers.
-- [ ] Remove superseded agents/prompts only after compatibility mappings and
-  coverage checks pass; document any breaking command names.
+- [x] Remove superseded agents/prompts only after compatibility mappings and
+  coverage checks pass; document any breaking command names. Completed as a documented
+  finding (`sdp-2-feature-DP-4`, 2026-11-09): the command mapping (`docs/PROTOCOL.md`)
+  covers all 11 prompts, every stage skill carries a descriptor and evaluation fixtures,
+  and no current agent or prompt is superseded while the schema 4 path is preview-only -
+  removing any would break the working stable path. Removal applies only if the schema 4
+  path qualifies and replaces a command, with its breaking name documented then.
 - [x] Kept the template mirror, historical build archives, and client customization
   reports (`.github/sdp-version` marker detection) untouched.
 

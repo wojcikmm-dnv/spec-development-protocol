@@ -347,7 +347,8 @@ visible; stopping it needs host-level approval prompts or protected CI.
 
 ### Command mapping
 
-Existing commands keep working until Step 13. The schema 4 path maps to them as follows:
+Existing commands keep working; the legacy installers are retired (see
+[Installation](INSTALLATION.md)). The schema 4 path maps to them as follows:
 
 | Existing command | Schema 4 equivalent |
 | --- | --- |
@@ -362,9 +363,12 @@ Existing commands keep working until Step 13. The schema 4 path maps to them as 
 
 ## Skill Coverage Map
 
-Stage expertise is extracted into skills. Agents keep their current files until
-Step 08 replaces their procedures with workflow references, so no coverage is
-removed yet.
+Stage expertise is extracted into skills; the worker agents (implement, review, security,
+QA) point at them as of 2026-11-06 and keep their file names, so no coverage is removed
+and no user-facing command changed. The handoff chains between the agents remain the
+manual flow (see [Workflow](WORKFLOW.md#supervised-and-manual-delivery)); the schema 4
+workflow expresses the same stages by capability and runs them with
+`/run-workflow`.
 
 | Current agent responsibility | Skill | Notes |
 | --- | --- | --- |

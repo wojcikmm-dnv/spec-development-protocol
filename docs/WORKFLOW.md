@@ -106,6 +106,10 @@ human-guided correction does not consume that ceiling merely because feedback wa
 Manual: `/implement`, `/run-review`, `/audit-security`, `/qa-validate`. Manual mode suits
 expert control, troubleshooting, or runtimes without specialist dispatch.
 
+The schema 4 preview expresses the same stages by capability instead of fixed agent
+names and runs them with `/run-workflow`; the mapping from each command above to its
+schema 4 equivalent is in [PROTOCOL.md](PROTOCOL.md#command-mapping).
+
 Both modes stop at an acceptance brief. Acceptance never commits, merges, deploys, or selects
 the next package.
 

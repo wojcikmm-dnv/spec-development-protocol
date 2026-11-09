@@ -1,0 +1,41 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-feature-DP-4-run-1",
+  "delivery_id": "sdp-2-feature-DP-4",
+  "delivery_status": "awaiting-acceptance",
+  "branch": null,
+  "profile": "Lean",
+  "current_stage": "awaiting-acceptance",
+  "completed_stages": ["developer", "reviewer"],
+  "changed_paths": ["docs/PROTOCOL.md", "docs/WORKFLOW.md", ".apm/prompts/deliver.prompt.md", "PLAN.md", "spec/sdp-2-feature/deliveries/sdp-2-feature-DP-4/"],
+  "stage_results": [
+    {
+      "stage": "developer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md"],
+      "findings": [],
+      "checks": ["43 skills tests and 114 release tests pass", "check-baseline.py and check-skills.py pass", "sync-templates.sh --check pass", "Windows git diff --check clean", "coverage verified: 7 stage skills each carry descriptor and evals, 11 prompts mapped"]
+    },
+    {
+      "stage": "reviewer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md"],
+      "findings": ["first-pass review rejected the candidate with one must-fix finding: PLAN.md's Step 08/progress narratives still deferred the work while the boxes were checked; fixed with one should-fix and two nits, all verified"],
+      "checks": ["independent read-only review of the diff against agent sources, prompt inventory, docs-test risk, PLAN.md consistency, and anchor integrity"]
+    },
+    {
+      "stage": "security",
+      "verdict": "not_applicable",
+      "reason": "Documentation and prompt prose with no executable behavior, trust-boundary, dependency, or permission change; no command was added or removed."
+    },
+    {
+      "stage": "qa",
+      "verdict": "not_applicable",
+      "reason": "No runtime behavior change; the focused suites, the docs regression tests, and independent review cover the prose-only package."
+    }
+  ],
+  "autonomous_rejection_count": 1,
+  "pending_audit": [],
+  "acceptance": null,
+  "compliance": null
+}
