@@ -10,7 +10,7 @@ version, what was and was not verified, and how to set up the project afterwards
 | APM | `apm install WojcikMM/spec-development-protocol` | `apm pack` output is built and tested on every change. The hosted install of the `2.0.0-rc.1` prerelease from the fork was exercised (2026-11-09); in a bare project an untargeted install stops with host-detection guidance, so pass `--target` (for example `--target claude`) or install into a project with detected hosts. |
 | GitHub Copilot CLI plugin marketplace | `copilot plugin marketplace add WojcikMM/spec-development-protocol`, then `copilot plugin install spec-development-protocol@spec-development-protocol` | Verified only with a local directory registered as the marketplace, which Copilot CLI loads live without copying. A hosted install is not verified. |
 | Claude Code marketplace | uses the generated `.claude-plugin/` files | Files are generated and version-checked. Claude Code was not available, so nothing was run. |
-| Release ZIP | download from a GitHub release, verify `SHA256SUMS`, extract | The build and its contents are tested. The `2.0.0-rc.1` prerelease was published by the release workflow (2026-11-09) and its ZIP matched a locally built archive byte for byte; the first stable 2.0 release is still pending. |
+| Release ZIP | download from a GitHub release, verify `SHA256SUMS`, extract | The build and its contents are tested. The `2.0.0-rc.1` prerelease was published by the release workflow (2026-11-09) and its ZIP matched a locally built archive byte for byte; the release version of this line is now `0.6.0`, pending its release tag. |
 
 Nothing here claims that a given host follows the skills during a full delivery; see
 [COMPATIBILITY.md](COMPATIBILITY.md) for what was observed.
@@ -38,8 +38,8 @@ prerelease. A published prerelease is flagged as such on GitHub and never become
 release. Pin the version you tested. The released 0.5.x tags contain the stable agents,
 prompts, instructions, and six skills only (API, UI, migration, errors, tests, and the template
 assets); the `2.0.0-rc.1` prerelease (published 2026-11-09) already ships `sdp-init`,
-`sdp-migrate`, the validator, and the workflow skills, and the first stable 2.0 release is
-still pending after host qualification.
+`sdp-migrate`, the validator, and the workflow skills, and the release version of this line is
+now `0.6.0` (pending its release tag). Host qualification remains a separate obligation.
 
 ```bash
 apm install WojcikMM/spec-development-protocol#v0.5.4

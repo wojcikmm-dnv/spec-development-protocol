@@ -1,0 +1,43 @@
+{
+  "schema_version": 3,
+  "run_id": "sdp-2-release-DP-6-run-1",
+  "delivery_id": "sdp-2-release-DP-6",
+  "delivery_status": "accepted",
+  "branch": null,
+  "profile": "Lean",
+  "current_stage": "closed",
+  "completed_stages": ["developer", "reviewer"],
+  "changed_paths": ["CHANGELOG.md", "PLAN.md", "README.md", "apm.yml", "docs/INSTALLATION.md", "docs/RELEASING.md", "plugin.json", ".github/plugin/plugin.json", ".claude-plugin/plugin.json", ".claude-plugin/marketplace.json", "spec/sdp-2-release/deliveries/sdp-2-release-DP-6/PLAN.md", "spec/sdp-2-release/deliveries/sdp-2-release-DP-6/HISTORY.md", "tests/release/test_changelog.py"],
+  "stage_results": [
+    {
+      "stage": "developer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md Delivered and accepted"],
+      "findings": [],
+      "checks": ["version 0.6.0 set in apm.yml (manifest + packages range ^0.6.0), root/.github/plugin/.claude-plugin plugin.json", "all six suites, check-baseline.py, check-skills.py, sync-templates.sh --check green", "scripts/changelog.py --tag v0.6.0 extracts the new section; build-release.py --check and apm pack --check-versions --check-clean --dry-run green after the commit", "Windows git diff --check clean", "published [2.0.0-rc.1] section left frozen (the GitHub release body contains it verbatim)"]
+    },
+    {
+      "stage": "reviewer",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md"],
+      "findings": ["independent read-only review found no critical findings and 3 minor findings, all fixed before commit: the README release clause lacked the tag-pending qualifier the other docs carry; the reviewer stage here pre-registered the review, so this is the actual recorded outcome; the build/ temp scratch scripts were deleted"],
+      "checks": ["independent read-only review of the 0.6.0 prep diff against manifests, changelog coverage, docs claims, and tests", "review verified version agreement across the six live references, complete 0.6.0 changelog coverage, honest docs phrasing, and that no document pins the not-yet-created v0.6.0 tag"]
+    },
+    {
+      "stage": "security",
+      "verdict": "not_applicable",
+      "reason": "No changed trust boundary: manifest versions, changelog, and docs phrasing only. No dependency, executable, publishing, or input change; the release scripts and workflow triggers are untouched."
+    },
+    {
+      "stage": "qa",
+      "verdict": "pass",
+      "evidence": ["HISTORY.md Delivered and accepted", "changelog extract for v0.6.0"],
+      "findings": [],
+      "checks": ["changelog.py --tag v0.6.0 resolves exactly one nonempty section", "build-release.py --check passes on the committed manifest set", "docs state 0.6.0 as the release version with honest limits (no host-qualification claims)"]
+    }
+  ],
+  "autonomous_rejection_count": 0,
+  "pending_audit": [],
+  "acceptance": {"decision": "accepted", "decided_by": "user (chat)", "decided_at": "2026-11-10T16:48:30+01:00", "feedback": "Prepare the release of new version - but that should not be version 2.0.0-rc.1 but 0.6.0. Please keep check the CHANGELOG.md and all stuff if we cover all latest changes. (2026-11-10 chat); acceptance reported immediately under the standing exception."},
+  "compliance": null
+}

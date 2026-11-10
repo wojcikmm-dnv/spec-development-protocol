@@ -93,8 +93,8 @@ accepted: packages `sdp-2-baseline-DP-1`,
 `sdp-2-docs-DP-2` (changelog CI status), `sdp-2-release-DP-2` (local rehearsal
 preparation), `sdp-2-release-DP-3` (cross-OS archive verification),
 `sdp-2-release-DP-4` (legacy installer retirement), `sdp-2-feature-DP-4`
-(handoff chains and command mapping), and `sdp-2-release-DP-5` (GitHub prerelease
-rehearsal).
+(handoff chains and command mapping), `sdp-2-release-DP-5` (GitHub prerelease
+rehearsal), and `sdp-2-release-DP-6` (0.6.0 release preparation).
 The 08b instructions half is accepted as `sdp-2-feature-DP-2` (2026-11-06); the handoff-chain
 and `/deliver` reference work is completed as `sdp-2-feature-DP-4` (`sdp-2-feature-DP-3`
 covers the worker-agent consolidation), and nothing was removed from the stable commands. CI passed on all three matrices on runs 42222480747 (`bf43597f`, 2026-11-06),
@@ -106,7 +106,7 @@ the same exception: tag `v2.0.0-rc.1` on `d5f28ba` started the first-ever releas
 42648216366, whose build and publish jobs succeeded, the prerelease published with assets
 matching a local build byte for byte, and the hosted APM channel installed the prerelease
 (`sdp-2-release-DP-5`); host qualification, the Copilot CLI and Claude marketplace
-channels, and the stable 2.0 release stay open. Step 06's exit criterion is only partly met: GitHub Copilot CLI is
+channels, and the `0.6.0` release (prepared, pending its authorized tag) stay open. Step 06's exit criterion is only partly met: GitHub Copilot CLI is
 smoke-tested, but Claude Code was unavailable and is blocked, tracked as the open
 obligation `step-06-claude-code-qualification`; no host has executed a full delivery.
 Protocol design is in [docs/PROTOCOL.md](docs/PROTOCOL.md), the validator is in
@@ -466,6 +466,11 @@ initialize, migrate, and execute their smoke workflows.
 **Exit:** No custom client installers are required or advertised for 2.0.
 
 ### Step 14 - Evaluate and Accept the Initial 2.0 Candidate
+
+**Status:** not done. Host trials are blocked on a separately agreed spending limit. On the
+owner's instruction (2026-11-10, `sdp-2-release-DP-6`) the release version of this line is
+`0.6.0`; the owner-authorization gate on the release tag in [docs/RELEASING.md](docs/RELEASING.md)
+still applies.
 
 - [ ] Run the fixed baseline comparison for bugs and features on both initial
   hosts, with seeded defects and equivalent tasks.

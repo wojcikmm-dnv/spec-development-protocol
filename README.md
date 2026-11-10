@@ -55,8 +55,8 @@ routing, and parallel delivery.
 Which version has what: the released 0.5.x tags contain the stable agents, prompts,
 instructions, and six skills (API, UI, migration, errors, tests, and the template assets). The `sdp-init`, `sdp-migrate`,
 validator, and workflow skills described below exist on the current `main` branch and already ship in the published
-`2.0.0-rc.1` prerelease; the first stable 2.0 release is still pending after host qualification. Pin a released tag rather than a moving
-branch, for example `apm install WojcikMM/spec-development-protocol#v0.5.4`; that gives you the
+`2.0.0-rc.1` prerelease and `0.6.0`, the release version of this line (prepared, pending its release tag). Pin a released
+tag rather than a moving branch, for example `apm install WojcikMM/spec-development-protocol#v0.5.4`; that gives you the
 stable workflow only. Details, the APM versus native plugin difference, stable versus
 prerelease tags, updating, and the manual fallback are in
 [docs/INSTALLATION.md](docs/INSTALLATION.md).

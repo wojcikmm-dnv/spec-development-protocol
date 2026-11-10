@@ -12,8 +12,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   untested; paid AI host trials require a separately agreed spending limit.
 - Distribution qualification: the hosted APM channel and the release ZIP were exercised by
   the `2.0.0-rc.1` rehearsal on 2026-11-09; the Copilot CLI marketplace and Claude-hosted
-  channels and catalog updates remain open, and the stable 2.0 release follows host
-  qualification and human acceptance.
+  channels and catalog updates remain open. The `0.6.0` release is prepared and awaits the
+  owner-authorized release tag.
+
+## [0.6.0] - 2026-11-10
+
+The stable release version of the line rehearsed by the published `2.0.0-rc.1` prerelease;
+the release version returns to the 0.x numbering the released tags use. The shipped content
+is the rehearsed set described item by item in the `2.0.0-rc.1` section below (schema 4
+delivery records with the `sdp-migrate` upgrade path, `sdp-init` replacing the removed
+install scripts, the tightened skills, the redistributed documentation, and the CI and
+tag-release workflows); see `docs/UPGRADING.md` for the 0.5.3/0.5.4 migration. No host has
+executed a full delivery, and Claude Code is untested.
+
+### Added
+
+- The rehearsal evidence, recorded: `docs/RELEASING.md` documents the verified release
+  rehearsal (release run 42648216366 succeeded on its first run, the published ZIP matched
+  a locally built archive byte for byte, and the hosted APM channel installed the
+  prerelease with initialization run twice from the installed location), and the README
+  and the installation guide state the observed evidence per channel.
+- `tests/release/test_docs.py` asserts the recorded rehearsal evidence and accepts
+  prerelease tag suffixes in pinned-version checks; `tests/release/test_changelog.py`
+  binds the extractable-history check to `v2.0.0-rc.1` and `v0.6.0`.
+
+### Changed
+
+- The release version is `0.6.0` in `apm.yml` and the plugin manifests (root,
+  `.github/plugin/`, `.claude-plugin/`), with marketplace range `^0.6.0`.
 
 ## [2.0.0-rc.1] - 2026-11-09
 

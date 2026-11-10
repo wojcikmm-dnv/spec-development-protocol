@@ -9,7 +9,7 @@ that starts a release is always a manual, owner-authorized act.
 `apm.yml` declares the version. `plugin.json`, `.github/plugin/plugin.json`,
 `.claude-plugin/plugin.json`, and the version listed in `.claude-plugin/marketplace.json`
 must agree with it, and the manifest `name` must match. `python scripts/build-release.py
---check` verifies this. Versions must be strict semantic versions (`1.2.3`,
+`--check` verifies this. Versions must be strict semantic versions (`1.2.3`, `0.6.0`,
 `2.0.0-rc.1`); a leading `v` belongs only to the Git tag.
 
 Release tags use `v<semver>` (`apm.yml` sets `marketplace.build.tagPattern` to
@@ -130,7 +130,7 @@ not the current package version or an approved release; the authorized tag cut i
   require a separately agreed spending limit.
 
 The legacy install scripts were retired on the owner's explicit approval (2026-11-09)
-while the stable 2.0 release and Claude Code qualification are still pending; the hosted
+while the `0.6.0` release tag and Claude Code qualification are still pending; the hosted
 APM channel and the release path were exercised by the 2.0.0-rc.1 rehearsal (see Verified
 release rehearsal), and released 0.5.x tags keep the scripts. Superseded-agent and prompt
 removal remains gated by compatibility mappings, coverage checks, and
