@@ -66,3 +66,21 @@ Repaired and rechecked:
   GitHub and was not edited here.
 
 Battery re-run green after the repair.
+
+## 2026-11-10 - Bounded correction 2 (owner: Unreleased covered at 0.6.0)
+
+The owner asked that the `Unreleased` notes also be covered at `v0.6.0`. Repaired and
+rechecked:
+
+- `## [Unreleased]` is now empty (the header stays, per the Keep a Changelog format).
+- The host-qualification note (no host has executed a full delivery; Claude Code untested)
+  and the paid-AI-host-trials spending-limit note moved into the `0.6.0` section, and a
+  distribution-qualification bullet was added there (the hosted APM channel and the
+  release ZIP were exercised by the prerelease rehearsal; the Copilot CLI marketplace and
+  Claude-hosted channels and catalog updates remain unverified). The "prepared and awaits
+  the owner-authorized release tag" phrasing was dropped — a release section describes the
+  release, and the tag gate stays in `docs/RELEASING.md`.
+- No test couples to the real changelog's Unreleased section (verified: only synthetic
+  fixtures), and no document pins `#v0.6.0` before the tag exists.
+
+Battery re-run green after the repair.

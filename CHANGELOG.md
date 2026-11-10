@@ -8,13 +8,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-- Host qualification (Step 14): no host has executed a full delivery, and Claude Code is
-  untested; paid AI host trials require a separately agreed spending limit.
-- Distribution qualification: the hosted APM channel and the release ZIP were exercised by
-  the prerelease rehearsal on 2026-11-09; the Copilot CLI marketplace and Claude-hosted
-  channels and catalog updates remain open. The `0.6.0` release is prepared and awaits the
-  owner-authorized release tag.
-
 ## [0.6.0] - 2026-11-10
 
 First stable release of the schema-4 line, numbered with the 0.x line the released tags
@@ -36,8 +29,12 @@ preparation itself.
   and the installation guide state the observed evidence per channel.
 - The release version is `0.6.0` in `apm.yml` and the plugin manifests (root,
   `.github/plugin/`, `.claude-plugin/`), with marketplace range `^0.6.0`.
-- No host has executed a full delivery, and Claude Code is untested. Host qualification
-  continues as a separate obligation.
+- No host has executed a full delivery, and Claude Code is untested; paid AI host trials
+  require a separately agreed spending limit. Host qualification continues as a separate
+  obligation.
+- Distribution qualification: the hosted APM channel and the release ZIP were exercised
+  by the prerelease rehearsal; the Copilot CLI marketplace and Claude-hosted channels and
+  catalog updates remain unverified.
 
 ### Removed
 
