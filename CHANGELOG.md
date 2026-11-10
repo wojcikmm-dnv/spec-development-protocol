@@ -11,50 +11,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Host qualification (Step 14): no host has executed a full delivery, and Claude Code is
   untested; paid AI host trials require a separately agreed spending limit.
 - Distribution qualification: the hosted APM channel and the release ZIP were exercised by
-  the `2.0.0-rc.1` rehearsal on 2026-11-09; the Copilot CLI marketplace and Claude-hosted
+  the prerelease rehearsal on 2026-11-09; the Copilot CLI marketplace and Claude-hosted
   channels and catalog updates remain open. The `0.6.0` release is prepared and awaits the
   owner-authorized release tag.
 
 ## [0.6.0] - 2026-11-10
 
-The stable release version of the line rehearsed by the published `2.0.0-rc.1` prerelease;
-the release version returns to the 0.x numbering the released tags use. The shipped content
-is the rehearsed set described item by item in the `2.0.0-rc.1` section below (schema 4
-delivery records with the `sdp-migrate` upgrade path, `sdp-init` replacing the removed
-install scripts, the tightened skills, the redistributed documentation, and the CI and
-tag-release workflows); see `docs/UPGRADING.md` for the 0.5.3/0.5.4 migration. No host has
-executed a full delivery, and Claude Code is untested.
-
-### Added
-
-- The rehearsal evidence, recorded: `docs/RELEASING.md` documents the verified release
-  rehearsal (release run 42648216366 succeeded on its first run, the published ZIP matched
-  a locally built archive byte for byte, and the hosted APM channel installed the
-  prerelease with initialization run twice from the installed location), and the README
-  and the installation guide state the observed evidence per channel.
-- `tests/release/test_docs.py` asserts the recorded rehearsal evidence and accepts
-  prerelease tag suffixes in pinned-version checks; `tests/release/test_changelog.py`
-  binds the extractable-history check to `v2.0.0-rc.1` and `v0.6.0`.
-
-### Changed
-
-- The release version is `0.6.0` in `apm.yml` and the plugin manifests (root,
-  `.github/plugin/`, `.claude-plugin/`), with marketplace range `^0.6.0`.
-
-## [2.0.0-rc.1] - 2026-11-09
-
-First prerelease of the 2.0 line.
+First stable release of the schema-4 line, numbered with the 0.x line the released tags
+use. It carries the content rehearsed by the published prerelease of 2026-11-09, which
+exercised the tagged release path end to end (release run 42648216366), plus the release
+preparation itself.
 
 - Delivery records move to schema 4. Existing 0.5.3 and 0.5.4 projects migrate with the
   `sdp-migrate` skill (preview, backup, restore); open packages restart as `planned` and
   their plan approval must be given again. See `docs/UPGRADING.md`.
 - Superseded agents and prompts are candidates for replacement in 2.0; their procedures
-  already point at the stage skills. The legacy install scripts were removed in this line
-  (see Removed below), and the existing commands map to schema 4 equivalents in
+  already point at the stage skills. The legacy install scripts were removed in this
+  release (see Removed below), and the existing commands map to schema 4 equivalents in
   `docs/PROTOCOL.md`.
-- No host has executed a full delivery, and Claude Code is untested. This prerelease
-  exists to rehearse the tagged release path; the stable 2.0 release follows host
-  qualification.
+- The rehearsal evidence is recorded: `docs/RELEASING.md` documents the verified release
+  rehearsal (the release workflow succeeded on its first run, the published ZIP matched a
+  locally built archive byte for byte, and the hosted APM channel installed the
+  prerelease with initialization run twice from the installed location), and the README
+  and the installation guide state the observed evidence per channel.
+- The release version is `0.6.0` in `apm.yml` and the plugin manifests (root,
+  `.github/plugin/`, `.claude-plugin/`), with marketplace range `^0.6.0`.
+- No host has executed a full delivery, and Claude Code is untested. Host qualification
+  continues as a separate obligation.
 
 ### Removed
 
@@ -79,6 +62,9 @@ First prerelease of the 2.0 line.
   the state list against the validator, the agent, prompt, skill, and template inventories,
   pinned tags, and that host claims do not exceed the compatibility matrix. It does not
   prove that prose is correct.
+- `tests/release/test_docs.py` also asserts the recorded rehearsal evidence and accepts
+  prerelease tag suffixes in pinned-version checks, and `tests/release/test_changelog.py`
+  binds the extractable-history check to `v0.6.0` and the released tags.
 
 ### Changed
 
@@ -123,13 +109,22 @@ First prerelease of the 2.0 line.
   no longer use the 3.10 call, and `tests/contracts/test_python39.py` rejects such calls in
   shipped scripts. CI annotates each failing test (`scripts/run-suites.py`) because job logs
   need a sign-in to read.
+- Added the required name field and folder-matching guidance to the canonical
+  skill starter and synchronized its packaged template mirror.
+- Clarified that developer validation and independent technical review cannot
+  return `not_applicable`; optional security/QA disposition cannot override
+  mandatory project controls.
+- Synchronized native Copilot and Claude plugin manifests with the current
+  0.5.4 package version, without a release-version bump.
+- Regenerated root context from canonical instructions to remove the obsolete
+  shared ACTIVE delivery-state model and reflect package-scoped state.
 
 ### Added
 
 - CI and tag-release workflows (`.github/workflows/`). CI passes on the fork: every job
   is green (Linux `check-all.sh`, Windows suites, Python 3.9 shipped scripts with no
-  third-party packages); this prerelease is the first exercise of the release workflow
-  on GitHub.
+  third-party packages); the release workflow had its first exercise on GitHub during
+  the prerelease rehearsal.
   A `v*` tag builds in a read-only job
   (changelog section for exactly that version, all checks, a build that refuses a dirty or
   different tree) and publishes in a separate job: `scripts/publish-release.py` creates or
@@ -138,8 +133,8 @@ First prerelease of the 2.0 line.
   is never modified. `scripts/changelog.py` extracts the section (no `Unreleased` fallback;
   missing, duplicate, empty, or unterminated sections are errors). All actions are pinned by
   commit. `tests/release/` covers the changelog parser, the publisher (against an in-memory
-  store and a local fake GitHub server), and static workflow safety rules. This prerelease
-  is the publisher's first GitHub run.
+  store and a local fake GitHub server), and static workflow safety rules. The publisher's
+  first GitHub run happened during the prerelease rehearsal.
 - `scripts/build-release.py` builds the release ZIP from `apm pack --archive`: bytecode
   caches dropped, text normalized to LF, `LICENSE` and `SETUP.md` added, deterministic
   entry order and timestamps, `SHA256SUMS` and `release-metadata.json`, strict version and
@@ -209,17 +204,6 @@ First prerelease of the 2.0 line.
   tests/contracts`. See `docs/PROTOCOL.md`; it validates records and is not a
   sandbox.
 
-### Fixed
-
-- Added the required name field and folder-matching guidance to the canonical
-  skill starter and synchronized its packaged template mirror.
-- Clarified that developer validation and independent technical review cannot
-  return `not_applicable`; optional security/QA disposition cannot override
-  mandatory project controls.
-- Synchronized native Copilot and Claude plugin manifests with the current
-  0.5.4 package version, without a release-version bump.
-- Regenerated root context from canonical instructions to remove the obsolete
-  shared ACTIVE delivery-state model and reflect package-scoped state.
 
 ### Maintenance
 
